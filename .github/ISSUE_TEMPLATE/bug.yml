@@ -1,0 +1,10 @@
+name: Bug Report
+body:
+  - type: dropdown
+    id: layer
+    attributes:
+      label: Affected Layer
+      options:
+        - frontend
+        - backend
+        - both
