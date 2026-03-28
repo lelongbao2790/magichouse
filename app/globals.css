@@ -1,0 +1,244 @@
+@import 'tailwindcss';
+@import 'tw-animate-css';
+
+@custom-variant dark (&:is(.dark *));
+
+/* Default Theme: Rừng Xanh (Green Forest) */
+:root {
+  --background: oklch(0.95 0.02 145);
+  --foreground: oklch(0.25 0.05 145);
+  --card: oklch(0.98 0.01 145);
+  --card-foreground: oklch(0.25 0.05 145);
+  --popover: oklch(0.98 0.01 145);
+  --popover-foreground: oklch(0.25 0.05 145);
+  --primary: oklch(0.55 0.18 145);
+  --primary-foreground: oklch(0.98 0.01 145);
+  --secondary: oklch(0.85 0.08 100);
+  --secondary-foreground: oklch(0.25 0.05 145);
+  --muted: oklch(0.90 0.03 145);
+  --muted-foreground: oklch(0.45 0.05 145);
+  --accent: oklch(0.75 0.15 85);
+  --accent-foreground: oklch(0.25 0.05 145);
+  --destructive: oklch(0.577 0.245 27.325);
+  --destructive-foreground: oklch(0.98 0 0);
+  --border: oklch(0.80 0.06 145);
+  --input: oklch(0.92 0.02 145);
+  --ring: oklch(0.55 0.18 145);
+  --highlight: oklch(0.65 0.20 120);
+  --radius: 1.5rem;
+}
+
+/* Theme: Kẹo Hồng (Pink Candy) */
+.theme-pink {
+  --background: oklch(0.96 0.03 350);
+  --foreground: oklch(0.30 0.08 350);
+  --card: oklch(0.98 0.02 350);
+  --card-foreground: oklch(0.30 0.08 350);
+  --popover: oklch(0.98 0.02 350);
+  --popover-foreground: oklch(0.30 0.08 350);
+  --primary: oklch(0.65 0.22 350);
+  --primary-foreground: oklch(0.98 0.01 350);
+  --secondary: oklch(0.88 0.12 320);
+  --secondary-foreground: oklch(0.30 0.08 350);
+  --muted: oklch(0.92 0.04 350);
+  --muted-foreground: oklch(0.50 0.08 350);
+  --accent: oklch(0.78 0.18 300);
+  --accent-foreground: oklch(0.30 0.08 350);
+  --border: oklch(0.85 0.08 350);
+  --input: oklch(0.94 0.03 350);
+  --ring: oklch(0.65 0.22 350);
+  --highlight: oklch(0.72 0.22 330);
+}
+
+/* Theme: Đại Dương (Ocean) */
+.theme-ocean {
+  --background: oklch(0.95 0.03 220);
+  --foreground: oklch(0.25 0.06 220);
+  --card: oklch(0.98 0.02 220);
+  --card-foreground: oklch(0.25 0.06 220);
+  --popover: oklch(0.98 0.02 220);
+  --popover-foreground: oklch(0.25 0.06 220);
+  --primary: oklch(0.55 0.20 220);
+  --primary-foreground: oklch(0.98 0.01 220);
+  --secondary: oklch(0.85 0.10 200);
+  --secondary-foreground: oklch(0.25 0.06 220);
+  --muted: oklch(0.90 0.04 220);
+  --muted-foreground: oklch(0.45 0.06 220);
+  --accent: oklch(0.70 0.18 180);
+  --accent-foreground: oklch(0.25 0.06 220);
+  --border: oklch(0.82 0.08 220);
+  --input: oklch(0.93 0.03 220);
+  --ring: oklch(0.55 0.20 220);
+  --highlight: oklch(0.60 0.22 200);
+}
+
+@theme inline {
+  --font-sans: 'Nunito', 'Nunito Fallback', sans-serif;
+  --font-mono: 'Geist Mono', 'Geist Mono Fallback';
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-highlight: var(--highlight);
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+  --radius-2xl: calc(var(--radius) + 8px);
+  --radius-3xl: calc(var(--radius) + 16px);
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+}
+
+/* Bounce Animation */
+@keyframes bounce-fun {
+  0%, 100% {
+    transform: translateY(0) scale(1);
+  }
+  25% {
+    transform: translateY(-12px) scale(1.02);
+  }
+  50% {
+    transform: translateY(-6px) scale(1.01);
+  }
+  75% {
+    transform: translateY(-3px) scale(1.005);
+  }
+}
+
+.animate-bounce-fun {
+  animation: bounce-fun 0.6s ease-in-out infinite;
+}
+
+/* Float Animation */
+@keyframes float {
+  0%, 100% {
+    transform: translateY(0) rotate(0deg);
+  }
+  50% {
+    transform: translateY(-10px) rotate(2deg);
+  }
+}
+
+.animate-float {
+  animation: float 3s ease-in-out infinite;
+}
+
+/* Wiggle Animation */
+@keyframes wiggle {
+  0%, 100% {
+    transform: rotate(-3deg);
+  }
+  50% {
+    transform: rotate(3deg);
+  }
+}
+
+.animate-wiggle {
+  animation: wiggle 0.5s ease-in-out infinite;
+}
+
+/* Pulse Glow Animation */
+@keyframes pulse-glow {
+  0%, 100% {
+    box-shadow: 0 0 20px var(--primary);
+  }
+  50% {
+    box-shadow: 0 0 40px var(--primary), 0 0 60px var(--highlight);
+  }
+}
+
+.animate-pulse-glow {
+  animation: pulse-glow 2s ease-in-out infinite;
+}
+
+/* Scale Pop Animation */
+@keyframes scale-pop {
+  0% {
+    transform: scale(0.95);
+    opacity: 0;
+  }
+  50% {
+    transform: scale(1.02);
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+.animate-scale-pop {
+  animation: scale-pop 0.4s ease-out forwards;
+}
+
+/* Coin Shine Animation */
+@keyframes coin-shine {
+  0%, 100% {
+    transform: rotateY(0deg);
+  }
+  50% {
+    transform: rotateY(15deg);
+  }
+}
+
+.animate-coin-shine {
+  animation: coin-shine 2s ease-in-out infinite;
+}
+
+/* Firework Particle Animation */
+@keyframes firework-particle {
+  0% {
+    opacity: 1;
+    transform: translate(0, 0) scale(1);
+  }
+  100% {
+    opacity: 0;
+    transform: translate(calc(var(--vx) * 50px), calc(var(--vy) * 50px + 100px)) scale(0);
+  }
+}
+
+.animate-firework-particle {
+  animation: firework-particle 1.5s ease-out forwards;
+}
+
+/* Celebration Text Animation */
+@keyframes celebration-text {
+  0% {
+    opacity: 0;
+    transform: scale(0.5) rotate(-10deg);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.1) rotate(3deg);
+  }
+  100% {
+    opacity: 0;
+    transform: scale(1.2) rotate(0deg) translateY(-20px);
+  }
+}
+
+.animate-celebration-text {
+  animation: celebration-text 2s ease-out forwards;
+}

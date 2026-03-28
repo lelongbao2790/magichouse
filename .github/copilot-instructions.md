@@ -1,0 +1,1 @@
+Always refer to the guides in .github/docs/ for project structure, workflow, and implementation patterns before answering any coding questions.
