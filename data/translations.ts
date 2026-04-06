@@ -140,7 +140,7 @@ export const translations = {
     q3o3: { vi: "Mẹ", en: "Mom" },
   },
 
-  // Quiz Questions - English
+    // Quiz Questions - English
   quizEnglish: {
     title: { vi: "Quiz Anh Văn", en: "English Quiz" },
     q1: { vi: "'Apple' nghĩa là gì?", en: "What does 'Apple' mean?" },
@@ -155,6 +155,34 @@ export const translations = {
     q3o1: { vi: "Màu xanh", en: "Blue" },
     q3o2: { vi: "Màu vàng", en: "Yellow" },
     q3o3: { vi: "Màu đỏ", en: "Red" },
+    q4: { vi: "'Cat' nghĩa là gì?", en: "What does 'Cat' mean?" },
+    q4o1: { vi: "Con chó", en: "Dog" },
+    q4o2: { vi: "Con mèo", en: "Cat" },
+    q4o3: { vi: "Con cá", en: "Fish" },
+    q5: { vi: "'Blue' là màu gì?", en: "What color is 'Blue'?" },
+    q5o1: { vi: "Màu đỏ", en: "Red" },
+    q5o2: { vi: "Màu xanh lá", en: "Green" },
+    q5o3: { vi: "Màu xanh dương", en: "Blue" },
+    q6: { vi: "'One' là số mấy?", en: "What number is 'One'?" },
+    q6o1: { vi: "Số 2", en: "2" },
+    q6o2: { vi: "Số 1", en: "1" },
+    q6o3: { vi: "Số 3", en: "3" },
+    q7: { vi: "'Sun' nghĩa là gì?", en: "What does 'Sun' mean?" },
+    q7o1: { vi: "Mặt trăng", en: "Moon" },
+    q7o2: { vi: "Ngôi sao", en: "Star" },
+    q7o3: { vi: "Mặt trời", en: "Sun" },
+    q8: { vi: "'Book' nghĩa là gì?", en: "What does 'Book' mean?" },
+    q8o1: { vi: "Cây bút", en: "Pen" },
+    q8o2: { vi: "Quyển sách", en: "Book" },
+    q8o3: { vi: "Cái túi", en: "Bag" },
+    q9: { vi: "'Big' nghĩa là gì?", en: "What does 'Big' mean?" },
+    q9o1: { vi: "Nhỏ", en: "Small" },
+    q9o2: { vi: "To/Lớn", en: "Big" },
+    q9o3: { vi: "Nhanh", en: "Fast" },
+    q10: { vi: "'Happy' nghĩa là gì?", en: "What does 'Happy' mean?" },
+    q10o1: { vi: "Buồn", en: "Sad" },
+    q10o2: { vi: "Tức giận", en: "Angry" },
+    q10o3: { vi: "Vui/Hạnh phúc", en: "Happy" },
   },
 
   // Sticker Shop
