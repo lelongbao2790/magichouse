@@ -124,12 +124,9 @@ export const translations = {
     q3o3: { vi: "Con sư tử", en: "Lion" },
   },
 
-  // Quiz Questions - Math
+    // Quiz Questions - Math
   quizMath: {
     title: { vi: "Quiz Toán học", en: "Math Quiz" },
-    q1: { vi: "1 + 1 = ?", en: "1 + 1 = ?" },
-    q2: { vi: "5 - 2 = ?", en: "5 - 2 = ?" },
-    q3: { vi: "2 + 3 = ?", en: "2 + 3 = ?" },
   },
 
   // Quiz Questions - Vietnamese
