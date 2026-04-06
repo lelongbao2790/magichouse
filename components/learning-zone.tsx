@@ -93,12 +93,19 @@ export function LearningZone({ name, onBack, onQuizComplete, showFireworks, onFi
         { question: t("quizVietnamese", "q3"), options: [t("quizVietnamese", "q3o1"), t("quizVietnamese", "q3o2"), t("quizVietnamese", "q3o3")], correctIndex: 2 },
       ]
     },
-    english: {
+        english: {
       title: t("quizEnglish", "title"),
       questions: [
         { question: t("quizEnglish", "q1"), options: [t("quizEnglish", "q1o1"), t("quizEnglish", "q1o2"), t("quizEnglish", "q1o3")], correctIndex: 1 },
         { question: t("quizEnglish", "q2"), options: [t("quizEnglish", "q2o1"), t("quizEnglish", "q2o2"), t("quizEnglish", "q2o3")], correctIndex: 1 },
         { question: t("quizEnglish", "q3"), options: [t("quizEnglish", "q3o1"), t("quizEnglish", "q3o2"), t("quizEnglish", "q3o3")], correctIndex: 2 },
+        { question: t("quizEnglish", "q4"), options: [t("quizEnglish", "q4o1"), t("quizEnglish", "q4o2"), t("quizEnglish", "q4o3")], correctIndex: 1 },
+        { question: t("quizEnglish", "q5"), options: [t("quizEnglish", "q5o1"), t("quizEnglish", "q5o2"), t("quizEnglish", "q5o3")], correctIndex: 2 },
+        { question: t("quizEnglish", "q6"), options: [t("quizEnglish", "q6o1"), t("quizEnglish", "q6o2"), t("quizEnglish", "q6o3")], correctIndex: 1 },
+        { question: t("quizEnglish", "q7"), options: [t("quizEnglish", "q7o1"), t("quizEnglish", "q7o2"), t("quizEnglish", "q7o3")], correctIndex: 2 },
+        { question: t("quizEnglish", "q8"), options: [t("quizEnglish", "q8o1"), t("quizEnglish", "q8o2"), t("quizEnglish", "q8o3")], correctIndex: 1 },
+        { question: t("quizEnglish", "q9"), options: [t("quizEnglish", "q9o1"), t("quizEnglish", "q9o2"), t("quizEnglish", "q9o3")], correctIndex: 1 },
+        { question: t("quizEnglish", "q10"), options: [t("quizEnglish", "q10o1"), t("quizEnglish", "q10o2"), t("quizEnglish", "q10o3")], correctIndex: 2 },
       ]
     },
   }
