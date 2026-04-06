@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useMemo } from "react"
 import { useLanguage } from "@/contexts/language-context"
 import { CoinDisplay } from "./coin-display"
 import { ThemeSwitcher } from "./theme-switcher"
@@ -22,10 +22,38 @@ interface LearningZoneProps {
 
 type TabType = "preschool" | "grade1"
 
+function generateMathQuestion(): { question: string; options: string[]; correctIndex: number } {
+  const isAddition = Math.random() > 0.5
+  let a: number, b: number, correct: number
+  if (isAddition) {
+    a = Math.floor(Math.random() * 101)
+    b = Math.floor(Math.random() * (101 - a))
+    correct = a + b
+  } else {
+    a = Math.floor(Math.random() * 101)
+    b = Math.floor(Math.random() * (a + 1))
+    correct = a - b
+  }
+  const wrongSet = new Set<number>()
+  while (wrongSet.size < 2) {
+    const delta = Math.floor(Math.random() * 9) + 1
+    const candidate = Math.random() > 0.5 ? correct + delta : correct - delta
+    if (candidate !== correct && candidate >= 0 && candidate <= 200) {
+      wrongSet.add(candidate)
+    }
+  }
+  const [w1, w2] = Array.from(wrongSet)
+  const correctPos = Math.floor(Math.random() * 3)
+  const options = [String(w1), String(w2)]
+  options.splice(correctPos, 0, String(correct))
+  return { question: `${a} ${isAddition ? "+" : "-"} ${b} = ?`, options, correctIndex: correctPos }
+}
+
 export function LearningZone({ name, onBack, onQuizComplete, showFireworks, onFireworksComplete }: LearningZoneProps) {
   const { t } = useLanguage()
   const [activeQuiz, setActiveQuiz] = useState<string | null>(null)
   const [activeTab, setActiveTab] = useState<TabType>("preschool")
+  const mathQuestions = useMemo(() => Array.from({ length: 5 }, generateMathQuestion), [])
 
   // Quiz data with translations
   const quizData = {
@@ -53,13 +81,9 @@ export function LearningZone({ name, onBack, onQuizComplete, showFireworks, onFi
         { question: t("quizAnimals", "q3"), options: [t("quizAnimals", "q3o1"), t("quizAnimals", "q3o2"), t("quizAnimals", "q3o3")], correctIndex: 1 },
       ]
     },
-    math: {
+        math: {
       title: t("quizMath", "title"),
-      questions: [
-        { question: t("quizMath", "q1"), options: ["1", "2", "3"], correctIndex: 1 },
-        { question: t("quizMath", "q2"), options: ["2", "3", "4"], correctIndex: 1 },
-        { question: t("quizMath", "q3"), options: ["4", "5", "6"], correctIndex: 1 },
-      ]
+      questions: mathQuestions,
     },
     vietnamese: {
       title: t("quizVietnamese", "title"),
