@@ -140,7 +140,7 @@ export const translations = {
     q3o3: { vi: "Mẹ", en: "Mom" },
   },
 
-  // Quiz Questions - English
+    // Quiz Questions - English
   quizEnglish: {
     title: { vi: "Quiz Anh Văn", en: "English Quiz" },
     q1: { vi: "'Apple' nghĩa là gì?", en: "What does 'Apple' mean?" },
@@ -155,6 +155,34 @@ export const translations = {
     q3o1: { vi: "Màu xanh", en: "Blue" },
     q3o2: { vi: "Màu vàng", en: "Yellow" },
     q3o3: { vi: "Màu đỏ", en: "Red" },
+    q4: { vi: "'Cat' nghĩa là gì?", en: "What does 'Cat' mean?" },
+    q4o1: { vi: "Con chó", en: "Dog" },
+    q4o2: { vi: "Con mèo", en: "Cat" },
+    q4o3: { vi: "Con thỏ", en: "Rabbit" },
+    q5: { vi: "'Sun' nghĩa là gì?", en: "What does 'Sun' mean?" },
+    q5o1: { vi: "Mặt trăng", en: "Moon" },
+    q5o2: { vi: "Ngôi sao", en: "Star" },
+    q5o3: { vi: "Mặt trời", en: "Sun" },
+    q6: { vi: "'Blue' là màu gì?", en: "What color is 'Blue'?" },
+    q6o1: { vi: "Màu xanh dương", en: "Blue" },
+    q6o2: { vi: "Màu xanh lá", en: "Green" },
+    q6o3: { vi: "Màu tím", en: "Purple" },
+    q7: { vi: "'Book' nghĩa là gì?", en: "What does 'Book' mean?" },
+    q7o1: { vi: "Bút chì", en: "Pencil" },
+    q7o2: { vi: "Quyển sách", en: "Book" },
+    q7o3: { vi: "Cái bàn", en: "Table" },
+    q8: { vi: "'Water' nghĩa là gì?", en: "What does 'Water' mean?" },
+    q8o1: { vi: "Lửa", en: "Fire" },
+    q8o2: { vi: "Đất", en: "Earth" },
+    q8o3: { vi: "Nước", en: "Water" },
+    q9: { vi: "'House' nghĩa là gì?", en: "What does 'House' mean?" },
+    q9o1: { vi: "Ngôi nhà", en: "House" },
+    q9o2: { vi: "Xe hơi", en: "Car" },
+    q9o3: { vi: "Cái cây", en: "Tree" },
+    q10: { vi: "'Happy' nghĩa là gì?", en: "What does 'Happy' mean?" },
+    q10o1: { vi: "Buồn", en: "Sad" },
+    q10o2: { vi: "Vui vẻ", en: "Happy" },
+    q10o3: { vi: "Tức giận", en: "Angry" },
   },
 
   // Sticker Shop
