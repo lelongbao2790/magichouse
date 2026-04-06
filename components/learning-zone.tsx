@@ -57,12 +57,19 @@ export function LearningZone({ name, onBack, onQuizComplete, showFireworks, onFi
 
   // Quiz data with translations
   const quizData = {
-    shapes: {
+        shapes: {
       title: t("quizShapes", "title"),
       questions: [
         { question: t("quizShapes", "q1"), options: [t("quizShapes", "q1o1"), t("quizShapes", "q1o2"), t("quizShapes", "q1o3")], correctIndex: 1 },
         { question: t("quizShapes", "q2"), options: [t("quizShapes", "q2o1"), t("quizShapes", "q2o2"), t("quizShapes", "q2o3")], correctIndex: 0 },
         { question: t("quizShapes", "q3"), options: [t("quizShapes", "q3o1"), t("quizShapes", "q3o2"), t("quizShapes", "q3o3")], correctIndex: 1 },
+        { question: t("quizShapes", "q4"), options: [t("quizShapes", "q4o1"), t("quizShapes", "q4o2"), t("quizShapes", "q4o3")], correctIndex: 2 },
+        { question: t("quizShapes", "q5"), options: [t("quizShapes", "q5o1"), t("quizShapes", "q5o2"), t("quizShapes", "q5o3")], correctIndex: 2 },
+        { question: t("quizShapes", "q6"), options: [t("quizShapes", "q6o1"), t("quizShapes", "q6o2"), t("quizShapes", "q6o3")], correctIndex: 1 },
+        { question: t("quizShapes", "q7"), options: [t("quizShapes", "q7o1"), t("quizShapes", "q7o2"), t("quizShapes", "q7o3")], correctIndex: 2 },
+        { question: t("quizShapes", "q8"), options: [t("quizShapes", "q8o1"), t("quizShapes", "q8o2"), t("quizShapes", "q8o3")], correctIndex: 1 },
+        { question: t("quizShapes", "q9"), options: [t("quizShapes", "q9o1"), t("quizShapes", "q9o2"), t("quizShapes", "q9o3")], correctIndex: 2 },
+        { question: t("quizShapes", "q10"), options: [t("quizShapes", "q10o1"), t("quizShapes", "q10o2"), t("quizShapes", "q10o3")], correctIndex: 2 },
       ]
     },
     colors: {
@@ -71,6 +78,13 @@ export function LearningZone({ name, onBack, onQuizComplete, showFireworks, onFi
         { question: t("quizColors", "q1"), options: [t("quizColors", "q1o1"), t("quizColors", "q1o2"), t("quizColors", "q1o3")], correctIndex: 1 },
         { question: t("quizColors", "q2"), options: [t("quizColors", "q2o1"), t("quizColors", "q2o2"), t("quizColors", "q2o3")], correctIndex: 2 },
         { question: t("quizColors", "q3"), options: [t("quizColors", "q3o1"), t("quizColors", "q3o2"), t("quizColors", "q3o3")], correctIndex: 0 },
+        { question: t("quizColors", "q4"), options: [t("quizColors", "q4o1"), t("quizColors", "q4o2"), t("quizColors", "q4o3")], correctIndex: 1 },
+        { question: t("quizColors", "q5"), options: [t("quizColors", "q5o1"), t("quizColors", "q5o2"), t("quizColors", "q5o3")], correctIndex: 2 },
+        { question: t("quizColors", "q6"), options: [t("quizColors", "q6o1"), t("quizColors", "q6o2"), t("quizColors", "q6o3")], correctIndex: 0 },
+        { question: t("quizColors", "q7"), options: [t("quizColors", "q7o1"), t("quizColors", "q7o2"), t("quizColors", "q7o3")], correctIndex: 1 },
+        { question: t("quizColors", "q8"), options: [t("quizColors", "q8o1"), t("quizColors", "q8o2"), t("quizColors", "q8o3")], correctIndex: 0 },
+        { question: t("quizColors", "q9"), options: [t("quizColors", "q9o1"), t("quizColors", "q9o2"), t("quizColors", "q9o3")], correctIndex: 2 },
+        { question: t("quizColors", "q10"), options: [t("quizColors", "q10o1"), t("quizColors", "q10o2"), t("quizColors", "q10o3")], correctIndex: 1 },
       ]
     },
     animals: {
@@ -79,6 +93,13 @@ export function LearningZone({ name, onBack, onQuizComplete, showFireworks, onFi
         { question: t("quizAnimals", "q1"), options: [t("quizAnimals", "q1o1"), t("quizAnimals", "q1o2"), t("quizAnimals", "q1o3")], correctIndex: 1 },
         { question: t("quizAnimals", "q2"), options: [t("quizAnimals", "q2o1"), t("quizAnimals", "q2o2"), t("quizAnimals", "q2o3")], correctIndex: 1 },
         { question: t("quizAnimals", "q3"), options: [t("quizAnimals", "q3o1"), t("quizAnimals", "q3o2"), t("quizAnimals", "q3o3")], correctIndex: 1 },
+        { question: t("quizAnimals", "q4"), options: [t("quizAnimals", "q4o1"), t("quizAnimals", "q4o2"), t("quizAnimals", "q4o3")], correctIndex: 1 },
+        { question: t("quizAnimals", "q5"), options: [t("quizAnimals", "q5o1"), t("quizAnimals", "q5o2"), t("quizAnimals", "q5o3")], correctIndex: 0 },
+        { question: t("quizAnimals", "q6"), options: [t("quizAnimals", "q6o1"), t("quizAnimals", "q6o2"), t("quizAnimals", "q6o3")], correctIndex: 2 },
+        { question: t("quizAnimals", "q7"), options: [t("quizAnimals", "q7o1"), t("quizAnimals", "q7o2"), t("quizAnimals", "q7o3")], correctIndex: 1 },
+        { question: t("quizAnimals", "q8"), options: [t("quizAnimals", "q8o1"), t("quizAnimals", "q8o2"), t("quizAnimals", "q8o3")], correctIndex: 2 },
+        { question: t("quizAnimals", "q9"), options: [t("quizAnimals", "q9o1"), t("quizAnimals", "q9o2"), t("quizAnimals", "q9o3")], correctIndex: 0 },
+        { question: t("quizAnimals", "q10"), options: [t("quizAnimals", "q10o1"), t("quizAnimals", "q10o2"), t("quizAnimals", "q10o3")], correctIndex: 0 },
       ]
     },
         math: {
