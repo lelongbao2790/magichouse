@@ -2,25 +2,122 @@
 
 import { useState, useMemo } from "react"
 import { useLanguage } from "@/contexts/language-context"
+import { type Language } from "@/data/translations"
 import { CoinDisplay } from "./coin-display"
 import { ThemeSwitcher } from "./theme-switcher"
 import { LanguageSwitcher } from "./language-switcher"
 import { QuizModal } from "./quiz-modal"
 import { Fireworks } from "./fireworks"
-import { 
+import {
   Shapes, Palette, PawPrint, Calculator, BookOpen, Languages,
-  Baby, GraduationCap, ChevronLeft, Star, BookOpenCheck
+  Baby, GraduationCap, ChevronLeft, Star, BookOpenCheck,
+  BookCheck, Plus, Minus, X
 } from "lucide-react"
 
 interface LearningZoneProps {
   name: string
   onBack: () => void
-  onQuizComplete: () => void
+  onQuizComplete: (category: string, score: number, totalQuestions: number) => void
   showFireworks: boolean
   onFireworksComplete: () => void
 }
 
-type TabType = "preschool" | "grade1"
+type TabType = "preschool" | "grade1" | "grade2"
+type QuestionFormat = "symbol" | "word"
+type DistractorStrategy = "offset" | "adjacent"
+type DistractorContext = "arithmetic" | "multiply"
+
+export function generateDistractors(
+  correct: number,
+  strategy: DistractorStrategy,
+  context: DistractorContext,
+  multiplier?: number,
+  multiplicand?: number
+): number[] {
+  const distractors: number[] = []
+  const used = new Set<number>([correct])
+
+  const getAdjacentPool = (): number[] => {
+    if (context === "multiply" && multiplier !== undefined && multiplicand !== undefined) {
+      const pool: number[] = []
+      for (const m of [multiplier - 1, multiplier + 1])
+        if (m >= 2 && m <= 9) pool.push(m * multiplicand)
+      for (const m of [multiplicand - 1, multiplicand + 1])
+        if (m >= 1 && m <= 10) pool.push(multiplier * m)
+      return pool
+    }
+    return [correct + 10, correct - 10].filter(v => v >= 0)
+  }
+
+  const adjPool = strategy === "adjacent" ? getAdjacentPool() : []
+  let adjIdx = 0
+
+  while (distractors.length < 2) {
+    let candidate: number
+    if (strategy === "adjacent" && adjIdx < adjPool.length) {
+      candidate = adjPool[adjIdx++]
+    } else {
+      const delta = Math.floor(Math.random() * 15) + 1
+      candidate = Math.random() > 0.5 ? correct + delta : correct - delta
+    }
+    if (candidate >= 0 && !used.has(candidate)) {
+      used.add(candidate)
+      distractors.push(candidate)
+    }
+  }
+  return distractors
+}
+
+export function insertAtRandom(
+  correct: number,
+  distractors: number[]
+): { options: string[]; correctIndex: number } {
+  const correctIndex = Math.floor(Math.random() * 3)
+  const opts = distractors.map(String)
+  opts.splice(correctIndex, 0, String(correct))
+  return { options: opts, correctIndex }
+}
+
+export function generateAdditionQuestion(): { question: string; options: string[]; correctIndex: number } {
+  const a = Math.floor(Math.random() * 100) + 1
+  const b = Math.floor(Math.random() * 100) + 1
+  const correct = a + b
+  const strategy: DistractorStrategy = Math.random() > 0.5 ? "offset" : "adjacent"
+  const distractors = generateDistractors(correct, strategy, "arithmetic")
+  const { options, correctIndex } = insertAtRandom(correct, distractors)
+  return { question: `${a} + ${b} = ?`, options, correctIndex }
+}
+
+export function generateSubtractionQuestion(): { question: string; options: string[]; correctIndex: number } {
+  const a = Math.floor(Math.random() * 100) + 1
+  const b = Math.floor(Math.random() * 100) + 1
+  const minuend = Math.max(a, b)
+  const subtrahend = Math.min(a, b)
+  const correct = minuend - subtrahend
+  const strategy: DistractorStrategy = Math.random() > 0.5 ? "offset" : "adjacent"
+  const distractors = generateDistractors(correct, strategy, "arithmetic")
+  const { options, correctIndex } = insertAtRandom(correct, distractors)
+  return { question: `${minuend} - ${subtrahend} = ?`, options, correctIndex }
+}
+
+export function generateTimesTableQuestion(
+  language: Language
+): { question: string; options: string[]; correctIndex: number } {
+  const multiplier = Math.floor(Math.random() * 8) + 2
+  const multiplicand = Math.floor(Math.random() * 10) + 1
+  const correct = multiplier * multiplicand
+  const format: QuestionFormat = Math.random() > 0.5 ? "symbol" : "word"
+  const question =
+    format === "symbol"
+      ? `${multiplier} × ${multiplicand} = ?`
+      : language === "vi"
+        ? `${multiplier} nhân ${multiplicand} bằng mấy?`
+        : `${multiplier} times ${multiplicand} equals?`
+  const strategy: DistractorStrategy = Math.random() > 0.5 ? "offset" : "adjacent"
+  const distractors = generateDistractors(correct, strategy, "multiply", multiplier, multiplicand)
+  const { options, correctIndex } = insertAtRandom(correct, distractors)
+  return { question, options, correctIndex }
+}
 
 function generateMathQuestion(): { question: string; options: string[]; correctIndex: number } {
   const isAddition = Math.random() > 0.5
@@ -50,10 +147,13 @@ function generateMathQuestion(): { question: string; options: string[]; correctI
 }
 
 export function LearningZone({ name, onBack, onQuizComplete, showFireworks, onFireworksComplete }: LearningZoneProps) {
-  const { t } = useLanguage()
+  const { t, language } = useLanguage()
   const [activeQuiz, setActiveQuiz] = useState<string | null>(null)
   const [activeTab, setActiveTab] = useState<TabType>("preschool")
   const mathQuestions = useMemo(() => Array.from({ length: 5 }, generateMathQuestion), [])
+  const additionQuestions = useMemo(() => Array.from({ length: 10 }, generateAdditionQuestion), [])
+  const subtractionQuestions = useMemo(() => Array.from({ length: 10 }, generateSubtractionQuestion), [])
+  const timesTableQuestions = useMemo(() => Array.from({ length: 10 }, () => generateTimesTableQuestion(language)), [language])
 
   // Quiz data with translations
   const quizData = {
@@ -114,7 +214,19 @@ export function LearningZone({ name, onBack, onQuizComplete, showFireworks, onFi
         { question: t("quizVietnamese", "q3"), options: [t("quizVietnamese", "q3o1"), t("quizVietnamese", "q3o2"), t("quizVietnamese", "q3o3")], correctIndex: 2 },
       ]
     },
-        english: {
+        addition: {
+      title: t("quizAddition", "title"),
+      questions: additionQuestions,
+    },
+    subtraction: {
+      title: t("quizSubtraction", "title"),
+      questions: subtractionQuestions,
+    },
+    timesTable: {
+      title: t("quizTimesTable", "title"),
+      questions: timesTableQuestions,
+    },
+    english: {
       title: t("quizEnglish", "title"),
       questions: [
         { question: t("quizEnglish", "q1"), options: [t("quizEnglish", "q1o1"), t("quizEnglish", "q1o2"), t("quizEnglish", "q1o3")], correctIndex: 1 },
@@ -143,14 +255,27 @@ export function LearningZone({ name, onBack, onQuizComplete, showFireworks, onFi
     { id: "english", name: t("categories", "english"), icon: Languages, color: "from-red-400 to-pink-400", bgColor: "bg-red-100" },
   ]
 
+  const grade2Categories = [
+    { id: "addition", name: t("categories", "addition"), icon: Plus, color: "from-blue-500 to-indigo-500", bgColor: "bg-blue-100" },
+    { id: "subtraction", name: t("categories", "subtraction"), icon: Minus, color: "from-orange-400 to-red-500", bgColor: "bg-orange-100" },
+    { id: "timesTable", name: t("categories", "timesTable"), icon: X, color: "from-violet-400 to-purple-500", bgColor: "bg-violet-100" },
+  ]
+
   const tabs = [
     { id: "preschool" as const, name: t("dashboard", "preschool"), icon: Baby, categories: preschoolCategories },
     { id: "grade1" as const, name: t("dashboard", "grade1"), icon: GraduationCap, categories: grade1Categories },
+    { id: "grade2" as const, name: t("dashboard", "grade2"), icon: BookCheck, categories: grade2Categories },
   ]
 
-  const handleQuizCompleteInternal = () => {
+  const handleQuizCompleteInternal = (score: number, totalQuestions: number) => {
+    fetch('/api/quiz/history', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ category: activeQuiz, score, totalQuestions, coinsEarned: 10 }),
+    }).catch(() => {})
+
     setActiveQuiz(null)
-    onQuizComplete()
+    onQuizComplete(activeQuiz!, score, totalQuestions)
   }
 
   const renderCategoryCard = (category: typeof preschoolCategories[0]) => {
@@ -175,7 +300,7 @@ export function LearningZone({ name, onBack, onQuizComplete, showFireworks, onFi
   }
 
   const currentQuizData = activeQuiz ? quizData[activeQuiz as keyof typeof quizData] : null
-  const allCategories = [...preschoolCategories, ...grade1Categories]
+  const allCategories = [...preschoolCategories, ...grade1Categories, ...grade2Categories]
   const currentCategory = allCategories.find(c => c.id === activeQuiz)
   const activeTabData = tabs.find(tab => tab.id === activeTab)
 

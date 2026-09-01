@@ -1,22 +1,23 @@
 "use client"
 
-import { useState, useRef } from "react"
+import { useState, useRef, useEffect } from "react"
 import { motion, PanInfo } from "framer-motion"
 import { useCoins } from "@/contexts/coin-context"
 import { useLanguage } from "@/contexts/language-context"
 import { CoinDisplay } from "./coin-display"
 import { ThemeSwitcher } from "./theme-switcher"
 import { LanguageSwitcher } from "./language-switcher"
-import { allStickers, getStickerById } from "@/data/stickers"
+import { allStickers } from "@/data/stickers"
 import { ChevronLeft, Palette, Trash2, RotateCcw, Sparkles, ShoppingBag, Plus, Minus } from "lucide-react"
 import { translations, type Language } from "@/data/translations"
 
 interface PlacedSticker {
   id: string
-  stickerId: string
+  emoji: string
   x: number
   y: number
   scale: number
+  rotation: number
 }
 
 interface CreativeRoomProps {
@@ -33,9 +34,29 @@ export function CreativeRoom({ name, onBack, onGoToShop }: CreativeRoomProps) {
     image: "/avatars/boy.svg" 
   })
   const [placedStickers, setPlacedStickers] = useState<PlacedSticker[]>([])
+  const [canvasLoaded, setCanvasLoaded] = useState(false)
   const [draggingSticker, setDraggingSticker] = useState<string | null>(null)
   const [selectedPlacedSticker, setSelectedPlacedSticker] = useState<string | null>(null)
   const canvasRef = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    fetch('/api/players/canvas')
+      .then(r => r.json())
+      .then(({ data }) => { setPlacedStickers(data ?? []); setCanvasLoaded(true) })
+      .catch(() => { setCanvasLoaded(true) })
+  }, [])
+
+  useEffect(() => {
+    if (!canvasLoaded) return
+    const timer = setTimeout(() => {
+      fetch('/api/players/canvas', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ canvasData: placedStickers }),
+      }).catch(() => {})
+    }, 300)
+    return () => clearTimeout(timer)
+  }, [placedStickers, canvasLoaded])
 
   // Better looking avatar characters with SVG illustrations
   const characters = [
@@ -84,12 +105,16 @@ export function CreativeRoom({ name, onBack, onGoToShop }: CreativeRoomProps) {
       const x = ((clientX - canvasRect.left) / canvasRect.width) * 100
       const y = ((clientY - canvasRect.top) / canvasRect.height) * 100
 
+      const stickerItem = ownedStickerItems.find(s => s.id === stickerId)
+      if (!stickerItem) return
+
       const newSticker: PlacedSticker = {
-        id: `${stickerId}-${Date.now()}`,
-        stickerId,
+        id: `item-${Date.now()}`,
+        emoji: stickerItem.emoji,
         x,
         y,
         scale: 1,
+        rotation: 0,
       }
       setPlacedStickers((prev) => [...prev, newSticker])
     }
@@ -395,8 +420,6 @@ export function CreativeRoom({ name, onBack, onGoToShop }: CreativeRoomProps) {
 
               {/* Placed stickers */}
               {placedStickers.map((placed) => {
-                const sticker = getStickerById(placed.stickerId)
-                if (!sticker) return null
                 const isSelected = selectedPlacedSticker === placed.id
 
                 return (
@@ -420,11 +443,11 @@ export function CreativeRoom({ name, onBack, onGoToShop }: CreativeRoomProps) {
                     data-testid={`placed-sticker-${placed.id}`}
                   >
                     <div className={`relative transition-all duration-200 ${isSelected ? 'ring-4 ring-primary ring-offset-2 rounded-xl' : ''}`}>
-                      <span 
+                      <span
                         className="drop-shadow-lg select-none block"
                         style={{ fontSize: `${3 * placed.scale}rem` }}
                       >
-                        {sticker.emoji}
+                        {placed.emoji}
                       </span>
                       
                       {/* Resize & Delete controls - show when selected */}

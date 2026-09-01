@@ -1,108 +1,122 @@
 "use client"
 
 import { createContext, useContext, useState, useEffect, ReactNode } from "react"
-
-export interface StickerItem {
-  id: string
-  name: string
-  category: "hat" | "glasses" | "bow" | "toy"
-  emoji: string
-  price: number
-}
+import { useAuth } from "@/contexts/auth-context"
+import type { StickerRow } from "@/lib/database.types"
 
 interface CoinContextType {
   coins: number
   addCoins: (amount: number) => void
-  spendCoins: (amount: number) => boolean
-  childName: string
-  setChildName: (name: string) => void
   ownedStickers: string[]
-  buySticker: (sticker: StickerItem) => boolean
+  buySticker: (sticker: StickerRow) => Promise<boolean>
   hasSticker: (stickerId: string) => boolean
+  isLoaded: boolean
+  isCacheFallback: boolean
 }
 
 const CoinContext = createContext<CoinContextType | undefined>(undefined)
 
 export function CoinProvider({ children }: { children: ReactNode }) {
+  const { player } = useAuth()
   const [coins, setCoins] = useState<number>(0)
-  const [childName, setChildName] = useState<string>("")
   const [ownedStickers, setOwnedStickers] = useState<string[]>([])
   const [isLoaded, setIsLoaded] = useState(false)
+  const [isCacheFallback, setIsCacheFallback] = useState(false)
 
-  // Load from localStorage on mount
   useEffect(() => {
-    const savedCoins = localStorage.getItem("kidCoins")
-    const savedName = localStorage.getItem("kidName")
-    const savedStickers = localStorage.getItem("kidStickers")
-    if (savedCoins) {
-      setCoins(parseInt(savedCoins, 10))
+    if (player === null) {
+      setCoins(0)
+      setOwnedStickers([])
+      setIsLoaded(false)
+      setIsCacheFallback(false)
+      return
     }
-    if (savedName) {
-      setChildName(savedName)
-    }
-    if (savedStickers) {
-      setOwnedStickers(JSON.parse(savedStickers))
-    }
-    setIsLoaded(true)
-  }, [])
 
-  // Save to localStorage when coins change
-  useEffect(() => {
-    if (isLoaded) {
-      localStorage.setItem("kidCoins", coins.toString())
-    }
-  }, [coins, isLoaded])
+    const preMigrationCoins = parseInt(localStorage.getItem("kidCoins") ?? "0")
+    const preMigrationStickers: string[] = JSON.parse(localStorage.getItem("kidStickers") ?? "[]")
 
-  // Save stickers to localStorage
-  useEffect(() => {
-    if (isLoaded) {
-      localStorage.setItem("kidStickers", JSON.stringify(ownedStickers))
-    }
-  }, [ownedStickers, isLoaded])
+    const init = async () => {
+      try {
+        const [meRes, stickersRes] = await Promise.all([
+          fetch('/api/players/me'),
+          fetch('/api/players/stickers'),
+        ])
+        const { data: meData } = await meRes.json()
+        const { data: stickersData } = await stickersRes.json()
 
-  // Save name to localStorage
-  useEffect(() => {
-    if (isLoaded && childName) {
-      localStorage.setItem("kidName", childName)
+        setCoins(meData.coins)
+        setOwnedStickers(stickersData)
+        localStorage.setItem("kidCoins", meData.coins.toString())
+        localStorage.setItem("kidStickers", JSON.stringify(stickersData))
+        setIsLoaded(true)
+
+        checkMigration(preMigrationCoins, preMigrationStickers)
+      } catch {
+        setCoins(preMigrationCoins)
+        setOwnedStickers(preMigrationStickers)
+        setIsCacheFallback(true)
+        setIsLoaded(true)
+      }
     }
-  }, [childName, isLoaded])
+
+    init()
+  }, [player])
+
+  const checkMigration = (savedCoins: number, savedStickers: string[]) => {
+    if (localStorage.getItem("migrationDone") === "true") return
+    if (savedCoins === 0 && savedStickers.length === 0) return
+
+    fetch('/api/players/migrate', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ coins: savedCoins, ownedStickers: savedStickers }),
+    })
+      .then(r => r.json())
+      .then(({ error }) => { if (!error) localStorage.setItem("migrationDone", "true") })
+      .catch(() => {})
+  }
 
   const addCoins = (amount: number) => {
-    setCoins((prev) => prev + amount)
+    const newCoins = coins + amount
+    setCoins(newCoins)
+    localStorage.setItem("kidCoins", newCoins.toString())
+
+    fetch('/api/players/coins', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ amount }),
+    })
+      .then(r => r.json())
+      .then(({ data }) => { if (data) setCoins(data.coins) })
+      .catch(() => {})
   }
 
-  const spendCoins = (amount: number) => {
-    if (coins >= amount) {
-      setCoins((prev) => prev - amount)
+  const hasSticker = (stickerId: string) => ownedStickers.includes(stickerId)
+
+  const buySticker = async (sticker: StickerRow): Promise<boolean> => {
+    try {
+      const res = await fetch('/api/players/stickers', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ stickerId: sticker.id }),
+      })
+      const { data, error } = await res.json()
+
+      if (error || !data) return false
+
+      const newStickers = [...ownedStickers, sticker.id]
+      setCoins(data.newCoinBalance)
+      setOwnedStickers(newStickers)
+      localStorage.setItem("kidCoins", data.newCoinBalance.toString())
+      localStorage.setItem("kidStickers", JSON.stringify(newStickers))
       return true
+    } catch {
+      return false
     }
-    return false
-  }
-
-  const hasSticker = (stickerId: string) => {
-    return ownedStickers.includes(stickerId)
-  }
-
-  const buySticker = (sticker: StickerItem) => {
-    if (coins >= sticker.price && !hasSticker(sticker.id)) {
-      setCoins((prev) => prev - sticker.price)
-      setOwnedStickers((prev) => [...prev, sticker.id])
-      return true
-    }
-    return false
   }
 
   return (
-    <CoinContext.Provider value={{ 
-      coins, 
-      addCoins, 
-      spendCoins, 
-      childName, 
-      setChildName, 
-      ownedStickers, 
-      buySticker, 
-      hasSticker 
-    }}>
+    <CoinContext.Provider value={{ coins, addCoins, ownedStickers, buySticker, hasSticker, isLoaded, isCacheFallback }}>
       {children}
     </CoinContext.Provider>
   )

@@ -1,25 +1,34 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { useCoins } from "@/contexts/coin-context"
 import { useLanguage } from "@/contexts/language-context"
 import { CoinDisplay } from "./coin-display"
 import { ThemeSwitcher } from "./theme-switcher"
 import { LanguageSwitcher } from "./language-switcher"
-import { allStickers, getStickersByCategory } from "@/data/stickers"
-import { ChevronLeft, ShoppingBag, Check, Coins, Sparkles, Lock } from "lucide-react"
+import type { StickerRow } from "@/lib/database.types"
+import { ChevronLeft, ShoppingBag, Check, Coins, Sparkles, Lock, Loader2 } from "lucide-react"
 
 interface StickerShopProps {
-  name: string
   onBack: () => void
   onGoToCreative: () => void
 }
 
-export function StickerShop({ name, onBack, onGoToCreative }: StickerShopProps) {
+export function StickerShop({ onBack, onGoToCreative }: StickerShopProps) {
   const { coins, buySticker, hasSticker, ownedStickers } = useCoins()
-  const { t, language } = useLanguage()
+  const { t } = useLanguage()
   const [activeTab, setActiveTab] = useState<string>("hat")
   const [purchaseAnimation, setPurchaseAnimation] = useState<string | null>(null)
+  const [catalog, setCatalog] = useState<StickerRow[]>([])
+  const [catalogLoading, setCatalogLoading] = useState(true)
+  const [purchasingStickerId, setPurchasingStickerId] = useState<string | null>(null)
+
+  useEffect(() => {
+    fetch('/api/stickers')
+      .then(r => r.json())
+      .then(({ data }) => { setCatalog(data ?? []); setCatalogLoading(false) })
+      .catch(() => setCatalogLoading(false))
+  }, [])
 
   const stickerCategories = [
     { id: "hat", name: t("shop", "hats"), icon: "🎩" },
@@ -28,19 +37,21 @@ export function StickerShop({ name, onBack, onGoToCreative }: StickerShopProps) 
     { id: "toy", name: t("shop", "toys"), icon: "🧸" },
   ]
 
-  const currentStickers = getStickersByCategory(activeTab)
+  const currentStickers = catalog.filter(s => s.category === activeTab)
   const ownedCount = ownedStickers.length
-  const totalCount = allStickers.length
+  const totalCount = catalog.length
 
-  const handleBuy = (sticker: typeof allStickers[0]) => {
-    if (buySticker(sticker)) {
+  const handleBuy = async (sticker: StickerRow) => {
+    setPurchasingStickerId(sticker.id)
+    const success = await buySticker(sticker)
+    setPurchasingStickerId(null)
+    if (success) {
       setPurchaseAnimation(sticker.id)
       setTimeout(() => setPurchaseAnimation(null), 1000)
     }
   }
 
-  const getStickerName = (sticker: typeof allStickers[0]) => {
-    // Map sticker IDs to translation keys
+  const getStickerName = (sticker: StickerRow) => {
     const nameMap: Record<string, string> = {
       "cowboy-hat": "cowboyHat",
       "crown": "crown",
@@ -105,7 +116,7 @@ export function StickerShop({ name, onBack, onGoToCreative }: StickerShopProps) 
               {t("shop", "collection")}: <span className="text-primary">{ownedCount}</span> / {totalCount}
             </span>
           </div>
-          
+
           <button
             onClick={onGoToCreative}
             className="flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-primary to-highlight text-primary-foreground font-bold rounded-2xl shadow-xl hover:scale-105 transition-transform"
@@ -135,86 +146,100 @@ export function StickerShop({ name, onBack, onGoToCreative }: StickerShopProps) 
           ))}
         </div>
 
+        {/* Loading state */}
+        {catalogLoading && (
+          <div className="flex items-center justify-center py-16" data-testid="catalog-loading">
+            <Loader2 className="w-10 h-10 text-primary animate-spin" />
+          </div>
+        )}
+
         {/* Stickers Grid */}
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6" data-testid="stickers-grid">
-          {currentStickers.map((sticker) => {
-            const owned = hasSticker(sticker.id)
-            const canAfford = coins >= sticker.price
-            const isPurchasing = purchaseAnimation === sticker.id
+        {!catalogLoading && (
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6" data-testid="stickers-grid">
+            {currentStickers.map((sticker) => {
+              const owned = hasSticker(sticker.id)
+              const canAfford = coins >= sticker.price
+              const isBuying = purchasingStickerId === sticker.id
+              const isPurchasing = purchaseAnimation === sticker.id
 
-            return (
-              <div
-                key={sticker.id}
-                className={`relative bg-card rounded-3xl p-5 shadow-xl border-2 transition-all duration-300 ${
-                  owned 
-                    ? "border-green-400 bg-green-50/50" 
-                    : canAfford 
-                      ? "border-primary/20 hover:border-primary hover:scale-105 hover:shadow-2xl" 
-                      : "border-border opacity-70"
-                } ${isPurchasing ? "animate-bounce" : ""}`}
-                data-testid={`sticker-${sticker.id}`}
-              >
-                {/* Owned badge */}
-                {owned && (
-                  <div className="absolute -top-2 -right-2 w-8 h-8 bg-green-500 rounded-full flex items-center justify-center shadow-lg">
-                    <Check className="w-5 h-5 text-white" />
-                  </div>
-                )}
-
-                {/* Sticker emoji */}
-                <div className="flex justify-center mb-4">
-                  <span className="text-6xl drop-shadow-lg">{sticker.emoji}</span>
-                </div>
-
-                {/* Name */}
-                <h3 className="text-center font-bold text-foreground mb-3">{getStickerName(sticker)}</h3>
-
-                {/* Price / Status */}
-                {owned ? (
-                  <div className="text-center text-green-600 font-semibold flex items-center justify-center gap-1" data-testid="sticker-owned">
-                    <Check className="w-4 h-4" />
-                    {t("shop", "owned")}
-                  </div>
-                ) : (
-                  <>
-                    {/* Price */}
-                    <div className="flex items-center justify-center gap-1 mb-3">
-                      <Coins className="w-5 h-5 text-yellow-500" />
-                      <span className="font-bold text-lg text-foreground">{sticker.price}</span>
+              return (
+                <div
+                  key={sticker.id}
+                  className={`relative bg-card rounded-3xl p-5 shadow-xl border-2 transition-all duration-300 ${
+                    owned
+                      ? "border-green-400 bg-green-50/50"
+                      : canAfford
+                        ? "border-primary/20 hover:border-primary hover:scale-105 hover:shadow-2xl"
+                        : "border-border opacity-70"
+                  } ${isPurchasing ? "animate-bounce" : ""}`}
+                  data-testid={`sticker-${sticker.id}`}
+                >
+                  {/* Owned badge */}
+                  {owned && (
+                    <div className="absolute -top-2 -right-2 w-8 h-8 bg-green-500 rounded-full flex items-center justify-center shadow-lg">
+                      <Check className="w-5 h-5 text-white" />
                     </div>
+                  )}
 
-                    {/* Buy button */}
-                    <button
-                      onClick={() => handleBuy(sticker)}
-                      disabled={!canAfford}
-                      className={`w-full py-3 rounded-xl font-bold text-base transition-all duration-200 ${
-                        canAfford
-                          ? "bg-gradient-to-r from-primary to-highlight text-primary-foreground hover:shadow-lg active:scale-95"
-                          : "bg-muted text-muted-foreground cursor-not-allowed"
-                      }`}
-                      data-testid={`buy-${sticker.id}`}
-                    >
-                      {canAfford ? (
-                        <span className="flex items-center justify-center gap-2">
-                          <ShoppingBag className="w-5 h-5" />
-                          {t("shop", "buyNow")}
-                        </span>
-                      ) : (
-                        <span className="flex items-center justify-center gap-2">
-                          <Lock className="w-4 h-4" />
-                          {t("shop", "needMore")} {sticker.price - coins} {t("shop", "coin")}
-                        </span>
-                      )}
-                    </button>
-                  </>
-                )}
-              </div>
-            )
-          })}
-        </div>
+                  {/* Sticker emoji */}
+                  <div className="flex justify-center mb-4">
+                    <span className="text-6xl drop-shadow-lg">{sticker.emoji}</span>
+                  </div>
+
+                  {/* Name */}
+                  <h3 className="text-center font-bold text-foreground mb-3">{getStickerName(sticker)}</h3>
+
+                  {/* Price / Status */}
+                  {owned ? (
+                    <div className="text-center text-green-600 font-semibold flex items-center justify-center gap-1" data-testid="sticker-owned">
+                      <Check className="w-4 h-4" />
+                      {t("shop", "owned")}
+                    </div>
+                  ) : (
+                    <>
+                      {/* Price */}
+                      <div className="flex items-center justify-center gap-1 mb-3">
+                        <Coins className="w-5 h-5 text-yellow-500" />
+                        <span className="font-bold text-lg text-foreground">{sticker.price}</span>
+                      </div>
+
+                      {/* Buy button */}
+                      <button
+                        onClick={() => handleBuy(sticker)}
+                        disabled={owned || isBuying || !canAfford}
+                        className={`w-full py-3 rounded-xl font-bold text-base transition-all duration-200 ${
+                          canAfford && !isBuying
+                            ? "bg-gradient-to-r from-primary to-highlight text-primary-foreground hover:shadow-lg active:scale-95"
+                            : "bg-muted text-muted-foreground cursor-not-allowed"
+                        }`}
+                        data-testid={`buy-${sticker.id}`}
+                      >
+                        {isBuying ? (
+                          <span className="flex items-center justify-center gap-2">
+                            <Loader2 className="w-5 h-5 animate-spin" />
+                          </span>
+                        ) : canAfford ? (
+                          <span className="flex items-center justify-center gap-2">
+                            <ShoppingBag className="w-5 h-5" />
+                            {t("shop", "buyNow")}
+                          </span>
+                        ) : (
+                          <span className="flex items-center justify-center gap-2">
+                            <Lock className="w-4 h-4" />
+                            {t("shop", "needMore")} {sticker.price - coins} {t("shop", "coin")}
+                          </span>
+                        )}
+                      </button>
+                    </>
+                  )}
+                </div>
+              )
+            })}
+          </div>
+        )}
 
         {/* Empty state */}
-        {currentStickers.length === 0 && (
+        {!catalogLoading && currentStickers.length === 0 && (
           <div className="text-center py-16">
             <p className="text-xl text-muted-foreground">{t("shop", "noStickers")}</p>
           </div>
