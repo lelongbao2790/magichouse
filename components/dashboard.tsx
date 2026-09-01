@@ -2,47 +2,54 @@
 
 import { useState } from "react"
 import { useCoins } from "@/contexts/coin-context"
+import { useAuth } from "@/contexts/auth-context"
 import { useLanguage } from "@/contexts/language-context"
 import { CoinDisplay } from "./coin-display"
 import { ThemeSwitcher } from "./theme-switcher"
 import { LanguageSwitcher } from "./language-switcher"
-import { QuizModal } from "./quiz-modal"
 import { Fireworks } from "./fireworks"
 import { StickerShop } from "./sticker-shop"
 import { CreativeRoom } from "./creative-room"
 import { LearningZone } from "./learning-zone"
-import { 
+import {
   ChevronLeft, Star, ShoppingBag, Brush, BookOpenCheck, Sparkles
 } from "lucide-react"
 
 interface DashboardProps {
-  name: string
   onBack: () => void
 }
 
 type ViewType = "dashboard" | "shop" | "creative" | "learning"
 
-export function Dashboard({ name, onBack }: DashboardProps) {
+export function Dashboard({ onBack }: DashboardProps) {
   const { addCoins } = useCoins()
+  const { player } = useAuth()
   const { t } = useLanguage()
   const [showFireworks, setShowFireworks] = useState(false)
   const [currentView, setCurrentView] = useState<ViewType>("dashboard")
 
-  const handleQuizComplete = () => {
-    setShowFireworks(true)
+  const handleQuizComplete = (category: string, score: number, totalQuestions: number) => {
     addCoins(10)
+    setShowFireworks(true)
+
+    fetch('/api/quiz/history', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ category, score, totalQuestions, coinsEarned: 10 }),
+    }).catch(() => {})
   }
 
   const handleFireworksComplete = () => {
     setShowFireworks(false)
   }
 
+  const playerName = player?.name ?? ''
+
   // Render Shop view
   if (currentView === "shop") {
     return (
-      <StickerShop 
-        name={name} 
-        onBack={() => setCurrentView("dashboard")} 
+      <StickerShop
+        onBack={() => setCurrentView("dashboard")}
         onGoToCreative={() => setCurrentView("creative")}
       />
     )
@@ -51,9 +58,9 @@ export function Dashboard({ name, onBack }: DashboardProps) {
   // Render Creative Room view
   if (currentView === "creative") {
     return (
-      <CreativeRoom 
-        name={name} 
-        onBack={() => setCurrentView("dashboard")} 
+      <CreativeRoom
+        name={playerName}
+        onBack={() => setCurrentView("dashboard")}
         onGoToShop={() => setCurrentView("shop")}
       />
     )
@@ -63,7 +70,7 @@ export function Dashboard({ name, onBack }: DashboardProps) {
   if (currentView === "learning") {
     return (
       <LearningZone
-        name={name}
+        name={playerName}
         onBack={() => setCurrentView("dashboard")}
         onQuizComplete={handleQuizComplete}
         showFireworks={showFireworks}
@@ -123,7 +130,7 @@ export function Dashboard({ name, onBack }: DashboardProps) {
                 <span className="font-medium text-sm hidden sm:inline">{t("common", "back")}</span>
               </button>
               <div className="text-lg font-bold text-foreground" data-testid="user-greeting">
-                {t("common", "hello")}, <span className="text-primary">{name}</span>!
+                {t("common", "hello")}, <span className="text-primary">{playerName}</span>!
               </div>
             </div>
 
@@ -176,7 +183,7 @@ export function Dashboard({ name, onBack }: DashboardProps) {
                   {/* Decorative circles */}
                   <div className="absolute top-2 left-2 w-16 h-16 bg-white/20 rounded-full blur-xl" />
                   <div className="absolute bottom-2 right-2 w-24 h-24 bg-white/10 rounded-full blur-xl" />
-                  
+
                   {/* Main emoji */}
                   <span className="text-6xl drop-shadow-lg group-hover:scale-110 group-hover:rotate-6 transition-transform duration-300">
                     {section.emoji}
@@ -191,9 +198,9 @@ export function Dashboard({ name, onBack }: DashboardProps) {
                     </div>
                     <h2 className="text-xl font-bold text-foreground">{section.name}</h2>
                   </div>
-                  
+
                   <p className="text-muted-foreground mb-4">{section.description}</p>
-                  
+
                   {/* Action hint */}
                   <div className="flex items-center gap-2 text-primary font-semibold group-hover:gap-3 transition-all">
                     <span>{section.id === "learning" ? t("dashboard", "startLearning") : t("common", "start")}</span>

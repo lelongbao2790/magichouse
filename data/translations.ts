@@ -36,6 +36,8 @@ export const translations = {
     preschoolDesc: { vi: "Học mà chơi, chơi mà học!", en: "Learn while playing!" },
     grade1: { vi: "Lớp 1", en: "Grade 1" },
     grade1Desc: { vi: "Kiến thức cơ bản cho bé!", en: "Basic knowledge for kids!" },
+    grade2: { vi: "Lớp 2", en: "Grade 2" },
+    grade2Desc: { vi: "Toán nâng cao cho bé!", en: "Advanced math for kids!" },
     stickerShop: { vi: "Cửa hàng Sticker", en: "Sticker Shop" },
     stickerShopDesc: { vi: "Mua sticker dễ thương bằng xu!", en: "Buy cute stickers with coins!" },
     creativeRoom: { vi: "Phòng sáng tạo", en: "Creative Room" },
@@ -53,6 +55,9 @@ export const translations = {
     math: { vi: "Toán", en: "Math" },
     vietnamese: { vi: "Tiếng Việt", en: "Vietnamese" },
     english: { vi: "Anh Văn", en: "English" },
+    addition: { vi: "Phép Cộng", en: "Addition" },
+    subtraction: { vi: "Phép Trừ", en: "Subtraction" },
+    timesTable: { vi: "Bảng Nhân", en: "Times Table" },
   },
 
   // Quiz
@@ -267,6 +272,23 @@ export const translations = {
     q10o1: { vi: "Buồn", en: "Sad" },
     q10o2: { vi: "Tức giận", en: "Angry" },
     q10o3: { vi: "Vui/Hạnh phúc", en: "Happy" },
+  },
+
+  // Grade 2 Math
+  grade2: {
+    title: { vi: "Lớp 2 - Toán nâng cao", en: "Grade 2 - Advanced Math" },
+  },
+
+  quizAddition: {
+    title: { vi: "Quiz Phép Cộng", en: "Addition Quiz" },
+  },
+
+  quizSubtraction: {
+    title: { vi: "Quiz Phép Trừ", en: "Subtraction Quiz" },
+  },
+
+  quizTimesTable: {
+    title: { vi: "Quiz Bảng Nhân", en: "Times Table Quiz" },
   },
 
   // Sticker Shop
