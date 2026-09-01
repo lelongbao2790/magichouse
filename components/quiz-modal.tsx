@@ -13,7 +13,7 @@ interface Question {
 interface QuizModalProps {
   isOpen: boolean
   onClose: () => void
-  onComplete: () => void
+  onComplete: (score: number, totalQuestions: number) => void
   title: string
   questions: Question[]
   icon: React.ReactNode
@@ -54,7 +54,7 @@ export function QuizModal({ isOpen, onClose, onComplete, title, questions, icon 
   }
 
   const handleFinish = () => {
-    onComplete()
+    onComplete(score, questions.length)
     // Reset state
     setCurrentQuestion(0)
     setSelectedAnswer(null)
