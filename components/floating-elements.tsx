@@ -18,7 +18,7 @@ export function FloatingElements() {
   ]
 
   return (
-    <div className="fixed inset-0 pointer-events-none overflow-hidden">
+    <div className="fixed inset-0 pointer-events-none overflow-hidden" style={{ pointerEvents: 'none' }}>
       {elements.map((el, index) => {
         const Icon = el.Icon
         return (

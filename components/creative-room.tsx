@@ -29,9 +29,9 @@ interface CreativeRoomProps {
 export function CreativeRoom({ name, onBack, onGoToShop }: CreativeRoomProps) {
   const { ownedStickers } = useCoins()
   const { t, language } = useLanguage()
-  const [selectedCharacter, setSelectedCharacter] = useState<{ id: string; image: string }>({ 
-    id: "boy", 
-    image: "/avatars/boy.svg" 
+  const [selectedCharacter, setSelectedCharacter] = useState<{ id: string; image: string }>({
+    id: "boy",
+    image: "/icon/babybot.png"
   })
   const [placedStickers, setPlacedStickers] = useState<PlacedSticker[]>([])
   const [canvasLoaded, setCanvasLoaded] = useState(false)
@@ -58,14 +58,9 @@ export function CreativeRoom({ name, onBack, onGoToShop }: CreativeRoomProps) {
     return () => clearTimeout(timer)
   }, [placedStickers, canvasLoaded])
 
-  // Better looking avatar characters with SVG illustrations
   const characters = [
-    { id: "boy", image: "/avatars/boy.svg", emoji: "👦" },
-    { id: "girl", image: "/avatars/girl.svg", emoji: "👧" },
-    { id: "panda", image: "/avatars/panda.svg", emoji: "🐼" },
-    { id: "fox", image: "/avatars/fox.svg", emoji: "🦊" },
-    { id: "unicorn", image: "/avatars/unicorn.svg", emoji: "🦄" },
-    { id: "bunny", image: "/avatars/bunny.svg", emoji: "🐰" },
+    { id: "boy", image: "/icon/babybot.png", emoji: "👦" },
+    { id: "girl", image: "/icon/lucy.png", emoji: "👧" },
   ]
 
   const getCharacterName = (id: string) => {
@@ -165,177 +160,6 @@ export function CreativeRoom({ name, onBack, onGoToShop }: CreativeRoomProps) {
     setSelectedPlacedSticker(selectedPlacedSticker === id ? null : id)
   }
 
-  // Generate character SVG inline (since we don't have actual image files)
-  const getCharacterSVG = (id: string) => {
-    const svgStyles: Record<string, { bg: string; accent: string; feature: string }> = {
-      boy: { bg: "#FFE4C4", accent: "#8B4513", feature: "#000" },
-      girl: { bg: "#FFE4C4", accent: "#FF69B4", feature: "#000" },
-      panda: { bg: "#FFFFFF", accent: "#000000", feature: "#000" },
-      fox: { bg: "#FF6B35", accent: "#FFFFFF", feature: "#000" },
-      unicorn: { bg: "#E6E6FA", accent: "#FF69B4", feature: "#9370DB" },
-      bunny: { bg: "#FFE4E1", accent: "#FFC0CB", feature: "#000" },
-    }
-    
-    const style = svgStyles[id] || svgStyles.boy
-    
-    return (
-      <svg viewBox="0 0 200 200" className="w-full h-full drop-shadow-2xl">
-        {/* Face background */}
-        <ellipse cx="100" cy="110" rx="70" ry="80" fill={style.bg} />
-        
-        {id === "boy" && (
-          <>
-            {/* Hair */}
-            <ellipse cx="100" cy="60" rx="55" ry="35" fill={style.accent} />
-            <rect x="55" y="45" width="90" height="30" rx="5" fill={style.accent} />
-            {/* Eyes */}
-            <circle cx="75" cy="105" r="10" fill="#FFF" />
-            <circle cx="125" cy="105" r="10" fill="#FFF" />
-            <circle cx="77" cy="107" r="5" fill={style.feature} />
-            <circle cx="127" cy="107" r="5" fill={style.feature} />
-            {/* Smile */}
-            <path d="M 75 140 Q 100 165 125 140" stroke={style.feature} strokeWidth="4" fill="none" />
-            {/* Cheeks */}
-            <circle cx="55" cy="125" r="10" fill="#FFB6C1" opacity="0.5" />
-            <circle cx="145" cy="125" r="10" fill="#FFB6C1" opacity="0.5" />
-          </>
-        )}
-        
-        {id === "girl" && (
-          <>
-            {/* Hair */}
-            <ellipse cx="100" cy="55" rx="65" ry="40" fill={style.accent} />
-            <ellipse cx="45" cy="100" rx="20" ry="50" fill={style.accent} />
-            <ellipse cx="155" cy="100" rx="20" ry="50" fill={style.accent} />
-            {/* Bow */}
-            <path d="M 85 30 Q 100 45 115 30 Q 100 20 85 30" fill="#FF1493" />
-            <circle cx="100" cy="35" r="8" fill="#FF1493" />
-            {/* Eyes */}
-            <ellipse cx="75" cy="105" rx="12" ry="15" fill="#FFF" />
-            <ellipse cx="125" cy="105" rx="12" ry="15" fill="#FFF" />
-            <circle cx="77" cy="108" r="6" fill={style.feature} />
-            <circle cx="127" cy="108" r="6" fill={style.feature} />
-            {/* Eyelashes */}
-            <path d="M 65 95 L 60 90" stroke={style.feature} strokeWidth="2" />
-            <path d="M 75 92 L 75 85" stroke={style.feature} strokeWidth="2" />
-            <path d="M 125 92 L 125 85" stroke={style.feature} strokeWidth="2" />
-            <path d="M 135 95 L 140 90" stroke={style.feature} strokeWidth="2" />
-            {/* Smile */}
-            <path d="M 80 145 Q 100 165 120 145" stroke={style.feature} strokeWidth="3" fill="none" />
-            {/* Cheeks */}
-            <circle cx="55" cy="130" r="12" fill="#FFB6C1" opacity="0.6" />
-            <circle cx="145" cy="130" r="12" fill="#FFB6C1" opacity="0.6" />
-          </>
-        )}
-        
-        {id === "panda" && (
-          <>
-            {/* Ears */}
-            <circle cx="45" cy="50" r="25" fill={style.accent} />
-            <circle cx="155" cy="50" r="25" fill={style.accent} />
-            {/* Eye patches */}
-            <ellipse cx="70" cy="100" rx="25" ry="30" fill={style.accent} />
-            <ellipse cx="130" cy="100" rx="25" ry="30" fill={style.accent} />
-            {/* Eyes */}
-            <circle cx="70" cy="100" r="12" fill="#FFF" />
-            <circle cx="130" cy="100" r="12" fill="#FFF" />
-            <circle cx="72" cy="102" r="6" fill={style.feature} />
-            <circle cx="132" cy="102" r="6" fill={style.feature} />
-            {/* Nose */}
-            <ellipse cx="100" cy="135" rx="12" ry="8" fill={style.accent} />
-            {/* Mouth */}
-            <path d="M 85 150 Q 100 165 115 150" stroke={style.feature} strokeWidth="3" fill="none" />
-          </>
-        )}
-        
-        {id === "fox" && (
-          <>
-            {/* Ears */}
-            <path d="M 40 80 L 55 20 L 80 70 Z" fill={style.bg} />
-            <path d="M 160 80 L 145 20 L 120 70 Z" fill={style.bg} />
-            <path d="M 50 70 L 60 35 L 75 65 Z" fill={style.accent} />
-            <path d="M 150 70 L 140 35 L 125 65 Z" fill={style.accent} />
-            {/* Face mask */}
-            <ellipse cx="100" cy="145" rx="35" ry="25" fill={style.accent} />
-            {/* Eyes */}
-            <ellipse cx="70" cy="105" rx="12" ry="15" fill="#FFF" />
-            <ellipse cx="130" cy="105" rx="12" ry="15" fill="#FFF" />
-            <ellipse cx="73" cy="108" rx="5" ry="7" fill={style.feature} />
-            <ellipse cx="133" cy="108" rx="5" ry="7" fill={style.feature} />
-            {/* Nose */}
-            <ellipse cx="100" cy="140" rx="10" ry="7" fill={style.feature} />
-            {/* Whiskers */}
-            <line x1="55" y1="135" x2="25" y2="130" stroke={style.feature} strokeWidth="2" />
-            <line x1="55" y1="145" x2="25" y2="150" stroke={style.feature} strokeWidth="2" />
-            <line x1="145" y1="135" x2="175" y2="130" stroke={style.feature} strokeWidth="2" />
-            <line x1="145" y1="145" x2="175" y2="150" stroke={style.feature} strokeWidth="2" />
-          </>
-        )}
-        
-        {id === "unicorn" && (
-          <>
-            {/* Horn */}
-            <path d="M 100 10 L 85 70 L 115 70 Z" fill="#FFD700" />
-            {/* Mane */}
-            <ellipse cx="45" cy="90" rx="15" ry="40" fill={style.accent} />
-            <ellipse cx="35" cy="110" rx="12" ry="35" fill="#FF69B4" />
-            <ellipse cx="50" cy="130" rx="10" ry="25" fill="#87CEEB" />
-            {/* Ears */}
-            <path d="M 55 50 L 45 20 L 70 45 Z" fill={style.bg} />
-            <path d="M 145 50 L 155 20 L 130 45 Z" fill={style.bg} />
-            {/* Eyes */}
-            <ellipse cx="75" cy="105" rx="15" ry="18" fill="#FFF" />
-            <ellipse cx="125" cy="105" rx="15" ry="18" fill="#FFF" />
-            <circle cx="78" cy="108" r="8" fill={style.feature} />
-            <circle cx="128" cy="108" r="8" fill={style.feature} />
-            <circle cx="80" cy="104" r="3" fill="#FFF" />
-            <circle cx="130" cy="104" r="3" fill="#FFF" />
-            {/* Eyelashes */}
-            <path d="M 63 92 L 58 85" stroke={style.feature} strokeWidth="2" />
-            <path d="M 75 88 L 75 80" stroke={style.feature} strokeWidth="2" />
-            <path d="M 125 88 L 125 80" stroke={style.feature} strokeWidth="2" />
-            <path d="M 137 92 L 142 85" stroke={style.feature} strokeWidth="2" />
-            {/* Nose & mouth */}
-            <ellipse cx="100" cy="145" rx="8" ry="5" fill="#FFB6C1" />
-            <path d="M 85 160 Q 100 175 115 160" stroke={style.feature} strokeWidth="3" fill="none" />
-            {/* Cheeks */}
-            <circle cx="55" cy="135" r="10" fill="#FFB6C1" opacity="0.7" />
-            <circle cx="145" cy="135" r="10" fill="#FFB6C1" opacity="0.7" />
-          </>
-        )}
-        
-        {id === "bunny" && (
-          <>
-            {/* Ears */}
-            <ellipse cx="65" cy="30" rx="20" ry="50" fill={style.bg} />
-            <ellipse cx="135" cy="30" rx="20" ry="50" fill={style.bg} />
-            <ellipse cx="65" cy="25" rx="10" ry="35" fill={style.accent} />
-            <ellipse cx="135" cy="25" rx="10" ry="35" fill={style.accent} />
-            {/* Eyes */}
-            <ellipse cx="70" cy="100" rx="15" ry="18" fill="#FFF" />
-            <ellipse cx="130" cy="100" rx="15" ry="18" fill="#FFF" />
-            <circle cx="73" cy="103" r="8" fill={style.feature} />
-            <circle cx="133" cy="103" r="8" fill={style.feature} />
-            <circle cx="75" cy="100" r="3" fill="#FFF" />
-            <circle cx="135" cy="100" r="3" fill="#FFF" />
-            {/* Nose */}
-            <ellipse cx="100" cy="140" rx="10" ry="8" fill="#FFB6C1" />
-            {/* Mouth */}
-            <path d="M 100 148 L 100 165" stroke={style.feature} strokeWidth="2" />
-            <path d="M 85 160 Q 100 175 115 160" stroke={style.feature} strokeWidth="2" fill="none" />
-            {/* Whiskers */}
-            <line x1="60" y1="145" x2="30" y2="140" stroke={style.feature} strokeWidth="1.5" />
-            <line x1="60" y1="155" x2="30" y2="160" stroke={style.feature} strokeWidth="1.5" />
-            <line x1="140" y1="145" x2="170" y2="140" stroke={style.feature} strokeWidth="1.5" />
-            <line x1="140" y1="155" x2="170" y2="160" stroke={style.feature} strokeWidth="1.5" />
-            {/* Cheeks */}
-            <circle cx="50" cy="130" r="12" fill="#FFB6C1" opacity="0.5" />
-            <circle cx="150" cy="130" r="12" fill="#FFB6C1" opacity="0.5" />
-          </>
-        )}
-      </svg>
-    )
-  }
 
   return (
     <div className="min-h-screen bg-background" data-testid="creative-room">
@@ -411,10 +235,14 @@ export function CreativeRoom({ name, onBack, onGoToShop }: CreativeRoomProps) {
                 }} />
               </div>
 
-              {/* Main character - SVG illustration */}
+              {/* Main character */}
               <div className="absolute inset-0 flex items-center justify-center p-8" data-testid="main-character">
                 <div className="w-48 h-48 md:w-64 md:h-64">
-                  {getCharacterSVG(selectedCharacter.id)}
+                  <img
+                    src={selectedCharacter.image}
+                    alt={selectedCharacter.id}
+                    className="w-full h-full object-contain drop-shadow-2xl"
+                  />
                 </div>
               </div>
 
