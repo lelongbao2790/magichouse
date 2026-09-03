@@ -95,7 +95,7 @@ function HomeContent() {
       </div>
 
       {/* Background gradient overlay */}
-      <div className="fixed inset-0 bg-gradient-to-br from-primary/5 via-transparent to-accent/5 pointer-events-none" />
+      <div className="fixed inset-0 bg-gradient-to-br from-primary/5 via-transparent to-accent/5 pointer-events-none" style={{ pointerEvents: 'none' }} />
     </main>
   )
 }
