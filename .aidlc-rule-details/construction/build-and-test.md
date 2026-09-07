@@ -21,7 +21,35 @@ Analyze the project to determine appropriate testing strategy:
 
 ---
 
-## Step 2: Generate Build Instructions
+## Step 2: Install Dependencies (Mandatory — Run Before Any Build or Test)
+
+Before generating build instructions or running any commands, **always install dependencies first**. This is required because code generation in the previous stage may have added new packages to `package.json` that are not yet installed in `node_modules`.
+
+**Detect the package manager and run install:**
+
+```bash
+# pnpm (preferred — check for pnpm-lock.yaml)
+pnpm install
+
+# npm (check for package-lock.json)
+npm install
+
+# yarn (check for yarn.lock)
+yarn install
+
+# bun (check for bun.lockb)
+bun install
+```
+
+**Rules:**
+- Always run install regardless of whether you believe packages changed — it is idempotent and safe.
+- If `pnpm-lock.yaml` exists, prefer `pnpm install`. Never run `pnpm install --frozen-lockfile` here because new packages from code generation must be written to the lockfile.
+- After install succeeds, commit the updated lockfile (`pnpm-lock.yaml`, `package-lock.json`, etc.) along with `package.json` before proceeding.
+- If install fails (e.g. a missing peer dep or registry error), stop and report the error to the user before continuing.
+
+---
+
+## Step 3: Generate Build Instructions
 
 Create `aidlc-docs/{initiative-slug}/construction/build-and-test/build-instructions.md`:
 
@@ -72,7 +100,7 @@ Create `aidlc-docs/{initiative-slug}/construction/build-and-test/build-instructi
 
 ---
 
-## Step 3: Generate Unit Test Execution Instructions
+## Step 4: Generate Unit Test Execution Instructions
 
 Create `aidlc-docs/{initiative-slug}/construction/build-and-test/unit-test-instructions.md`:
 
@@ -102,7 +130,7 @@ If tests fail:
 
 ---
 
-## Step 4: Generate Integration Test Instructions
+## Step 5: Generate Integration Test Instructions
 
 Create `aidlc-docs/{initiative-slug}/construction/build-and-test/integration-test-instructions.md`:
 
@@ -160,7 +188,7 @@ Test interactions between units/services to ensure they work together correctly.
 
 ---
 
-## Step 5: Generate Performance Test Instructions (If Applicable)
+## Step 6: Generate Performance Test Instructions (If Applicable)
 
 Create `aidlc-docs/{initiative-slug}/construction/build-and-test/performance-test-instructions.md`:
 
@@ -220,7 +248,7 @@ If performance doesn't meet requirements:
 
 ---
 
-## Step 6: Generate Additional Test Instructions (As Needed)
+## Step 7: Generate Additional Test Instructions (As Needed)
 
 Based on project requirements, generate additional test instruction files:
 
@@ -245,7 +273,7 @@ Create `aidlc-docs/{initiative-slug}/construction/build-and-test/e2e-test-instru
 
 ---
 
-## Step 7: Generate Test Summary
+## Step 8: Generate Test Summary
 
 Create `aidlc-docs/{initiative-slug}/construction/build-and-test/build-and-test-summary.md`:
 
@@ -296,7 +324,7 @@ Create `aidlc-docs/{initiative-slug}/construction/build-and-test/build-and-test-
 
 ---
 
-## Step 8: Update State Tracking
+## Step 9: Update State Tracking
 
 Update `aidlc-docs/{initiative-slug}/aidlc-state.md`:
 - Mark Build and Test stage as complete
@@ -304,7 +332,7 @@ Update `aidlc-docs/{initiative-slug}/aidlc-state.md`:
 
 ---
 
-## Step 9: Present Results to User
+## Step 10: Present Results to User
 
 Present completion message in this structure:
      1. **Completion Announcement** (mandatory): Always start with this:
@@ -340,7 +368,7 @@ Present completion message in this structure:
 
 ---
 
-## Step 10: Log Interaction
+## Step 11: Log Interaction
 
 **MANDATORY**: Log the stage completion in `aidlc-docs/{initiative-slug}/audit.md`:
 
