@@ -1,0 +1,28 @@
+# markdownlint overrides for .aidlc-rule-details/ (LLM prompt files)
+# These rules are disabled because they'd flag purely cosmetic markdown patterns
+# that are intentional in LLM-facing prompt files (dense checklists, tables, etc.)
+# and have zero effect on how an AI model parses/follows the rules.
+
+config:
+  # --- Zero prompt impact (invisible whitespace / formatting normalization) ---
+  MD009: false  # no-trailing-spaces
+  MD012: false  # no-multiple-blanks
+  MD047: false  # single-trailing-newline
+  MD029: false  # ol-prefix
+  MD026: false  # no-trailing-punctuation
+
+  # --- Zero prompt impact (blank line structure) ---
+  MD022: false  # blanks-around-headings
+  MD032: false  # blanks-around-lists
+  MD031: false  # blanks-around-fences
+
+  # --- Minimal prompt impact (table/URL formatting) ---
+  MD060: false  # table-column-style
+
+  # --- Low prompt impact (structural cosmetic) ---
+  MD046: false  # code-block-style
+  MD007: false  # ul-indent
+
+  # --- Needs review if re-enabled (adds content or changes structure) ---
+  MD040: false  # fenced-code-language
+  MD025: false  # single-title
