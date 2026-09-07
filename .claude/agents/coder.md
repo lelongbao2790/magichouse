@@ -55,19 +55,24 @@ pnpm test
 
 Fix any failing tests. New logic must have tests. Do not proceed with test failures.
 
-### Step 5 — Invoke reviewer
-Spawn the reviewer agent using the Agent tool:
+For changes that touch UI components or user-facing flows, also run:
 
 ```
-Agent(
-  subagent_type: "reviewer",
-  description: "Review code changes",
-  prompt: "Review the following changes: [summarize what you changed and why, include file paths and a brief description of each change]"
-)
+pnpm test:e2e
 ```
+
+Fix any Playwright failures before continuing.
+
+### Step 5 — Invoke reviewer
+First, run `git diff --stat HEAD` to collect the exact list of changed files.
+
+Then use the Agent tool to spawn the reviewer subagent. Set:
+- subagent_type: "reviewer"
+- description: "Review code changes"
+- prompt: a summary that includes: (1) the original task description, (2) a list of every changed file path, (3) a one-line description of what changed in each file, and (4) which stack conventions were applied
 
 ### Step 6 — Handle reviewer output
 
-- **FAIL items present:** Fix them, then repeat from Step 3. Maximum 2 fix-and-retry cycles.
+- **FAIL items present:** Fix the code issues identified in the FAIL items (return to Step 2 to edit code as needed), then repeat from Step 3. Track cycles explicitly — Cycle 1: fix and re-run Steps 3–5. Cycle 2: fix and re-run Steps 3–5. Maximum 2 cycles.
 - **2 cycles done and FAIL items remain:** Surface the unresolved FAIL items to the caller and stop.
 - **Only PASS and/or WARN:** Report success. Include the reviewer's full PASS/WARN/FAIL report in your response.
