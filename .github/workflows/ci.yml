@@ -50,6 +50,9 @@ jobs:
     env:
       NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
       NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
+      PLAYWRIGHT_BASE_URL: https://magichouse-rouge.vercel.app
+      E2E_USERNAME: ${{ secrets.E2E_USERNAME }}
+      E2E_PASSWORD: ${{ secrets.E2E_PASSWORD }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -68,11 +71,8 @@ jobs:
       - name: Smoke Test 1 — browser launch sanity (no server required)
         run: npx playwright test automation_tests/e2e/smoke.spec.ts --grep "browser launches"
 
-      - name: Start dev server
-        run: bun dev &
-
-      - name: Wait for dev server
-        run: npx wait-on http://localhost:3000 --timeout 60000
+      - name: Wait for Vercel deployment
+        run: npx wait-on https://magichouse-rouge.vercel.app --timeout 60000
 
       - name: Smoke Test 2 — home page loads (all browsers)
         run: bun run test:e2e
