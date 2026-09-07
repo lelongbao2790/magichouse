@@ -25,26 +25,28 @@ Analyze the project to determine appropriate testing strategy:
 
 Before generating build instructions or running any commands, **always install dependencies first**. This is required because code generation in the previous stage may have added new packages to `package.json` that are not yet installed in `node_modules`.
 
-**Detect the package manager and run install:**
+**Detect ALL lockfiles present and run install for each:**
 
 ```bash
-# pnpm (preferred — check for pnpm-lock.yaml)
+# pnpm — check for pnpm-lock.yaml
 pnpm install
 
-# npm (check for package-lock.json)
+# npm — check for package-lock.json
 npm install
 
-# yarn (check for yarn.lock)
+# yarn — check for yarn.lock
 yarn install
 
-# bun (check for bun.lockb)
+# bun — check for bun.lock or bun.lockb
 bun install
 ```
 
 **Rules:**
 - Always run install regardless of whether you believe packages changed — it is idempotent and safe.
-- If `pnpm-lock.yaml` exists, prefer `pnpm install`. Never run `pnpm install --frozen-lockfile` here because new packages from code generation must be written to the lockfile.
-- After install succeeds, commit the updated lockfile (`pnpm-lock.yaml`, `package-lock.json`, etc.) along with `package.json` before proceeding.
+- **A project may have multiple lockfiles** (e.g. `pnpm-lock.yaml` for local dev AND `bun.lock` for CI). Run install for **every** package manager whose lockfile exists in the repo root. Updating only one lockfile will cause the other CI job to fail with a frozen-lockfile error.
+- Never use `--frozen-lockfile` / `--immutable` flags here — new packages from code generation must be written to the lockfile.
+- After all installs succeed, commit **all** updated lockfiles and `package.json` before proceeding.
+- If a postinstall script is blocked (e.g. `bun pm untrusted`), run `bun pm trust <package>` to approve it so the lockfile records the approval.
 - If install fails (e.g. a missing peer dep or registry error), stop and report the error to the user before continuing.
 
 ---
