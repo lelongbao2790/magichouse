@@ -8,9 +8,20 @@ export default defineConfig({
     environment: "jsdom",
     globals: true,
     setupFiles: [],
+    include: ["automation_tests/unit/**/*.{test,spec}.{ts,tsx}"],
+    exclude: ["**/node_modules/**", "**/dist/**", "automation_tests/e2e/**"],
     coverage: {
       provider: "v8",
       reporter: ["text", "lcov"],
+      include: [
+        "lib/services/**",
+        "app/api/**",
+        "components/**",
+        "!components/ui/**",
+      ],
+      thresholds: {
+        lines: 80,
+      },
     },
   },
   resolve: {
