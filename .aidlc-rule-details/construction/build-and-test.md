@@ -307,6 +307,7 @@ Create `aidlc-docs/{initiative-slug}/construction/build-and-test/e2e-test-instru
 - Complete user workflow testing
 - Cross-service scenarios
 - UI testing (if applicable)
+- If `MANUAL-TEST-CHECKLIST.md` exists at the workspace root, include a reminder: "After CI passes on main, the developer must complete every item in `MANUAL-TEST-CHECKLIST.md` before the deploy is considered done."
 
 ### Contract Tests (Microservices only)
 Create `aidlc-docs/{initiative-slug}/construction/build-and-test/contract-test-instructions.md` **only** when the project has multiple services that communicate with each other:
@@ -355,8 +356,18 @@ Create `aidlc-docs/{initiative-slug}/construction/build-and-test/build-and-test-
 - **Failed**: [X]
 - **Status**: [Pass/Fail/N/A]
 
+### E2E Tests (Playwright)
+- **Total Tests**: [X]
+- **Passed**: [X]
+- **Failed**: [X]
+- **Status**: [Pass/Fail/N/A]
+
+### Manual Verification Tests
+- **Checklist file**: `MANUAL-TEST-CHECKLIST.md` (workspace root)
+- **TC-M count**: [X] scenarios
+- **Status**: Developer must work through checklist after every push to main before closing the deploy
+
 ### Additional Tests
-- **E2E Tests**: [Pass/Fail/N/A]
 - **Security Tests**: [Pass/Fail/N/A]
 - **Contract Tests**: [Pass/Fail/N/A]
 
@@ -431,6 +442,7 @@ Present completion message in this structure:
 - api-test-instructions.md (if API tests exist or were selected)
 - integration-test-instructions.md
 - e2e-test-instructions.md (if E2E tests exist or were selected)
+- MANUAL-TEST-CHECKLIST.md at workspace root (if TC-M cases exist in test-case-design.md)
 - performance-test-instructions.md (if applicable)
 - build-and-test-summary.md
 
