@@ -28,15 +28,9 @@ export function Dashboard({ onBack }: DashboardProps) {
   const [showFireworks, setShowFireworks] = useState(false)
   const [currentView, setCurrentView] = useState<ViewType>("dashboard")
 
-  const handleQuizComplete = (category: string, score: number, totalQuestions: number) => {
-    addCoins(10)
+  const handleQuizComplete = (category: string, score: number, totalQuestions: number, coinsEarned: number) => {
+    addCoins(coinsEarned)
     setShowFireworks(true)
-
-    fetch('/api/quiz/history', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ category, score, totalQuestions, coinsEarned: 10 }),
-    }).catch(() => {})
   }
 
   const handleFireworksComplete = () => {

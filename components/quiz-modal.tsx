@@ -2,30 +2,33 @@
 
 import { useState } from "react"
 import { useLanguage } from "@/contexts/language-context"
+import { type Difficulty } from "@/lib/coin-rewards"
 import { X, CheckCircle2, XCircle, ArrowRight, Trophy } from "lucide-react"
 
 interface Question {
   question: string
   options: string[]
   correctIndex: number
+  difficulty: Difficulty
 }
 
 interface QuizModalProps {
   isOpen: boolean
   onClose: () => void
-  onComplete: (score: number, totalQuestions: number) => void
+  onComplete: (score: number, totalQuestions: number, difficulties: Difficulty[]) => void
   title: string
   questions: Question[]
   icon: React.ReactNode
 }
 
 export function QuizModal({ isOpen, onClose, onComplete, title, questions, icon }: QuizModalProps) {
-  const { t } = useLanguage()
+  const { t, language } = useLanguage()
   const [currentQuestion, setCurrentQuestion] = useState(0)
   const [selectedAnswer, setSelectedAnswer] = useState<number | null>(null)
   const [isCorrect, setIsCorrect] = useState<boolean | null>(null)
   const [score, setScore] = useState(0)
   const [isFinished, setIsFinished] = useState(false)
+  const [questionDifficulties, setQuestionDifficulties] = useState<Difficulty[]>([])
 
   if (!isOpen) return null
 
@@ -33,11 +36,12 @@ export function QuizModal({ isOpen, onClose, onComplete, title, questions, icon 
 
   const handleAnswer = (index: number) => {
     if (selectedAnswer !== null) return
-    
+
     setSelectedAnswer(index)
     const correct = index === question.correctIndex
     setIsCorrect(correct)
-    
+    setQuestionDifficulties(prev => [...prev, questions[currentQuestion].difficulty])
+
     if (correct) {
       setScore((prev) => prev + 1)
     }
@@ -54,13 +58,13 @@ export function QuizModal({ isOpen, onClose, onComplete, title, questions, icon 
   }
 
   const handleFinish = () => {
-    onComplete(score, questions.length)
-    // Reset state
+    onComplete(score, questions.length, questionDifficulties)
     setCurrentQuestion(0)
     setSelectedAnswer(null)
     setIsCorrect(null)
     setScore(0)
     setIsFinished(false)
+    setQuestionDifficulties([])
   }
 
   const handleClose = () => {
@@ -70,6 +74,7 @@ export function QuizModal({ isOpen, onClose, onComplete, title, questions, icon 
     setIsCorrect(null)
     setScore(0)
     setIsFinished(false)
+    setQuestionDifficulties([])
   }
 
   return (
@@ -142,6 +147,25 @@ export function QuizModal({ isOpen, onClose, onComplete, title, questions, icon 
                   {currentQuestion + 1}/{questions.length}
                 </span>
               </div>
+
+              {/* Difficulty Badge */}
+              {(() => {
+                const badge = {
+                  easy:   { label: language === "vi" ? "Dễ" : "Easy",   stars: "⭐",     style: "text-green-600 bg-green-50 border-green-200" },
+                  medium: { label: language === "vi" ? "Vừa" : "Medium", stars: "⭐⭐",   style: "text-yellow-600 bg-yellow-50 border-yellow-200" },
+                  hard:   { label: language === "vi" ? "Khó" : "Hard",   stars: "⭐⭐⭐", style: "text-red-600 bg-red-50 border-red-200" },
+                }[question.difficulty]
+                return (
+                  <div className="flex justify-center mb-3">
+                    <span
+                      className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full border text-xs font-semibold ${badge.style}`}
+                      data-testid="quiz-difficulty-badge"
+                    >
+                      {badge.stars} {badge.label}
+                    </span>
+                  </div>
+                )
+              })()}
 
               {/* Question */}
               <h3 className="text-xl font-bold text-card-foreground mb-6 text-center" data-testid="quiz-question">

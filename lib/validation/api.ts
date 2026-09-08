@@ -36,6 +36,7 @@ export const QuizHistorySchema = z.object({
   category: z.enum([
     'shapes', 'colors', 'animals', 'math', 'vietnamese', 'english',
     'addition', 'subtraction', 'timesTable',
+    'grade2Vietnamese', 'grade2English',
   ]),
   score: z.number().int().min(0),
   totalQuestions: z.number().int().positive(),

@@ -19,6 +19,16 @@ Analyze the project to determine appropriate testing strategy:
 - **Contract tests**: API contract validation between services
 - **Security tests**: Vulnerability scanning, penetration testing
 
+**MANDATORY — Existing Test Infrastructure Check**:
+
+Read `aidlc-docs/{initiative-slug}/aidlc-state.md` for the `## Test Scope` entry recorded during Requirements Analysis. Then scan the project's test directories to confirm what actually exists.
+
+**Rules**:
+- Any test folder that **contains real test files** (not just `.gitkeep`) MUST be included in the test plan. Do not skip it.
+- Any test folder that was **selected by the user in Requirements Analysis** MUST receive new tests covering the feature's behavior — even if that folder currently has no files.
+- A test type is only N/A when: (a) the folder does not exist AND (b) the user did not select it in Requirements Analysis.
+- Do not skip E2E or API tests solely because "only unit tests were written during code generation" — if the user chose them, generate the test files now.
+
 ---
 
 ## Step 2: Install Dependencies (Mandatory — Run Before Any Build or Test)
