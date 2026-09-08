@@ -1,8 +1,6 @@
 import { test, expect, type Page } from "@playwright/test";
 
-// ---------------------------------------------------------------------------
-// Helpers
-// ---------------------------------------------------------------------------
+// ── helpers ───────────────────────────────────────────────────────────────────
 
 async function login(page: Page) {
   await page.goto("/");
@@ -22,9 +20,7 @@ async function goToGrade2Tab(page: Page) {
   await page.getByTestId("tab-content").waitFor({ state: "visible" });
 }
 
-// ---------------------------------------------------------------------------
-// Grade 2 subject navigation
-// ---------------------------------------------------------------------------
+// ── Grade 2 subject card list ─────────────────────────────────────────────────
 
 test.describe("Grade 2 — subject card list", () => {
   test.beforeEach(async ({ page }) => {
@@ -33,22 +29,20 @@ test.describe("Grade 2 — subject card list", () => {
     await goToGrade2Tab(page);
   });
 
-  test("shows three subject cards: Math, Vietnamese, English", async ({ page }) => {
+  test("TC-E001 | Grade 2 tab shows Math, Vietnamese, and English subject cards", async ({ page }) => {
     await expect(page.getByTestId("grade2-subject-math")).toBeVisible();
     await expect(page.getByTestId("grade2-subject-vietnamese")).toBeVisible();
     await expect(page.getByTestId("grade2-subject-english")).toBeVisible();
   });
 
-  test("does NOT show Math practice cards at top level", async ({ page }) => {
+  test("TC-E002 | Grade 2 subject list does not show practice cards at top level", async ({ page }) => {
     await expect(page.getByTestId("grade2-practice-addition")).not.toBeVisible();
     await expect(page.getByTestId("grade2-practice-subtraction")).not.toBeVisible();
     await expect(page.getByTestId("grade2-practice-timesTable")).not.toBeVisible();
   });
 });
 
-// ---------------------------------------------------------------------------
-// Math drill-down
-// ---------------------------------------------------------------------------
+// ── Grade 2 Math drill-down ───────────────────────────────────────────────────
 
 test.describe("Grade 2 — Math drill-down", () => {
   test.beforeEach(async ({ page }) => {
@@ -58,14 +52,14 @@ test.describe("Grade 2 — Math drill-down", () => {
     await page.getByTestId("grade2-subject-math").click();
   });
 
-  test("shows back button and three practice cards after clicking Math", async ({ page }) => {
+  test("TC-E003 | Math drill-down shows back button and Addition, Subtraction, Times Table cards", async ({ page }) => {
     await expect(page.getByTestId("grade2-math-back")).toBeVisible();
     await expect(page.getByTestId("grade2-practice-addition")).toBeVisible();
     await expect(page.getByTestId("grade2-practice-subtraction")).toBeVisible();
     await expect(page.getByTestId("grade2-practice-timesTable")).toBeVisible();
   });
 
-  test("back button returns to subject list", async ({ page }) => {
+  test("TC-E004 | Back button from Math drill-down returns to subject card list", async ({ page }) => {
     await page.getByTestId("grade2-math-back").click();
     await expect(page.getByTestId("grade2-subject-math")).toBeVisible();
     await expect(page.getByTestId("grade2-subject-vietnamese")).toBeVisible();
@@ -73,16 +67,14 @@ test.describe("Grade 2 — Math drill-down", () => {
     await expect(page.getByTestId("grade2-practice-addition")).not.toBeVisible();
   });
 
-  test("re-entering Math after Back still shows practice cards", async ({ page }) => {
+  test("TC-E005 | Re-entering Math after pressing Back still shows all practice cards", async ({ page }) => {
     await page.getByTestId("grade2-math-back").click();
     await page.getByTestId("grade2-subject-math").click();
     await expect(page.getByTestId("grade2-practice-addition")).toBeVisible();
   });
 });
 
-// ---------------------------------------------------------------------------
-// Difficulty badge
-// ---------------------------------------------------------------------------
+// ── Difficulty badge ──────────────────────────────────────────────────────────
 
 test.describe("Grade 2 — difficulty badge in quiz", () => {
   test.beforeEach(async ({ page }) => {
@@ -92,28 +84,21 @@ test.describe("Grade 2 — difficulty badge in quiz", () => {
     await page.getByTestId("grade2-subject-math").click();
   });
 
-  test("difficulty badge is visible on first Addition question", async ({ page }) => {
+  test("TC-E006 | Difficulty badge is visible on the first Addition quiz question with a valid label", async ({ page }) => {
     await page.getByTestId("grade2-practice-addition").click();
-    // Quiz modal opens — wait for first question
     await page.getByTestId("quiz-difficulty-badge").waitFor({ state: "visible", timeout: 5_000 });
-    const badge = page.getByTestId("quiz-difficulty-badge");
-    await expect(badge).toBeVisible();
-    // Badge text should be one of the three known difficulty labels
-    const text = await badge.innerText();
+    const text = await page.getByTestId("quiz-difficulty-badge").innerText();
     expect(["Dễ", "Vừa", "Khó", "Easy", "Medium", "Hard"].some((l) => text.includes(l))).toBe(true);
   });
 });
 
-// ---------------------------------------------------------------------------
-// Backward compatibility — Preschool still works
-// ---------------------------------------------------------------------------
+// ── Backward compatibility ────────────────────────────────────────────────────
 
 test.describe("Backward compatibility — Preschool tab", () => {
-  test("Preschool tab still renders category cards", async ({ page }) => {
+  test("TC-E007 | Preschool tab still renders category cards after Grade 2 changes", async ({ page }) => {
     await login(page);
     await openLearningZone(page);
     await page.getByTestId("tab-preschool").click();
-    // At least one preschool card should be present (shapes, colors, or animals)
     const cards = page.locator("[data-testid^='quiz-']");
     await expect(cards.first()).toBeVisible({ timeout: 5_000 });
   });

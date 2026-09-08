@@ -7,10 +7,10 @@ import {
   insertAtRandom,
 } from "@/components/learning-zone"
 
-// --- generateAdditionQuestion boundaries ---
+// ── generateAdditionQuestion ─────────────────────────────────────────────────
 
 describe("generateAdditionQuestion — boundaries", () => {
-  test("produces a valid question with correct format", () => {
+  test("TC-U031 | Addition question has correct format (a + b = ?)", () => {
     const { question, options, correctIndex } = generateAdditionQuestion()
     expect(question).toMatch(/^\d+ \+ \d+ = \?$/)
     expect(options).toHaveLength(3)
@@ -20,7 +20,7 @@ describe("generateAdditionQuestion — boundaries", () => {
     expect(Number(options[correctIndex])).toBe(a + b)
   })
 
-  test("max operands (100 + 100 = 200) produces correct answer when applicable", () => {
+  test("TC-U032 | Addition max operands (100 + 100 = 200) produce the correct answer", () => {
     let found = false
     for (let i = 0; i < 1000 && !found; i++) {
       const { question, options, correctIndex } = generateAdditionQuestion()
@@ -33,10 +33,10 @@ describe("generateAdditionQuestion — boundaries", () => {
   })
 })
 
-// --- generateSubtractionQuestion boundaries ---
+// ── generateSubtractionQuestion ──────────────────────────────────────────────
 
 describe("generateSubtractionQuestion — boundaries", () => {
-  test("produces a valid question with correct format", () => {
+  test("TC-U033 | Subtraction question has correct format and minuend >= subtrahend", () => {
     const { question, options, correctIndex } = generateSubtractionQuestion()
     expect(question).toMatch(/^\d+ - \d+ = \?$/)
     expect(options).toHaveLength(3)
@@ -45,7 +45,7 @@ describe("generateSubtractionQuestion — boundaries", () => {
     expect(Number(options[correctIndex])).toBe(minuend - subtrahend)
   })
 
-  test("equal operands produce result of 0", () => {
+  test("TC-U034 | Subtraction with equal operands produces result of zero", () => {
     let found = false
     for (let i = 0; i < 1000 && !found; i++) {
       const { question, options, correctIndex } = generateSubtractionQuestion()
@@ -57,7 +57,7 @@ describe("generateSubtractionQuestion — boundaries", () => {
     }
   })
 
-  test("correct answer is always non-negative", () => {
+  test("TC-U035 | Subtraction correct answer is always non-negative", () => {
     for (let i = 0; i < 50; i++) {
       const { options, correctIndex } = generateSubtractionQuestion()
       expect(Number(options[correctIndex])).toBeGreaterThanOrEqual(0)
@@ -65,10 +65,10 @@ describe("generateSubtractionQuestion — boundaries", () => {
   })
 })
 
-// --- generateTimesTableQuestion boundaries ---
+// ── generateTimesTableQuestion ───────────────────────────────────────────────
 
 describe("generateTimesTableQuestion — boundaries", () => {
-  test("smallest product: 2 × 1 = 2 produces correct answer when applicable", () => {
+  test("TC-U036 | Times table smallest product (2 × 1 = 2) produces correct answer", () => {
     let found = false
     for (let i = 0; i < 2000 && !found; i++) {
       const { question, options, correctIndex } = generateTimesTableQuestion("en")
@@ -79,7 +79,7 @@ describe("generateTimesTableQuestion — boundaries", () => {
     }
   })
 
-  test("largest product: 9 × 10 = 90 produces correct answer when applicable", () => {
+  test("TC-U037 | Times table largest product (9 × 10 = 90) produces correct answer", () => {
     let found = false
     for (let i = 0; i < 2000 && !found; i++) {
       const { question, options, correctIndex } = generateTimesTableQuestion("en")
@@ -90,7 +90,7 @@ describe("generateTimesTableQuestion — boundaries", () => {
     }
   })
 
-  test("symbol format question contains ×", () => {
+  test("TC-U038 | Times table symbol-format question contains × character", () => {
     let found = false
     for (let i = 0; i < 200 && !found; i++) {
       const { question } = generateTimesTableQuestion("en")
@@ -102,7 +102,7 @@ describe("generateTimesTableQuestion — boundaries", () => {
     expect(found).toBe(true)
   })
 
-  test("word format with Vietnamese language contains 'nhân' and 'bằng mấy'", () => {
+  test("TC-U039 | Times table word-format in Vietnamese contains nhân and bằng mấy", () => {
     let found = false
     for (let i = 0; i < 200 && !found; i++) {
       const { question } = generateTimesTableQuestion("vi")
@@ -115,7 +115,7 @@ describe("generateTimesTableQuestion — boundaries", () => {
     expect(found).toBe(true)
   })
 
-  test("word format with English language contains 'times' and 'equals'", () => {
+  test("TC-U040 | Times table word-format in English contains times and equals", () => {
     let found = false
     for (let i = 0; i < 200 && !found; i++) {
       const { question } = generateTimesTableQuestion("en")
@@ -129,10 +129,10 @@ describe("generateTimesTableQuestion — boundaries", () => {
   })
 })
 
-// --- generateDistractors contract ---
+// ── generateDistractors ───────────────────────────────────────────────────────
 
 describe("generateDistractors — contract", () => {
-  test("distractors never equal the correct answer (spot-check with known inputs)", () => {
+  test("TC-U041 | generateDistractors never includes the correct answer in distractors", () => {
     const cases: Array<[number, "offset" | "adjacent", "arithmetic" | "multiply"]> = [
       [50, "offset", "arithmetic"],
       [10, "adjacent", "arithmetic"],
@@ -148,16 +148,16 @@ describe("generateDistractors — contract", () => {
   })
 })
 
-// --- insertAtRandom position coverage ---
+// ── insertAtRandom ───────────────────────────────────────────────────────────
 
 describe("insertAtRandom — position coverage", () => {
-  test("always produces exactly 3 options with correct at correctIndex", () => {
+  test("TC-U042 | insertAtRandom produces exactly 3 options with correct value at correctIndex", () => {
     const { options, correctIndex } = insertAtRandom(42, [10, 20])
     expect(options).toHaveLength(3)
     expect(options[correctIndex]).toBe("42")
   })
 
-  test("correct can be placed at index 0", () => {
+  test("TC-U043 | insertAtRandom correct answer can be placed at index 0", () => {
     let found = false
     for (let i = 0; i < 100 && !found; i++) {
       const { correctIndex } = insertAtRandom(5, [1, 2])
@@ -166,7 +166,7 @@ describe("insertAtRandom — position coverage", () => {
     expect(found).toBe(true)
   })
 
-  test("correct can be placed at index 2", () => {
+  test("TC-U044 | insertAtRandom correct answer can be placed at index 2", () => {
     let found = false
     for (let i = 0; i < 100 && !found; i++) {
       const { correctIndex } = insertAtRandom(5, [1, 2])

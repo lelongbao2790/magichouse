@@ -6,17 +6,17 @@ const PBT_OPTS = { verbose: true, numRuns: 200 } as const
 const difficultyArb = fc.constantFrom<Difficulty>('easy', 'medium', 'hard')
 const difficultiesArb = fc.array(difficultyArb)
 
-// --- randomDifficulty ---
+// ── randomDifficulty ─────────────────────────────────────────────────────────
 
 describe("randomDifficulty", () => {
-  test("always returns a valid Difficulty", () => {
+  test("TC-U001 | randomDifficulty always returns a valid difficulty value", () => {
     const valid = new Set<string>(['easy', 'medium', 'hard'])
     for (let i = 0; i < 300; i++) {
       expect(valid.has(randomDifficulty())).toBe(true)
     }
   })
 
-  test("all three values occur in 300 samples", () => {
+  test("TC-U002 | randomDifficulty produces all three difficulty values across 300 samples", () => {
     const seen = new Set<string>()
     for (let i = 0; i < 300; i++) seen.add(randomDifficulty())
     expect(seen.has('easy')).toBe(true)
@@ -25,54 +25,54 @@ describe("randomDifficulty", () => {
   })
 })
 
-// --- dominantDifficulty — deterministic cases ---
+// ── dominantDifficulty — deterministic ──────────────────────────────────────
 
 describe("dominantDifficulty — deterministic", () => {
-  test("empty array returns 'easy'", () => {
+  test("TC-U003 | dominantDifficulty returns easy for empty array", () => {
     expect(dominantDifficulty([])).toBe('easy')
   })
 
-  test("singleton ['easy'] returns 'easy'", () => {
+  test("TC-U004 | dominantDifficulty returns easy for single easy input", () => {
     expect(dominantDifficulty(['easy'])).toBe('easy')
   })
 
-  test("singleton ['medium'] returns 'medium'", () => {
+  test("TC-U005 | dominantDifficulty returns medium for single medium input", () => {
     expect(dominantDifficulty(['medium'])).toBe('medium')
   })
 
-  test("singleton ['hard'] returns 'hard'", () => {
+  test("TC-U006 | dominantDifficulty returns hard for single hard input", () => {
     expect(dominantDifficulty(['hard'])).toBe('hard')
   })
 
-  test("all-same ['easy','easy','easy'] returns 'easy'", () => {
+  test("TC-U007 | dominantDifficulty returns easy for all-easy array", () => {
     expect(dominantDifficulty(['easy', 'easy', 'easy'])).toBe('easy')
   })
 
-  test("three-way tie ['easy','medium','hard'] — hard wins", () => {
+  test("TC-U008 | dominantDifficulty hard wins on three-way tie", () => {
     expect(dominantDifficulty(['easy', 'medium', 'hard'])).toBe('hard')
   })
 
-  test("[easy×2, medium×2, hard×1] — medium wins (hard < medium)", () => {
+  test("TC-U009 | dominantDifficulty medium wins when medium count exceeds hard", () => {
     expect(dominantDifficulty(['easy', 'easy', 'medium', 'medium', 'hard'])).toBe('medium')
   })
 
-  test("[easy×2, medium×1, hard×2] — hard wins (hard≥medium AND hard≥easy)", () => {
+  test("TC-U010 | dominantDifficulty hard wins when hard ties with easy", () => {
     expect(dominantDifficulty(['easy', 'hard', 'medium', 'hard', 'easy'])).toBe('hard')
   })
 
-  test("[easy×2, medium×1] — easy wins (no tie)", () => {
+  test("TC-U011 | dominantDifficulty easy wins with no tie", () => {
     expect(dominantDifficulty(['easy', 'easy', 'medium'])).toBe('easy')
   })
 
-  test("[easy×2, medium×2] — medium wins (tie, medium beats easy)", () => {
+  test("TC-U012 | dominantDifficulty medium wins on easy-medium count tie", () => {
     expect(dominantDifficulty(['easy', 'easy', 'medium', 'medium'])).toBe('medium')
   })
 })
 
-// --- dominantDifficulty — PBT ---
+// ── dominantDifficulty — PBT ─────────────────────────────────────────────────
 
 describe("dominantDifficulty — PBT", () => {
-  test("P-D1: output is always one of 'easy', 'medium', 'hard'", () => {
+  test("TC-U013 | [PBT] dominantDifficulty output is always a valid difficulty (P-D1)", () => {
     const valid = new Set(['easy', 'medium', 'hard'])
     fc.assert(
       fc.property(difficultiesArb, (ds) => valid.has(dominantDifficulty(ds))),
@@ -80,21 +80,21 @@ describe("dominantDifficulty — PBT", () => {
     )
   })
 
-  test("P-D2: empty array always returns 'easy'", () => {
+  test("TC-U014 | [PBT] dominantDifficulty on empty array always returns easy (P-D2)", () => {
     fc.assert(
       fc.property(fc.constant([]), (ds: Difficulty[]) => dominantDifficulty(ds) === 'easy'),
       PBT_OPTS
     )
   })
 
-  test("P-D3: singleton returns the same difficulty", () => {
+  test("TC-U015 | [PBT] dominantDifficulty on singleton returns same difficulty (P-D3)", () => {
     fc.assert(
       fc.property(difficultyArb, (d) => dominantDifficulty([d]) === d),
       PBT_OPTS
     )
   })
 
-  test("P-D4: all-same array returns that difficulty", () => {
+  test("TC-U016 | [PBT] dominantDifficulty on uniform array returns that difficulty (P-D4)", () => {
     fc.assert(
       fc.property(
         difficultyArb,
@@ -105,7 +105,7 @@ describe("dominantDifficulty — PBT", () => {
     )
   })
 
-  test("P-D5: if hard count > 0 and hard >= medium and hard >= easy -> returns 'hard'", () => {
+  test("TC-U017 | [PBT] dominantDifficulty returns hard when hard count is dominant (P-D5)", () => {
     fc.assert(
       fc.property(difficultiesArb, (ds) => {
         const counts = { easy: 0, medium: 0, hard: 0 }
@@ -119,7 +119,7 @@ describe("dominantDifficulty — PBT", () => {
     )
   })
 
-  test("P-D6: if hard is not dominant and medium count > 0 and medium >= easy -> returns 'medium'", () => {
+  test("TC-U018 | [PBT] dominantDifficulty returns medium when medium is dominant over easy (P-D6)", () => {
     fc.assert(
       fc.property(difficultiesArb, (ds) => {
         const counts = { easy: 0, medium: 0, hard: 0 }
@@ -134,7 +134,7 @@ describe("dominantDifficulty — PBT", () => {
     )
   })
 
-  test("P-D7: adding 'hard' elements never changes result from 'hard' to something lower", () => {
+  test("TC-U019 | [PBT] adding hard items never downgrades a hard result (P-D7)", () => {
     fc.assert(
       fc.property(
         difficultiesArb,
@@ -151,12 +151,12 @@ describe("dominantDifficulty — PBT", () => {
   })
 })
 
-// --- calculateSessionCoins — deterministic ---
+// ── calculateSessionCoins — deterministic ───────────────────────────────────
 
 describe("calculateSessionCoins — deterministic", () => {
   const RUNS = 100
 
-  test("empty array -> result in [5, 10]", () => {
+  test("TC-U020 | calculateSessionCoins on empty array returns value in [5, 10]", () => {
     for (let i = 0; i < RUNS; i++) {
       const coins = calculateSessionCoins([])
       expect(coins).toBeGreaterThanOrEqual(5)
@@ -164,7 +164,7 @@ describe("calculateSessionCoins — deterministic", () => {
     }
   })
 
-  test("all-easy -> result in [5, 10]", () => {
+  test("TC-U021 | calculateSessionCoins on all-easy input returns value in [5, 10]", () => {
     for (let i = 0; i < RUNS; i++) {
       const coins = calculateSessionCoins(['easy', 'easy', 'easy'])
       expect(coins).toBeGreaterThanOrEqual(5)
@@ -172,7 +172,7 @@ describe("calculateSessionCoins — deterministic", () => {
     }
   })
 
-  test("all-medium -> result in [10, 30]", () => {
+  test("TC-U022 | calculateSessionCoins on all-medium input returns value in [10, 30]", () => {
     for (let i = 0; i < RUNS; i++) {
       const coins = calculateSessionCoins(['medium', 'medium', 'medium'])
       expect(coins).toBeGreaterThanOrEqual(10)
@@ -180,7 +180,7 @@ describe("calculateSessionCoins — deterministic", () => {
     }
   })
 
-  test("all-hard -> result in [10, 30]", () => {
+  test("TC-U023 | calculateSessionCoins on all-hard input returns value in [10, 30]", () => {
     for (let i = 0; i < RUNS; i++) {
       const coins = calculateSessionCoins(['hard', 'hard', 'hard'])
       expect(coins).toBeGreaterThanOrEqual(10)
@@ -189,31 +189,31 @@ describe("calculateSessionCoins — deterministic", () => {
   })
 })
 
-// --- calculateSessionCoins — PBT ---
+// ── calculateSessionCoins — PBT ──────────────────────────────────────────────
 
 describe("calculateSessionCoins — PBT", () => {
-  test("P-C1: output is always an integer", () => {
+  test("TC-U024 | [PBT] calculateSessionCoins always returns an integer (P-C1)", () => {
     fc.assert(
       fc.property(difficultiesArb, (ds) => Number.isInteger(calculateSessionCoins(ds))),
       PBT_OPTS
     )
   })
 
-  test("P-C2: output is always >= 5", () => {
+  test("TC-U025 | [PBT] calculateSessionCoins always returns at least 5 coins (P-C2)", () => {
     fc.assert(
       fc.property(difficultiesArb, (ds) => calculateSessionCoins(ds) >= 5),
       PBT_OPTS
     )
   })
 
-  test("P-C3: output is always <= 30", () => {
+  test("TC-U026 | [PBT] calculateSessionCoins always returns at most 30 coins (P-C3)", () => {
     fc.assert(
       fc.property(difficultiesArb, (ds) => calculateSessionCoins(ds) <= 30),
       PBT_OPTS
     )
   })
 
-  test("P-C4: empty array -> result in [5, 10]", () => {
+  test("TC-U027 | [PBT] calculateSessionCoins on empty array gives range [5, 10] (P-C4)", () => {
     fc.assert(
       fc.property(fc.constant([]), (ds: Difficulty[]) => {
         const coins = calculateSessionCoins(ds)
@@ -223,7 +223,7 @@ describe("calculateSessionCoins — PBT", () => {
     )
   })
 
-  test("P-C5: all-easy input -> result in [5, 10]", () => {
+  test("TC-U028 | [PBT] calculateSessionCoins on all-easy input gives range [5, 10] (P-C5)", () => {
     fc.assert(
       fc.property(
         fc.integer({ min: 1, max: 15 }),
@@ -236,7 +236,7 @@ describe("calculateSessionCoins — PBT", () => {
     )
   })
 
-  test("P-C6: all-medium input -> result in [10, 30]", () => {
+  test("TC-U029 | [PBT] calculateSessionCoins on all-medium input gives range [10, 30] (P-C6)", () => {
     fc.assert(
       fc.property(
         fc.integer({ min: 1, max: 15 }),
@@ -249,7 +249,7 @@ describe("calculateSessionCoins — PBT", () => {
     )
   })
 
-  test("P-C7: all-hard input -> result in [10, 30]", () => {
+  test("TC-U030 | [PBT] calculateSessionCoins on all-hard input gives range [10, 30] (P-C7)", () => {
     fc.assert(
       fc.property(
         fc.integer({ min: 1, max: 15 }),

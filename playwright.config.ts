@@ -5,7 +5,7 @@ export default defineConfig({
   outputDir: "./test-results",
   reporter: [
     ["html", { outputFolder: "playwright-report", open: "never" }],
-    ["junit", { outputFile: "reports/e2e-results.xml" }],
+    ["junit", { outputFile: "reports/e2e-results.xml", stripANSIControlSequences: true }],
     ["list"],
   ],
   use: {
