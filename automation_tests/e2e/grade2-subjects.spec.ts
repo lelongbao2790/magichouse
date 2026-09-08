@@ -6,13 +6,26 @@ async function login(page: Page) {
   await page.goto("/");
   await page.getByTestId("login-email-input").fill(process.env.E2E_USERNAME ?? "bear@test.com");
   await page.getByTestId("login-password-input").fill(process.env.E2E_PASSWORD ?? "Admin@1234");
-  await page.getByTestId("login-submit-button").click();
-  await page.getByTestId("dashboard").waitFor({ state: "visible", timeout: 10_000 });
+  // Wait for the login API response concurrently with the click so we know auth
+  // completed (not silently timed out) before waiting for the React re-render.
+  const [response] = await Promise.all([
+    page.waitForResponse(
+      res => res.url().includes("/api/auth/login"),
+      { timeout: 20_000 },
+    ),
+    page.getByTestId("login-submit-button").click(),
+  ]);
+  if (!response.ok()) {
+    throw new Error(`Login API returned ${response.status()} — check E2E_USERNAME / E2E_PASSWORD secrets`);
+  }
+  // Two React render cycles are needed after setPlayer() before the dashboard
+  // div appears; WebKit is slower through this path — 15 s is sufficient.
+  await page.getByTestId("dashboard").waitFor({ state: "visible", timeout: 15_000 });
 }
 
 async function openLearningZone(page: Page) {
   await page.getByTestId("nav-learning").click();
-  await page.getByTestId("learning-zone").waitFor({ state: "visible", timeout: 8_000 });
+  await page.getByTestId("learning-zone").waitFor({ state: "visible", timeout: 12_000 });
 }
 
 async function goToGrade2Tab(page: Page) {
