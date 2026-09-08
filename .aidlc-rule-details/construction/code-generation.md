@@ -35,6 +35,7 @@ This stage generates code for each unit of work through two integrated parts:
   - Business Logic Summary
   - API Layer Generation
   - API Layer Unit Testing
+  - API Layer API Tests (see API Test Generation Rules below)
   - API Layer Summary
   - Repository Layer Generation
   - Repository Layer Unit Testing
@@ -200,6 +201,24 @@ This stage generates code for each unit of work through two integrated parts:
 - **UPDATE CHECKBOXES**: Mark [x] immediately after completing each step
 - **STORY TRACEABILITY**: Mark unit stories [x] when functionality is implemented
 - **RESPECT DEPENDENCIES**: Only implement when unit dependencies are satisfied
+
+### API Test Generation Rules
+
+When the unit includes an API route/endpoint (REST, GraphQL, RPC), **always** generate a corresponding API test file in the project's API test folder (e.g., `automation_tests/api/`). Do not leave the API test folder empty.
+
+**What API tests must cover** (at minimum):
+
+- Every valid input variant accepted by the route's validation schema — including any new enum values or categories added by this unit
+- At least one invalid/rejected case for each validation rule (missing field, wrong type, out-of-range value, unknown enum value)
+- The expected HTTP response code or success/error shape for each case
+
+**How to write them** — match the project's existing API test pattern:
+
+- If API tests already exist in the folder: read them first, follow the same import style, `describe` structure, and assertion style
+- If the folder is empty: use the same test runner as unit tests (e.g., Vitest), import the validation schema or route handler directly, and keep tests fast (no live server required unless the project already runs one for API tests)
+- File naming: `{route-name}.api.test.ts` (or `.spec.ts` to match project convention)
+
+**Ensure the vitest config (or equivalent) includes the API test folder** in its `include` glob. If it does not, add it as part of this step.
 
 ### Automation Friendly Code Rules
 When generating UI code (web, mobile, desktop), ensure elements are automation-friendly:

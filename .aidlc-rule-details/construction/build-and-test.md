@@ -262,13 +262,38 @@ If performance doesn't meet requirements:
 
 ## Step 7: Generate Additional Test Instructions (As Needed)
 
-Based on project requirements, generate additional test instruction files:
+Based on project requirements and the `## Test Scope` recorded in `aidlc-state.md`, generate additional test instruction files.
 
-### Contract Tests (For Microservices)
-Create `aidlc-docs/{initiative-slug}/construction/build-and-test/contract-test-instructions.md`:
-- API contract validation between services
-- Consumer-driven contract testing
-- Schema validation
+### API Tests
+**Generate when**: the project has an API test folder (e.g., `automation_tests/api/`) OR the user selected API tests in Requirements Analysis.
+
+Create `aidlc-docs/{initiative-slug}/construction/build-and-test/api-test-instructions.md`:
+
+```markdown
+# API Test Instructions
+
+## Purpose
+Validate API route contracts — accepted inputs, rejected inputs, and response shapes.
+These tests run via the unit test runner (no live server required).
+
+## Run API Tests
+\`\`\`bash
+[Command — same runner as unit tests, e.g.: bun run test]
+# API tests live in automation_tests/api/ and are included in the vitest glob
+\`\`\`
+
+## Test Files
+- [List each api test file and what route it covers]
+
+## What is covered
+- [List valid input variants tested per route]
+- [List rejection cases tested per route]
+
+## Expected result
+- **Total tests**: [X]
+- **All pass**: yes
+\`\`\`
+```
 
 ### Security Tests
 Create `aidlc-docs/{initiative-slug}/construction/build-and-test/security-test-instructions.md`:
@@ -282,6 +307,11 @@ Create `aidlc-docs/{initiative-slug}/construction/build-and-test/e2e-test-instru
 - Complete user workflow testing
 - Cross-service scenarios
 - UI testing (if applicable)
+
+### Contract Tests (Microservices only)
+Create `aidlc-docs/{initiative-slug}/construction/build-and-test/contract-test-instructions.md` **only** when the project has multiple services that communicate with each other:
+- Consumer-driven contract testing
+- Inter-service schema validation
 
 ---
 
@@ -319,10 +349,16 @@ Create `aidlc-docs/{initiative-slug}/construction/build-and-test/build-and-test-
 - **Error Rate**: [Actual] (Target: [Expected])
 - **Status**: [Pass/Fail]
 
+### API Tests
+- **Total Tests**: [X]
+- **Passed**: [X]
+- **Failed**: [X]
+- **Status**: [Pass/Fail/N/A]
+
 ### Additional Tests
-- **Contract Tests**: [Pass/Fail/N/A]
-- **Security Tests**: [Pass/Fail/N/A]
 - **E2E Tests**: [Pass/Fail/N/A]
+- **Security Tests**: [Pass/Fail/N/A]
+- **Contract Tests**: [Pass/Fail/N/A]
 
 ## Overall Status
 - **Build**: [Success/Failed]
@@ -392,8 +428,10 @@ Present completion message in this structure:
 **Files Generated**:
 - build-instructions.md
 - unit-test-instructions.md
+- api-test-instructions.md (if API tests exist or were selected)
 - integration-test-instructions.md
-- performance-test-instructions.md
+- e2e-test-instructions.md (if E2E tests exist or were selected)
+- performance-test-instructions.md (if applicable)
 - build-and-test-summary.md
 
 ---
