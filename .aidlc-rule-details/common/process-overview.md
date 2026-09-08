@@ -39,6 +39,7 @@ flowchart TD
         RE["Reverse Engineering<br/><b>CONDITIONAL</b>"]
         RA["Requirements Analysis<br/><b>ALWAYS</b>"]
         Stories["User Stories<br/><b>CONDITIONAL</b>"]
+        TCD["Test Case Design<br/><b>CONDITIONAL</b>"]
         WP["Workflow Planning<br/><b>ALWAYS</b>"]
         AppDesign["Application Design<br/><b>CONDITIONAL</b>"]
         UnitsG["Units Generation<br/><b>CONDITIONAL</b>"]
@@ -63,8 +64,11 @@ flowchart TD
     RE --> RA
     
     RA -.-> Stories
+    RA -.-> TCD
     RA --> WP
+    Stories -.-> TCD
     Stories --> WP
+    TCD --> WP
     
     WP -.-> AppDesign
     WP -.-> UnitsG
@@ -93,6 +97,7 @@ flowchart TD
     style OPS fill:#BDBDBD,stroke:#424242,stroke-width:2px,stroke-dasharray: 5 5,color:#000
     style RE fill:#FFA726,stroke:#E65100,stroke-width:3px,stroke-dasharray: 5 5,color:#000
     style Stories fill:#FFA726,stroke:#E65100,stroke-width:3px,stroke-dasharray: 5 5,color:#000
+    style TCD fill:#FFA726,stroke:#E65100,stroke-width:3px,stroke-dasharray: 5 5,color:#000
     style AppDesign fill:#FFA726,stroke:#E65100,stroke-width:3px,stroke-dasharray: 5 5,color:#000
 
     style UnitsG fill:#FFA726,stroke:#E65100,stroke-width:3px,stroke-dasharray: 5 5,color:#000
@@ -116,6 +121,7 @@ flowchart TD
 - Reverse Engineering: Analyze existing codebase (CONDITIONAL - Brownfield only)
 - Requirements Analysis: Gather and validate requirements (ALWAYS - Adaptive depth)
 - User Stories: Create user stories and personas (CONDITIONAL)
+- Test Case Design: QA/PM gate — define E2E automated and manual test cases before code generation (CONDITIONAL — execute for any user-facing, API, or business-logic change)
 - Workflow Planning: Create execution plan (ALWAYS)
 - Application Design: High-level component identification and service layer design (CONDITIONAL)
 - Units Generation: Decompose into units of work (CONDITIONAL)

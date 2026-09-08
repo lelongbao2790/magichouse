@@ -44,6 +44,8 @@ This stage generates code for each unit of work through two integrated parts:
   - Frontend Components Unit Testing (if applicable)
   - Frontend Components Summary (if applicable)
   - Database Migration Scripts (if data models exist)
+  - E2E Test Spec Generation (from TC-E cases in test-case-design.md — if Test Case Design was executed)
+  - Manual Test Checklist Generation (from TC-M cases in test-case-design.md — if Test Case Design was executed)
   - Documentation Generation (API docs, README updates)
   - Deployment Artifacts Generation
 - [ ] Number each step sequentially
@@ -219,6 +221,23 @@ When the unit includes an API route/endpoint (REST, GraphQL, RPC), **always** ge
 - File naming: `{route-name}.api.test.ts` (or `.spec.ts` to match project convention)
 
 **Ensure the vitest config (or equivalent) includes the API test folder** in its `include` glob. If it does not, add it as part of this step.
+
+### Test Case Design Integration Rules
+
+When `## Test Scope` in `aidlc-state.md` includes a **Test Case Design file** path, read `aidlc-docs/{initiative-slug}/inception/test-cases/test-case-design.md` before generating any UI components or API routes for the unit.
+
+**TC-E (Playwright) spec generation**:
+- Generate Playwright spec files in `automation_tests/e2e/` — one spec file per logical group of TC-E cases
+- Title each test with the exact TC-E ID and description from the design document (e.g., `"TC-E001 | Grade 2 tab shows Math, Vietnamese, and English subject cards"`)
+- Use the `data-testid` selectors listed in each TC-E case's "Assertions" and "data-testid(s) needed" fields
+- Add every `data-testid` attribute from the document's "data-testid Attribute Requirements" table to the generated UI components — these are component requirements, not just test hints
+
+**TC-M (Manual checklist) generation**:
+- Create or update `MANUAL-TEST-CHECKLIST.md` in the workspace root
+- Format each entry as: TC-M number, title, preconditions, numbered steps, expected result, and "what to specifically check"
+- This file is the developer's post-deploy verification checklist; do not delete entries from previous initiatives
+
+**If Test Case Design was skipped**: proceed with existing API Test Generation Rules and Automation Friendly Code Rules only.
 
 ### Automation Friendly Code Rules
 When generating UI code (web, mobile, desktop), ensure elements are automation-friendly:

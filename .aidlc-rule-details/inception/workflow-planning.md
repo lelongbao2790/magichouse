@@ -117,7 +117,15 @@ Evaluate risk level:
 - Technical debt reduction
 - Infrastructure changes
 
-### 3.2 Application Design - Execute IF:
+### 3.2 Test Case Design - Execute IF:
+- The initiative includes any user-facing behaviour, API changes, or business-logic changes
+- Acceptance criteria have observable UI or API outcomes (things a browser test or manual check can verify)
+
+**Skip IF**:
+- Pure internal refactoring with no user-facing or API surface changes
+- Team explicitly confirms no new test coverage is needed
+
+### 3.3 Application Design - Execute IF:
 - New components or services needed
 - Component methods and business rules need definition
 - Service layer design required
@@ -128,7 +136,7 @@ Evaluate risk level:
 - No new components or methods
 - Pure implementation changes
 
-### 3.3 Units Generation - Execute IF:
+### 3.4 Units Generation - Execute IF:
 - New data models or schemas
 - API changes or new endpoints
 - Complex algorithms or business logic
@@ -142,7 +150,7 @@ Evaluate risk level:
 - Configuration updates
 - Straightforward implementations
 
-### 3.4 NFR Implementation - Execute IF:
+### 3.5 NFR Implementation - Execute IF:
 - Performance requirements
 - Security considerations
 - Scalability concerns
@@ -298,6 +306,8 @@ flowchart TD
 - [x] Requirements Analysis (COMPLETED)
 - [x] User Stories (COMPLETED/SKIPPED)
 - [x] Execution Plan (IN PROGRESS)
+- [ ] Test Case Design - [EXECUTE/SKIP]
+  - **Rationale**: [Why executing or skipping]
 - [ ] Application Design - [EXECUTE/SKIP]
   - **Rationale**: [Why executing or skipping]
 - [ ] Units Generation - [EXECUTE/SKIP]
@@ -363,6 +373,7 @@ Update `aidlc-docs/{initiative-slug}/aidlc-state.md`:
 - [x] Requirements Analysis
 - [x] User Stories (if applicable)
 - [x] Workflow Planning
+- [ ] Test Case Design - [EXECUTE/SKIP]
 - [ ] Application Design - [EXECUTE/SKIP]
 - [ ] Units Generation - [EXECUTE/SKIP]
 
