@@ -30,18 +30,21 @@ function decode(s) {
   return (s || '').replace(/&amp;/g,'&').replace(/&lt;/g,'<').replace(/&gt;/g,'>').replace(/&quot;/g,'"').replace(/&#39;/g,"'")
 }
 
+// attr() uses \b so "name" never matches inside "classname", and searches the
+// whole chunk so unescaped ">" inside classname values don't truncate parsing.
+function attr(chunk, attrName) {
+  return decode((chunk.match(new RegExp(`\\b${attrName}="([^"]*)"`) ) || [])[1] ?? '')
+}
+
 const cases = []
 const parts = xml.split(/(?=<testcase[\s>])/)
 for (const chunk of parts) {
   if (!chunk.trimStart().startsWith('<testcase')) continue
-  const attrEnd   = chunk.indexOf('>')
-  const attrsStr  = chunk.slice(0, attrEnd + 1)
-  const body      = chunk.slice(attrEnd + 1, chunk.indexOf('</testcase>'))
-  const name      = decode(readAttr(attrsStr, 'name'))
-  const classname = decode(readAttr(attrsStr, 'classname'))
-  const dur       = parseFloat(readAttr(attrsStr, 'time') || '0')
-  const isFail    = /<failure|<error/.test(body)
-  const isSkip    = /<skipped/.test(body)
+  const name      = attr(chunk, 'name')
+  const classname = attr(chunk, 'classname')
+  const dur       = parseFloat(attr(chunk, 'time') || '0')
+  const isFail    = /<failure|<error/.test(chunk)
+  const isSkip    = /<skipped/.test(chunk)
   cases.push({ name, classname, dur, status: isFail ? 'FAIL' : isSkip ? 'SKIP' : 'PASS' })
 }
 
