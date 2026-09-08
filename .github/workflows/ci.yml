@@ -74,11 +74,11 @@ jobs:
       - name: Wait for Vercel deployment
         run: npx wait-on https://magichouse-rouge.vercel.app --timeout 60000
 
-      - name: Smoke Test 2 — home page loads (all browsers)
+      - name: E2E tests (all browsers)
         run: bun run test:e2e
 
       - name: Upload Playwright report
-        if: failure()
+        if: always()
         uses: actions/upload-artifact@v4
         with:
           name: playwright-report
