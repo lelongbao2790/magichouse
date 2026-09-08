@@ -7,7 +7,7 @@ on:
     branches: [main]
 
 permissions:
-  contents: read
+  contents: write
   checks: write
   pull-requests: write
   pages: write
@@ -17,19 +17,23 @@ concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
+env:
+  INITIATIVE: grade2-subjects-coin-rewards
+
 jobs:
   # ──────────────────────────────────────────────────────────────────────────
-  # Job 1: Lint, TypeScript check, unit tests, API tests
+  # Job 1: Lint · TypeScript · Unit tests · API tests
+  # Runs on every PR and push to main.
+  # Produces:  test_report/$INITIATIVE/unit/index.html
+  #            test_report/$INITIATIVE/api/index.html
   # ──────────────────────────────────────────────────────────────────────────
   unit:
     name: Lint + Unit + API Tests
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
-      - name: Set up Bun
-        uses: oven-sh/setup-bun@v2
+      - uses: oven-sh/setup-bun@v2
         with:
           bun-version: latest
 
@@ -41,13 +45,15 @@ jobs:
 
       - name: TypeScript check (advisory)
         run: bunx tsc --noEmit || true
-        # Advisory only — pre-existing TypeScript errors in lib/services/player.ts
-        # and .claude/tools/ predate this intent and do not affect test infrastructure.
 
       - name: Unit tests
-        run: bunx vitest run automation_tests/unit --reporter=verbose --reporter=junit --outputFile=reports/unit-results.xml
+        run: |
+          bunx vitest run automation_tests/unit \
+            --reporter=verbose \
+            --reporter=junit \
+            "--outputFile.junit=reports/unit-results.xml"
 
-      - name: Unit test report
+      - name: Unit test report (GitHub Check)
         if: always()
         uses: dorny/test-reporter@v1
         with:
@@ -56,10 +62,18 @@ jobs:
           reporter: java-junit
           fail-on-error: 'false'
 
-      - name: API tests
-        run: bunx vitest run automation_tests/api --reporter=verbose --reporter=junit --outputFile=reports/api-results.xml
+      - name: Generate Unit HTML report
+        if: always()
+        run: node scripts/generate-html-report.mjs reports/unit-results.xml test_report/${{ env.INITIATIVE }}/unit/index.html "Unit Tests — ${{ env.INITIATIVE }}"
 
-      - name: API test report
+      - name: API tests
+        run: |
+          bunx vitest run automation_tests/api \
+            --reporter=verbose \
+            --reporter=junit \
+            "--outputFile.junit=reports/api-results.xml"
+
+      - name: API test report (GitHub Check)
         if: always()
         uses: dorny/test-reporter@v1
         with:
@@ -68,8 +82,20 @@ jobs:
           reporter: java-junit
           fail-on-error: 'false'
 
+      - name: Generate API HTML report
+        if: always()
+        run: node scripts/generate-html-report.mjs reports/api-results.xml test_report/${{ env.INITIATIVE }}/api/index.html "API Tests — ${{ env.INITIATIVE }}"
+
+      - name: Upload unit+api test reports artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-reports-unit-api
+          path: test_report/
+
   # ──────────────────────────────────────────────────────────────────────────
-  # Job 2: E2E tests (Playwright) — runs only on push to main
+  # Job 2: Playwright E2E — runs only on push to main
+  # Produces:  test_report/$INITIATIVE/e2e/  (Playwright HTML report)
   # ──────────────────────────────────────────────────────────────────────────
   e2e:
     name: E2E Tests (Playwright)
@@ -82,11 +108,9 @@ jobs:
       E2E_USERNAME: ${{ secrets.E2E_USERNAME }}
       E2E_PASSWORD: ${{ secrets.E2E_PASSWORD }}
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
-      - name: Set up Bun
-        uses: oven-sh/setup-bun@v2
+      - uses: oven-sh/setup-bun@v2
         with:
           bun-version: latest
 
@@ -96,8 +120,8 @@ jobs:
       - name: Install Playwright browsers
         run: npx playwright install --with-deps
 
-      - name: Smoke Test 1 — browser launch sanity (no server required)
-        run: npx playwright test automation_tests/e2e/smoke.spec.ts --grep "browser launches"
+      - name: Smoke — browser launch sanity (no server required)
+        run: npx playwright test automation_tests/e2e/smoke.spec.ts --grep "TC-E008"
 
       - name: Wait for Vercel deployment
         run: npx wait-on https://magichouse-rouge.vercel.app --timeout 60000
@@ -105,7 +129,7 @@ jobs:
       - name: E2E tests (all browsers)
         run: bun run test:e2e
 
-      - name: E2E test report
+      - name: E2E test report (GitHub Check)
         if: always()
         uses: dorny/test-reporter@v1
         with:
@@ -114,30 +138,119 @@ jobs:
           reporter: java-junit
           fail-on-error: 'false'
 
-      - name: Upload Pages artifact
+      - name: Copy Playwright HTML report into test_report structure
         if: always()
-        uses: actions/upload-pages-artifact@v3
+        run: |
+          mkdir -p test_report/${{ env.INITIATIVE }}/e2e
+          cp -r playwright-report/. test_report/${{ env.INITIATIVE }}/e2e/
+
+      - name: Upload e2e test report artifact
+        if: always()
+        uses: actions/upload-artifact@v4
         with:
-          path: playwright-report/
+          name: test-reports-e2e
+          path: test_report/
 
   # ──────────────────────────────────────────────────────────────────────────
-  # Job 3: Publish Playwright HTML report to GitHub Pages
-  # Runs after e2e regardless of pass/fail. The report URL appears in the
-  # job summary so you can click it directly — no download needed.
-  # One-time setup: Settings → Pages → Source → GitHub Actions
+  # Job 3: Publish — merge all reports, commit to source, deploy to Pages
+  # Runs after both jobs finish (pass or fail).
+  # GitHub Pages URLs after deploy:
+  #   /{INITIATIVE}/unit/   → Unit Tests HTML
+  #   /{INITIATIVE}/api/    → API Tests HTML
+  #   /{INITIATIVE}/e2e/    → Playwright HTML
+  # One-time repo setup: Settings → Pages → Source → GitHub Actions
   # ──────────────────────────────────────────────────────────────────────────
-  publish-report:
-    name: Publish E2E Report
-    needs: e2e
+  publish-reports:
+    name: Publish Test Reports
+    needs: [unit, e2e]
     if: always() && github.event_name == 'push' && github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     environment:
       name: github-pages
       url: ${{ steps.deploy.outputs.page_url }}
     permissions:
+      contents: write
       pages: write
       id-token: write
     steps:
+      - uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Download unit+api reports
+        uses: actions/download-artifact@v4
+        with:
+          name: test-reports-unit-api
+          path: test_report/
+
+      - name: Download e2e reports
+        if: needs.e2e.result != 'skipped'
+        uses: actions/download-artifact@v4
+        with:
+          name: test-reports-e2e
+          path: test_report/
+
+      - name: Generate index page
+        run: |
+          cat > test_report/index.html << 'EOF'
+          <!DOCTYPE html>
+          <html lang="en">
+          <head>
+          <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+          <title>Test Reports — magichouse</title>
+          <style>
+            body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;margin:0;background:#f1f5f9;color:#0f172a}
+            .header{background:linear-gradient(135deg,#1e40af,#3b82f6);color:#fff;padding:32px 40px}
+            .header h1{margin:0 0 4px;font-size:24px;font-weight:700}
+            .header p{margin:0;font-size:13px;opacity:.75}
+            .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:16px;padding:32px 40px;max-width:960px;margin:0 auto}
+            .card{background:#fff;border-radius:12px;border:1px solid #e2e8f0;padding:24px;text-decoration:none;color:inherit;display:block;transition:box-shadow .15s}
+            .card:hover{box-shadow:0 4px 12px rgba(0,0,0,.1)}
+            .card-icon{font-size:32px;margin-bottom:12px}
+            .card h2{margin:0 0 6px;font-size:17px;font-weight:700}
+            .card p{margin:0;font-size:13px;color:#64748b}
+          </style>
+          </head>
+          <body>
+          <div class="header">
+            <h1>Test Reports — magichouse</h1>
+            <p>Initiative: grade2-subjects-coin-rewards</p>
+          </div>
+          <div class="grid">
+            <a class="card" href="grade2-subjects-coin-rewards/unit/">
+              <div class="card-icon">🧪</div>
+              <h2>Unit Tests</h2>
+              <p>68 test cases · coin rewards &amp; learning zone logic</p>
+            </a>
+            <a class="card" href="grade2-subjects-coin-rewards/api/">
+              <div class="card-icon">🔌</div>
+              <h2>API Tests</h2>
+              <p>24 test cases · POST /api/quiz/history validation</p>
+            </a>
+            <a class="card" href="grade2-subjects-coin-rewards/e2e/">
+              <div class="card-icon">🌐</div>
+              <h2>E2E Tests</h2>
+              <p>9 test cases · Grade 2 navigation &amp; browser flows</p>
+            </a>
+          </div>
+          </body>
+          </html>
+          EOF
+
+      - name: Commit test reports to source code
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git pull --rebase origin main
+          git add test_report/
+          git diff --staged --quiet || git commit -m "ci: update test reports for ${{ env.INITIATIVE }} [skip ci]"
+          git push origin main
+
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: test_report/
+
       - name: Deploy to GitHub Pages
         id: deploy
         uses: actions/deploy-pages@v4
