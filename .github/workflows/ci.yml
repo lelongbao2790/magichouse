@@ -8,6 +8,8 @@ on:
 
 permissions:
   contents: read
+  checks: write
+  pull-requests: write
   pages: write
   id-token: write
 
@@ -17,10 +19,10 @@ concurrency:
 
 jobs:
   # ──────────────────────────────────────────────────────────────────────────
-  # Job 1: Lint, TypeScript check, unit tests — runs on every PR and main push
+  # Job 1: Lint, TypeScript check, unit tests, API tests
   # ──────────────────────────────────────────────────────────────────────────
   unit:
-    name: Lint + Unit Tests
+    name: Lint + Unit + API Tests
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -43,10 +45,28 @@ jobs:
         # and .claude/tools/ predate this intent and do not affect test infrastructure.
 
       - name: Unit tests
-        run: bunx vitest run automation_tests/unit
+        run: bunx vitest run automation_tests/unit --reporter=verbose --reporter=junit --outputFile=reports/unit-results.xml
+
+      - name: Unit test report
+        if: always()
+        uses: dorny/test-reporter@v1
+        with:
+          name: Unit Tests
+          path: reports/unit-results.xml
+          reporter: java-junit
+          fail-on-error: 'false'
 
       - name: API tests
-        run: bunx vitest run automation_tests/api
+        run: bunx vitest run automation_tests/api --reporter=verbose --reporter=junit --outputFile=reports/api-results.xml
+
+      - name: API test report
+        if: always()
+        uses: dorny/test-reporter@v1
+        with:
+          name: API Tests
+          path: reports/api-results.xml
+          reporter: java-junit
+          fail-on-error: 'false'
 
   # ──────────────────────────────────────────────────────────────────────────
   # Job 2: E2E tests (Playwright) — runs only on push to main
@@ -85,6 +105,15 @@ jobs:
       - name: E2E tests (all browsers)
         run: bun run test:e2e
 
+      - name: E2E test report
+        if: always()
+        uses: dorny/test-reporter@v1
+        with:
+          name: E2E Tests
+          path: reports/e2e-results.xml
+          reporter: java-junit
+          fail-on-error: 'false'
+
       - name: Upload Pages artifact
         if: always()
         uses: actions/upload-pages-artifact@v3
@@ -92,7 +121,7 @@ jobs:
           path: playwright-report/
 
   # ──────────────────────────────────────────────────────────────────────────
-  # Job 3: Publish Playwright report to GitHub Pages
+  # Job 3: Publish Playwright HTML report to GitHub Pages
   # Runs after e2e regardless of pass/fail. The report URL appears in the
   # job summary so you can click it directly — no download needed.
   # One-time setup: Settings → Pages → Source → GitHub Actions
