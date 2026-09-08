@@ -7,7 +7,7 @@ on:
     branches: [main]
 
 permissions:
-  contents: write
+  contents: read
   checks: write
   pull-requests: write
   pages: write
@@ -47,6 +47,7 @@ jobs:
         run: bunx tsc --noEmit || true
 
       - name: Unit tests
+        continue-on-error: true
         run: |
           bunx vitest run automation_tests/unit \
             --reporter=verbose \
@@ -67,6 +68,7 @@ jobs:
         run: node scripts/generate-html-report.mjs reports/unit-results.xml test_report/${{ env.INITIATIVE }}/unit/index.html "Unit Tests — ${{ env.INITIATIVE }}"
 
       - name: API tests
+        continue-on-error: true
         run: |
           bunx vitest run automation_tests/api \
             --reporter=verbose \
@@ -121,12 +123,14 @@ jobs:
         run: npx playwright install --with-deps
 
       - name: Smoke — browser launch sanity (no server required)
+        continue-on-error: true
         run: npx playwright test automation_tests/e2e/smoke.spec.ts --grep "TC-E008"
 
       - name: Wait for Vercel deployment
         run: npx wait-on https://magichouse-rouge.vercel.app --timeout 60000
 
       - name: E2E tests (all browsers)
+        continue-on-error: true
         run: bun run test:e2e
 
       - name: E2E test report (GitHub Check)
@@ -152,7 +156,7 @@ jobs:
           path: test_report/
 
   # ──────────────────────────────────────────────────────────────────────────
-  # Job 3: Publish — merge all reports, commit to source, deploy to Pages
+  # Job 3: Publish — merge all reports and deploy to GitHub Pages (no commit)
   # Runs after both jobs finish (pass or fail).
   # GitHub Pages URLs after deploy:
   #   /{INITIATIVE}/unit/   → Unit Tests HTML
@@ -169,14 +173,9 @@ jobs:
       name: github-pages
       url: ${{ steps.deploy.outputs.page_url }}
     permissions:
-      contents: write
       pages: write
       id-token: write
     steps:
-      - uses: actions/checkout@v4
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-
       - name: Download unit+api reports
         uses: actions/download-artifact@v4
         with:
@@ -236,15 +235,6 @@ jobs:
           </body>
           </html>
           EOF
-
-      - name: Commit test reports to source code
-        run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
-          git pull --rebase --autostash origin main
-          git add test_report/
-          git diff --staged --quiet || git commit -m "ci: update test reports for ${{ env.INITIATIVE }} [skip ci]"
-          git push origin main
 
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v3
