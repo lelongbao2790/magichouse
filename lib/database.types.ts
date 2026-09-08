@@ -142,6 +142,8 @@ export type Database = {
             | 'addition'
             | 'subtraction'
             | 'timesTable'
+            | 'grade2Vietnamese'
+            | 'grade2English'
           score: number
           total_questions: number
           coins_earned: number
@@ -160,6 +162,8 @@ export type Database = {
             | 'addition'
             | 'subtraction'
             | 'timesTable'
+            | 'grade2Vietnamese'
+            | 'grade2English'
           score: number
           total_questions: number
           coins_earned: number
@@ -178,6 +182,8 @@ export type Database = {
             | 'addition'
             | 'subtraction'
             | 'timesTable'
+            | 'grade2Vietnamese'
+            | 'grade2English'
           score?: number
           total_questions?: number
           coins_earned?: number

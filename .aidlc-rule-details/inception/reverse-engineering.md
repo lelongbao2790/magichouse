@@ -43,6 +43,29 @@
 - Linting configurations
 - CI/CD pipelines
 
+### 1.7 Test Infrastructure Inventory (MANDATORY)
+
+Scan the workspace for test directories and record exactly what exists. Look for: `automation_tests/`, `tests/`, `__tests__/`, `spec/`, `cypress/`, `playwright/`, `e2e/` and any folder referenced in `vitest.config.*`, `playwright.config.*`, `jest.config.*`.
+
+For each test subfolder found, record:
+- **Folder path** — e.g. `automation_tests/api/`
+- **Status** — `has tests` (contains `.spec.ts`/`.test.ts` files) OR `empty/placeholder` (only `.gitkeep` or no files)
+- **Framework** — the runner configured for that folder (Vitest, Playwright, Jest, Supertest, etc.)
+
+Save this as a `## Test Infrastructure` section in `code-quality-assessment.md`:
+
+```markdown
+## Test Infrastructure
+
+| Folder | Status | Framework |
+|---|---|---|
+| automation_tests/unit/ | has tests | Vitest |
+| automation_tests/api/ | empty/placeholder | (undecided) |
+| automation_tests/e2e/ | has tests | Playwright |
+```
+
+**Why this matters**: Empty/placeholder folders signal that the project *intends* to have those test types but none have been written yet. Requirements Analysis uses this inventory to ask the user which test types should be covered for the new feature.
+
 ## Step 2: Generate Business Overview Documentation
 
 Create `aidlc-docs/{initiative-slug}/inception/reverse-engineering/business-overview.md`:

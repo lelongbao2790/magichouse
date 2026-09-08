@@ -90,7 +90,42 @@ Analyze whatever the user has provided:
 
 **When in doubt, ask questions** - incomplete requirements lead to poor implementations.
 
-### Step 5.1: Extension Opt-In Prompts
+### Step 5.1: Test Scope Question (MANDATORY for brownfield)
+
+Before adding the extension opt-in prompts, check the Test Infrastructure section of the reverse engineering `code-quality-assessment.md`.
+
+**IF** any test subfolder exists (including empty/placeholder ones), add a question to the clarifying questions file that:
+
+1. **Shows what was found** — list each folder with its plain-English meaning and current status. Example:
+
+   ```
+   We found these test folders in your project:
+   - automation_tests/unit/ → unit tests (individual functions) — ✅ already has tests
+   - automation_tests/api/ → API tests (call your server endpoints directly) — 📭 folder exists but empty
+   - automation_tests/e2e/ → E2E tests (open a real browser and click through the app) — ✅ already has a smoke test
+   ```
+
+2. **Asks in plain language** which types of tests should be written for *this feature*. Use everyday words — never use "PBT", "contract tests", "integration layer", or other jargon.
+
+3. **Provides lettered options** (A/B/C/D + X) Other) that are concrete and mutually exclusive. Example:
+
+   ```
+   Which tests should we write for this feature?
+
+   A) Unit tests only — test the logic functions directly (like we already do)
+   B) Unit tests + E2E tests — also write browser tests that click through the new screens
+   C) Unit tests + API tests — also write tests that call the server API endpoints directly
+   D) All three — unit, E2E, and API tests
+   X) Other (please describe after [Answer]: tag below)
+
+   [Answer]:
+   ```
+
+4. **Carries the answer forward**: The answer to this question defines which test files are generated in Code Generation and which test types are executed in Build and Test. Record the answer in `aidlc-state.md` under `## Test Scope`.
+
+**IF** only a `unit/` folder exists (no api/ or e2e/): skip this question — unit tests are the default and no additional choice is needed.
+
+### Step 5.2: Extension Opt-In Prompts
 
 **MANDATORY**: Scan all loaded `*.opt-in.md` files (loaded at workflow start from `extensions/` subdirectories) for an `## Opt-In Prompt` section. For each extension that declares one, include that question in the clarifying questions file created in Step 6. Present each opt-in question in the same language as the user's conversation.
 
