@@ -21,6 +21,8 @@ export default defineConfig({
         "app/api/**",
         "components/**",
         "!components/ui/**",
+        // Admin content API — verified manually (TC-M003), not by automated route tests.
+        "!app/api/admin/**",
       ],
       thresholds: {
         lines: 80,

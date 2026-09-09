@@ -128,6 +128,104 @@ export type Database = {
           }
         ]
       }
+      subjects: {
+        Row: {
+          id: string
+          key: string
+          title_vi: string
+          title_en: string
+          grade: 'preschool' | 'grade1' | 'grade2'
+          target_language: 'vi' | 'en'
+          content_mode: 'fixed' | 'localized'
+          questions_per_session: number
+          sort_order: number
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          key: string
+          title_vi: string
+          title_en: string
+          grade: 'preschool' | 'grade1' | 'grade2'
+          target_language: 'vi' | 'en'
+          content_mode: 'fixed' | 'localized'
+          questions_per_session?: number
+          sort_order?: number
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          key?: string
+          title_vi?: string
+          title_en?: string
+          grade?: 'preschool' | 'grade1' | 'grade2'
+          target_language?: 'vi' | 'en'
+          content_mode?: 'fixed' | 'localized'
+          questions_per_session?: number
+          sort_order?: number
+          created_at?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      subject_questions: {
+        Row: {
+          id: string
+          subject_id: string
+          source_key: string | null
+          prompt_vi: string | null
+          prompt_en: string | null
+          options_vi: string[] | null
+          options_en: string[] | null
+          correct_index: number
+          difficulty: 'easy' | 'medium' | 'hard'
+          is_active: boolean
+          sort_order: number
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          subject_id: string
+          source_key?: string | null
+          prompt_vi?: string | null
+          prompt_en?: string | null
+          options_vi?: string[] | null
+          options_en?: string[] | null
+          correct_index: number
+          difficulty: 'easy' | 'medium' | 'hard'
+          is_active?: boolean
+          sort_order?: number
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          subject_id?: string
+          source_key?: string | null
+          prompt_vi?: string | null
+          prompt_en?: string | null
+          options_vi?: string[] | null
+          options_en?: string[] | null
+          correct_index?: number
+          difficulty?: 'easy' | 'medium' | 'hard'
+          is_active?: boolean
+          sort_order?: number
+          created_at?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: 'subject_questions_subject_id_fkey'
+            columns: ['subject_id']
+            isOneToOne: false
+            referencedRelation: 'subjects'
+            referencedColumns: ['id']
+          }
+        ]
+      }
       quiz_history: {
         Row: {
           id: string
@@ -223,6 +321,8 @@ export type StickerRow = Tables<'stickers'>
 export type PlayerStickerRow = Tables<'player_stickers'>
 export type CreativeCanvasRow = Tables<'creative_canvas'>
 export type QuizHistoryRow = Tables<'quiz_history'>
+export type SubjectRow = Tables<'subjects'>
+export type SubjectQuestionRow = Tables<'subject_questions'>
 
 // Canvas item shape (element of creative_canvas.canvas_data JSONB array)
 export interface CanvasItem {
