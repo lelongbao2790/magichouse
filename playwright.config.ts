@@ -15,10 +15,9 @@ export default defineConfig({
     video: "off",
     trace: "off",
   },
+  // Chromium only — cross-browser coverage was dropped for this suite (subject-content-db).
   projects: [
     { name: "chromium", use: { ...devices["Desktop Chrome"] } },
-    { name: "firefox", use: { ...devices["Desktop Firefox"] } },
-    { name: "webkit", use: { ...devices["Desktop Safari"] } },
   ],
 });
 
