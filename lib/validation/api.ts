@@ -48,6 +48,29 @@ export const MigrateSchema = z.object({
   ownedStickers: z.array(z.string()),
 })
 
+// Subject content — UI locale for the gameplay questions endpoint.
+export const LocaleSchema = z.enum(['vi', 'en'])
+
+// Admin content API (U3) — create / update a subject_questions row.
+export const OptionsArraySchema = z.array(z.string().min(1)).length(3, 'Must have exactly 3 options')
+
+export const SubjectQuestionCreateSchema = z.object({
+  subjectKey: z.string().min(1, 'subjectKey is required'),
+  promptVi: z.string().min(1).nullable().optional(),
+  promptEn: z.string().min(1).nullable().optional(),
+  optionsVi: OptionsArraySchema.nullable().optional(),
+  optionsEn: OptionsArraySchema.nullable().optional(),
+  correctIndex: z.number().int().min(0).max(2),
+  difficulty: z.enum(['easy', 'medium', 'hard']),
+  isActive: z.boolean().optional(),
+  sortOrder: z.number().int().optional(),
+})
+
+export const SubjectQuestionUpdateSchema = SubjectQuestionCreateSchema
+  .partial()
+  .omit({ subjectKey: true })
+  .extend({ id: z.string().uuid('id must be a UUID') })
+
 export type SignupInput = z.infer<typeof SignupSchema>
 export type LoginInput = z.infer<typeof LoginSchema>
 export type AddCoinsInput = z.infer<typeof AddCoinsSchema>
@@ -55,3 +78,6 @@ export type BuyStickerInput = z.infer<typeof BuyStickerSchema>
 export type CanvasInput = z.infer<typeof CanvasSchema>
 export type QuizHistoryInput = z.infer<typeof QuizHistorySchema>
 export type MigrateInput = z.infer<typeof MigrateSchema>
+export type LocaleInput = z.infer<typeof LocaleSchema>
+export type SubjectQuestionCreateInput = z.infer<typeof SubjectQuestionCreateSchema>
+export type SubjectQuestionUpdateInput = z.infer<typeof SubjectQuestionUpdateSchema>

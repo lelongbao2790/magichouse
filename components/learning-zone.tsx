@@ -1,9 +1,11 @@
 "use client"
 
-import { useState, useMemo } from "react"
+import { useState, useMemo, useEffect } from "react"
 import { useLanguage } from "@/contexts/language-context"
 import { type Language } from "@/data/translations"
 import { type Difficulty, randomDifficulty, calculateSessionCoins } from "@/lib/coin-rewards"
+import { useSubjectQuestions } from "@/lib/hooks/use-subject-questions"
+import { pickSessionQuestions } from "@/lib/quiz-session"
 import { Grade2SubjectView } from "./grade2-subject-view"
 import { CoinDisplay } from "./coin-display"
 import { ThemeSwitcher } from "./theme-switcher"
@@ -148,13 +150,15 @@ function generateMathQuestion(): { question: string; options: string[]; correctI
   return { question: `${a} ${isAddition ? "+" : "-"} ${b} = ?`, options, correctIndex: correctPos, difficulty: randomDifficulty() }
 }
 
-function shuffleAndTake<T>(arr: T[], n: number): T[] {
-  const copy = [...arr]
-  for (let i = copy.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [copy[i], copy[j]] = [copy[j], copy[i]]
-  }
-  return copy.slice(0, n)
+// Quiz categories whose questions live in the database (fetched via useSubjectQuestions).
+// The remaining practices (math, addition, subtraction, timesTable) are generated in-code.
+const CONTENT_SUBJECT_KEYS = [
+  "shapes", "colors", "animals", "vietnamese", "english",
+  "grade2Vietnamese", "grade2English",
+] as const
+
+function isContentSubject(id: string | null): boolean {
+  return id != null && (CONTENT_SUBJECT_KEYS as readonly string[]).includes(id)
 }
 
 export function LearningZone({ name, onBack, onQuizComplete, showFireworks, onFireworksComplete }: LearningZoneProps) {
@@ -166,139 +170,51 @@ export function LearningZone({ name, onBack, onQuizComplete, showFireworks, onFi
   const subtractionQuestions = useMemo(() => Array.from({ length: 10 }, generateSubtractionQuestion), [])
   const timesTableQuestions = useMemo(() => Array.from({ length: 10 }, () => generateTimesTableQuestion(language)), [language])
 
-  const grade2VietnameseAllQuestions = [
-    { question: t("quizVietnameseGrade2", "q1"), options: [t("quizVietnameseGrade2", "q1o1"), t("quizVietnameseGrade2", "q1o2"), t("quizVietnameseGrade2", "q1o3")], correctIndex: 1, difficulty: randomDifficulty() },
-    { question: t("quizVietnameseGrade2", "q2"), options: [t("quizVietnameseGrade2", "q2o1"), t("quizVietnameseGrade2", "q2o2"), t("quizVietnameseGrade2", "q2o3")], correctIndex: 0, difficulty: randomDifficulty() },
-    { question: t("quizVietnameseGrade2", "q3"), options: [t("quizVietnameseGrade2", "q3o1"), t("quizVietnameseGrade2", "q3o2"), t("quizVietnameseGrade2", "q3o3")], correctIndex: 2, difficulty: randomDifficulty() },
-    { question: t("quizVietnameseGrade2", "q4"), options: [t("quizVietnameseGrade2", "q4o1"), t("quizVietnameseGrade2", "q4o2"), t("quizVietnameseGrade2", "q4o3")], correctIndex: 1, difficulty: randomDifficulty() },
-    { question: t("quizVietnameseGrade2", "q5"), options: [t("quizVietnameseGrade2", "q5o1"), t("quizVietnameseGrade2", "q5o2"), t("quizVietnameseGrade2", "q5o3")], correctIndex: 0, difficulty: randomDifficulty() },
-    { question: t("quizVietnameseGrade2", "q6"), options: [t("quizVietnameseGrade2", "q6o1"), t("quizVietnameseGrade2", "q6o2"), t("quizVietnameseGrade2", "q6o3")], correctIndex: 2, difficulty: randomDifficulty() },
-    { question: t("quizVietnameseGrade2", "q7"), options: [t("quizVietnameseGrade2", "q7o1"), t("quizVietnameseGrade2", "q7o2"), t("quizVietnameseGrade2", "q7o3")], correctIndex: 1, difficulty: randomDifficulty() },
-    { question: t("quizVietnameseGrade2", "q8"), options: [t("quizVietnameseGrade2", "q8o1"), t("quizVietnameseGrade2", "q8o2"), t("quizVietnameseGrade2", "q8o3")], correctIndex: 2, difficulty: randomDifficulty() },
-    { question: t("quizVietnameseGrade2", "q9"), options: [t("quizVietnameseGrade2", "q9o1"), t("quizVietnameseGrade2", "q9o2"), t("quizVietnameseGrade2", "q9o3")], correctIndex: 1, difficulty: randomDifficulty() },
-    { question: t("quizVietnameseGrade2", "q10"), options: [t("quizVietnameseGrade2", "q10o1"), t("quizVietnameseGrade2", "q10o2"), t("quizVietnameseGrade2", "q10o3")], correctIndex: 1, difficulty: randomDifficulty() },
-    { question: t("quizVietnameseGrade2", "q11"), options: [t("quizVietnameseGrade2", "q11o1"), t("quizVietnameseGrade2", "q11o2"), t("quizVietnameseGrade2", "q11o3")], correctIndex: 0, difficulty: randomDifficulty() },
-    { question: t("quizVietnameseGrade2", "q12"), options: [t("quizVietnameseGrade2", "q12o1"), t("quizVietnameseGrade2", "q12o2"), t("quizVietnameseGrade2", "q12o3")], correctIndex: 2, difficulty: randomDifficulty() },
-    { question: t("quizVietnameseGrade2", "q13"), options: [t("quizVietnameseGrade2", "q13o1"), t("quizVietnameseGrade2", "q13o2"), t("quizVietnameseGrade2", "q13o3")], correctIndex: 1, difficulty: randomDifficulty() },
-    { question: t("quizVietnameseGrade2", "q14"), options: [t("quizVietnameseGrade2", "q14o1"), t("quizVietnameseGrade2", "q14o2"), t("quizVietnameseGrade2", "q14o3")], correctIndex: 0, difficulty: randomDifficulty() },
-    { question: t("quizVietnameseGrade2", "q15"), options: [t("quizVietnameseGrade2", "q15o1"), t("quizVietnameseGrade2", "q15o2"), t("quizVietnameseGrade2", "q15o3")], correctIndex: 2, difficulty: randomDifficulty() },
-  ]
+  // DB-backed content subjects.
+  const activeIsContent = isContentSubject(activeQuiz)
+  const content = useSubjectQuestions(activeIsContent ? activeQuiz : null)
 
-  const grade2EnglishAllQuestions = [
-    { question: t("quizEnglishGrade2", "q1"), options: [t("quizEnglishGrade2", "q1o1"), t("quizEnglishGrade2", "q1o2"), t("quizEnglishGrade2", "q1o3")], correctIndex: 2, difficulty: randomDifficulty() },
-    { question: t("quizEnglishGrade2", "q2"), options: [t("quizEnglishGrade2", "q2o1"), t("quizEnglishGrade2", "q2o2"), t("quizEnglishGrade2", "q2o3")], correctIndex: 1, difficulty: randomDifficulty() },
-    { question: t("quizEnglishGrade2", "q3"), options: [t("quizEnglishGrade2", "q3o1"), t("quizEnglishGrade2", "q3o2"), t("quizEnglishGrade2", "q3o3")], correctIndex: 2, difficulty: randomDifficulty() },
-    { question: t("quizEnglishGrade2", "q4"), options: [t("quizEnglishGrade2", "q4o1"), t("quizEnglishGrade2", "q4o2"), t("quizEnglishGrade2", "q4o3")], correctIndex: 1, difficulty: randomDifficulty() },
-    { question: t("quizEnglishGrade2", "q5"), options: [t("quizEnglishGrade2", "q5o1"), t("quizEnglishGrade2", "q5o2"), t("quizEnglishGrade2", "q5o3")], correctIndex: 0, difficulty: randomDifficulty() },
-    { question: t("quizEnglishGrade2", "q6"), options: [t("quizEnglishGrade2", "q6o1"), t("quizEnglishGrade2", "q6o2"), t("quizEnglishGrade2", "q6o3")], correctIndex: 2, difficulty: randomDifficulty() },
-    { question: t("quizEnglishGrade2", "q7"), options: [t("quizEnglishGrade2", "q7o1"), t("quizEnglishGrade2", "q7o2"), t("quizEnglishGrade2", "q7o3")], correctIndex: 1, difficulty: randomDifficulty() },
-    { question: t("quizEnglishGrade2", "q8"), options: [t("quizEnglishGrade2", "q8o1"), t("quizEnglishGrade2", "q8o2"), t("quizEnglishGrade2", "q8o3")], correctIndex: 0, difficulty: randomDifficulty() },
-    { question: t("quizEnglishGrade2", "q9"), options: [t("quizEnglishGrade2", "q9o1"), t("quizEnglishGrade2", "q9o2"), t("quizEnglishGrade2", "q9o3")], correctIndex: 2, difficulty: randomDifficulty() },
-    { question: t("quizEnglishGrade2", "q10"), options: [t("quizEnglishGrade2", "q10o1"), t("quizEnglishGrade2", "q10o2"), t("quizEnglishGrade2", "q10o3")], correctIndex: 0, difficulty: randomDifficulty() },
-    { question: t("quizEnglishGrade2", "q11"), options: [t("quizEnglishGrade2", "q11o1"), t("quizEnglishGrade2", "q11o2"), t("quizEnglishGrade2", "q11o3")], correctIndex: 1, difficulty: randomDifficulty() },
-    { question: t("quizEnglishGrade2", "q12"), options: [t("quizEnglishGrade2", "q12o1"), t("quizEnglishGrade2", "q12o2"), t("quizEnglishGrade2", "q12o3")], correctIndex: 0, difficulty: randomDifficulty() },
-    { question: t("quizEnglishGrade2", "q13"), options: [t("quizEnglishGrade2", "q13o1"), t("quizEnglishGrade2", "q13o2"), t("quizEnglishGrade2", "q13o3")], correctIndex: 1, difficulty: randomDifficulty() },
-    { question: t("quizEnglishGrade2", "q14"), options: [t("quizEnglishGrade2", "q14o1"), t("quizEnglishGrade2", "q14o2"), t("quizEnglishGrade2", "q14o3")], correctIndex: 2, difficulty: randomDifficulty() },
-    { question: t("quizEnglishGrade2", "q15"), options: [t("quizEnglishGrade2", "q15o1"), t("quizEnglishGrade2", "q15o2"), t("quizEnglishGrade2", "q15o3")], correctIndex: 0, difficulty: randomDifficulty() },
-  ]
+  // The 10-question session is FROZEN the first time content loads for a given quiz.
+  // Later hook activity (e.g. a re-fetch triggered by a UI-language toggle re-keying the
+  // cache) never re-picks the questions — only the modal chrome re-localizes.
+  const [session, setSession] = useState<{ key: string | null; questions: typeof mathQuestions }>({
+    key: null,
+    questions: [],
+  })
+  useEffect(() => {
+    if (!activeIsContent) {
+      setSession((prev) => (prev.key === null ? prev : { key: null, questions: [] }))
+      return
+    }
+    if (content.phase === "ready" && content.data) {
+      const data = content.data
+      setSession((prev) =>
+        prev.key === activeQuiz
+          ? prev
+          : {
+              key: activeQuiz,
+              questions: pickSessionQuestions(
+                data.questions,
+                data.questionsPerSession,
+              ) as typeof mathQuestions,
+            },
+      )
+    } else {
+      // still loading / errored for a NEW quiz — drop any stale frozen session
+      setSession((prev) => (prev.key === activeQuiz ? prev : { key: null, questions: [] }))
+    }
+  }, [activeIsContent, activeQuiz, content.phase, content.data])
 
-  const grade2VietnamesePool = useMemo(() => shuffleAndTake(grade2VietnameseAllQuestions, 10), [])
-  const grade2EnglishPool = useMemo(() => shuffleAndTake(grade2EnglishAllQuestions, 10), [])
+  const sessionQuestions = session.key === activeQuiz ? session.questions : []
+  const hasFrozenSession = sessionQuestions.length > 0
 
-  // Quiz data with translations
-  const quizData = {
-        shapes: {
-      title: t("quizShapes", "title"),
-      questions: [
-        { question: t("quizShapes", "q1"), options: [t("quizShapes", "q1o1"), t("quizShapes", "q1o2"), t("quizShapes", "q1o3")], correctIndex: 1, difficulty: randomDifficulty() },
-        { question: t("quizShapes", "q2"), options: [t("quizShapes", "q2o1"), t("quizShapes", "q2o2"), t("quizShapes", "q2o3")], correctIndex: 0, difficulty: randomDifficulty() },
-        { question: t("quizShapes", "q3"), options: [t("quizShapes", "q3o1"), t("quizShapes", "q3o2"), t("quizShapes", "q3o3")], correctIndex: 1, difficulty: randomDifficulty() },
-        { question: t("quizShapes", "q4"), options: [t("quizShapes", "q4o1"), t("quizShapes", "q4o2"), t("quizShapes", "q4o3")], correctIndex: 2, difficulty: randomDifficulty() },
-        { question: t("quizShapes", "q5"), options: [t("quizShapes", "q5o1"), t("quizShapes", "q5o2"), t("quizShapes", "q5o3")], correctIndex: 2, difficulty: randomDifficulty() },
-        { question: t("quizShapes", "q6"), options: [t("quizShapes", "q6o1"), t("quizShapes", "q6o2"), t("quizShapes", "q6o3")], correctIndex: 1, difficulty: randomDifficulty() },
-        { question: t("quizShapes", "q7"), options: [t("quizShapes", "q7o1"), t("quizShapes", "q7o2"), t("quizShapes", "q7o3")], correctIndex: 2, difficulty: randomDifficulty() },
-        { question: t("quizShapes", "q8"), options: [t("quizShapes", "q8o1"), t("quizShapes", "q8o2"), t("quizShapes", "q8o3")], correctIndex: 1, difficulty: randomDifficulty() },
-        { question: t("quizShapes", "q9"), options: [t("quizShapes", "q9o1"), t("quizShapes", "q9o2"), t("quizShapes", "q9o3")], correctIndex: 2, difficulty: randomDifficulty() },
-        { question: t("quizShapes", "q10"), options: [t("quizShapes", "q10o1"), t("quizShapes", "q10o2"), t("quizShapes", "q10o3")], correctIndex: 2, difficulty: randomDifficulty() },
-      ]
-    },
-    colors: {
-      title: t("quizColors", "title"),
-      questions: [
-        { question: t("quizColors", "q1"), options: [t("quizColors", "q1o1"), t("quizColors", "q1o2"), t("quizColors", "q1o3")], correctIndex: 1, difficulty: randomDifficulty() },
-        { question: t("quizColors", "q2"), options: [t("quizColors", "q2o1"), t("quizColors", "q2o2"), t("quizColors", "q2o3")], correctIndex: 2, difficulty: randomDifficulty() },
-        { question: t("quizColors", "q3"), options: [t("quizColors", "q3o1"), t("quizColors", "q3o2"), t("quizColors", "q3o3")], correctIndex: 0, difficulty: randomDifficulty() },
-        { question: t("quizColors", "q4"), options: [t("quizColors", "q4o1"), t("quizColors", "q4o2"), t("quizColors", "q4o3")], correctIndex: 1, difficulty: randomDifficulty() },
-        { question: t("quizColors", "q5"), options: [t("quizColors", "q5o1"), t("quizColors", "q5o2"), t("quizColors", "q5o3")], correctIndex: 2, difficulty: randomDifficulty() },
-        { question: t("quizColors", "q6"), options: [t("quizColors", "q6o1"), t("quizColors", "q6o2"), t("quizColors", "q6o3")], correctIndex: 0, difficulty: randomDifficulty() },
-        { question: t("quizColors", "q7"), options: [t("quizColors", "q7o1"), t("quizColors", "q7o2"), t("quizColors", "q7o3")], correctIndex: 1, difficulty: randomDifficulty() },
-        { question: t("quizColors", "q8"), options: [t("quizColors", "q8o1"), t("quizColors", "q8o2"), t("quizColors", "q8o3")], correctIndex: 0, difficulty: randomDifficulty() },
-        { question: t("quizColors", "q9"), options: [t("quizColors", "q9o1"), t("quizColors", "q9o2"), t("quizColors", "q9o3")], correctIndex: 2, difficulty: randomDifficulty() },
-        { question: t("quizColors", "q10"), options: [t("quizColors", "q10o1"), t("quizColors", "q10o2"), t("quizColors", "q10o3")], correctIndex: 1, difficulty: randomDifficulty() },
-      ]
-    },
-    animals: {
-      title: t("quizAnimals", "title"),
-      questions: [
-        { question: t("quizAnimals", "q1"), options: [t("quizAnimals", "q1o1"), t("quizAnimals", "q1o2"), t("quizAnimals", "q1o3")], correctIndex: 1, difficulty: randomDifficulty() },
-        { question: t("quizAnimals", "q2"), options: [t("quizAnimals", "q2o1"), t("quizAnimals", "q2o2"), t("quizAnimals", "q2o3")], correctIndex: 1, difficulty: randomDifficulty() },
-        { question: t("quizAnimals", "q3"), options: [t("quizAnimals", "q3o1"), t("quizAnimals", "q3o2"), t("quizAnimals", "q3o3")], correctIndex: 1, difficulty: randomDifficulty() },
-        { question: t("quizAnimals", "q4"), options: [t("quizAnimals", "q4o1"), t("quizAnimals", "q4o2"), t("quizAnimals", "q4o3")], correctIndex: 1, difficulty: randomDifficulty() },
-        { question: t("quizAnimals", "q5"), options: [t("quizAnimals", "q5o1"), t("quizAnimals", "q5o2"), t("quizAnimals", "q5o3")], correctIndex: 0, difficulty: randomDifficulty() },
-        { question: t("quizAnimals", "q6"), options: [t("quizAnimals", "q6o1"), t("quizAnimals", "q6o2"), t("quizAnimals", "q6o3")], correctIndex: 2, difficulty: randomDifficulty() },
-        { question: t("quizAnimals", "q7"), options: [t("quizAnimals", "q7o1"), t("quizAnimals", "q7o2"), t("quizAnimals", "q7o3")], correctIndex: 1, difficulty: randomDifficulty() },
-        { question: t("quizAnimals", "q8"), options: [t("quizAnimals", "q8o1"), t("quizAnimals", "q8o2"), t("quizAnimals", "q8o3")], correctIndex: 2, difficulty: randomDifficulty() },
-        { question: t("quizAnimals", "q9"), options: [t("quizAnimals", "q9o1"), t("quizAnimals", "q9o2"), t("quizAnimals", "q9o3")], correctIndex: 0, difficulty: randomDifficulty() },
-        { question: t("quizAnimals", "q10"), options: [t("quizAnimals", "q10o1"), t("quizAnimals", "q10o2"), t("quizAnimals", "q10o3")], correctIndex: 0, difficulty: randomDifficulty() },
-      ]
-    },
-        math: {
-      title: t("quizMath", "title"),
-      questions: mathQuestions,
-    },
-    vietnamese: {
-      title: t("quizVietnamese", "title"),
-      questions: [
-        { question: t("quizVietnamese", "q1"), options: ["A", "B", "C"], correctIndex: 0, difficulty: randomDifficulty() },
-        { question: t("quizVietnamese", "q2"), options: ["N", "M", "L"], correctIndex: 1, difficulty: randomDifficulty() },
-        { question: t("quizVietnamese", "q3"), options: [t("quizVietnamese", "q3o1"), t("quizVietnamese", "q3o2"), t("quizVietnamese", "q3o3")], correctIndex: 2, difficulty: randomDifficulty() },
-      ]
-    },
-        addition: {
-      title: t("quizAddition", "title"),
-      questions: additionQuestions,
-    },
-    subtraction: {
-      title: t("quizSubtraction", "title"),
-      questions: subtractionQuestions,
-    },
-    timesTable: {
-      title: t("quizTimesTable", "title"),
-      questions: timesTableQuestions,
-    },
-    grade2Vietnamese: {
-      title: t("quizVietnameseGrade2", "title"),
-      questions: grade2VietnamesePool,
-    },
-    grade2English: {
-      title: t("quizEnglishGrade2", "title"),
-      questions: grade2EnglishPool,
-    },
-    english: {
-      title: t("quizEnglish", "title"),
-      questions: [
-        { question: t("quizEnglish", "q1"), options: [t("quizEnglish", "q1o1"), t("quizEnglish", "q1o2"), t("quizEnglish", "q1o3")], correctIndex: 1, difficulty: randomDifficulty() },
-        { question: t("quizEnglish", "q2"), options: [t("quizEnglish", "q2o1"), t("quizEnglish", "q2o2"), t("quizEnglish", "q2o3")], correctIndex: 1, difficulty: randomDifficulty() },
-        { question: t("quizEnglish", "q3"), options: [t("quizEnglish", "q3o1"), t("quizEnglish", "q3o2"), t("quizEnglish", "q3o3")], correctIndex: 2, difficulty: randomDifficulty() },
-        { question: t("quizEnglish", "q4"), options: [t("quizEnglish", "q4o1"), t("quizEnglish", "q4o2"), t("quizEnglish", "q4o3")], correctIndex: 1, difficulty: randomDifficulty() },
-        { question: t("quizEnglish", "q5"), options: [t("quizEnglish", "q5o1"), t("quizEnglish", "q5o2"), t("quizEnglish", "q5o3")], correctIndex: 2, difficulty: randomDifficulty() },
-        { question: t("quizEnglish", "q6"), options: [t("quizEnglish", "q6o1"), t("quizEnglish", "q6o2"), t("quizEnglish", "q6o3")], correctIndex: 1, difficulty: randomDifficulty() },
-        { question: t("quizEnglish", "q7"), options: [t("quizEnglish", "q7o1"), t("quizEnglish", "q7o2"), t("quizEnglish", "q7o3")], correctIndex: 2, difficulty: randomDifficulty() },
-        { question: t("quizEnglish", "q8"), options: [t("quizEnglish", "q8o1"), t("quizEnglish", "q8o2"), t("quizEnglish", "q8o3")], correctIndex: 1, difficulty: randomDifficulty() },
-        { question: t("quizEnglish", "q9"), options: [t("quizEnglish", "q9o1"), t("quizEnglish", "q9o2"), t("quizEnglish", "q9o3")], correctIndex: 1, difficulty: randomDifficulty() },
-        { question: t("quizEnglish", "q10"), options: [t("quizEnglish", "q10o1"), t("quizEnglish", "q10o2"), t("quizEnglish", "q10o3")], correctIndex: 2, difficulty: randomDifficulty() },
-      ]
-    },
+  // Quiz data for the in-code generated math practices. Content subjects
+  // (shapes/colors/animals/vietnamese/english/grade2*) come from `content` above.
+  const generatedQuizData: Record<string, { title: string; questions: typeof mathQuestions }> = {
+    math: { title: t("quizMath", "title"), questions: mathQuestions },
+    addition: { title: t("quizAddition", "title"), questions: additionQuestions },
+    subtraction: { title: t("quizSubtraction", "title"), questions: subtractionQuestions },
+    timesTable: { title: t("quizTimesTable", "title"), questions: timesTableQuestions },
   }
 
   const preschoolCategories = [
@@ -364,7 +280,9 @@ export function LearningZone({ name, onBack, onQuizComplete, showFireworks, onFi
     { id: "grade2English", name: t("categories", "english"), icon: Languages, color: "from-red-400 to-pink-400", bgColor: "bg-red-100" },
   ]
 
-  const currentQuizData = activeQuiz ? quizData[activeQuiz as keyof typeof quizData] : null
+  const generated = activeQuiz ? generatedQuizData[activeQuiz] : undefined
+  const currentTitle = activeIsContent ? (content.data?.title ?? "") : (generated?.title ?? "")
+  const currentQuestions = activeIsContent ? sessionQuestions : (generated?.questions ?? [])
   const allCategories = [...preschoolCategories, ...grade1Categories, ...grade2Categories, ...grade2VirtualCategories]
   const currentCategory = allCategories.find(c => c.id === activeQuiz)
   const activeTabData = tabs.find(tab => tab.id === activeTab)
@@ -450,14 +368,18 @@ export function LearningZone({ name, onBack, onQuizComplete, showFireworks, onFi
       </main>
 
       {/* Quiz Modal */}
-      {currentQuizData && currentCategory && (
+      {activeQuiz && currentCategory && (activeIsContent || generated) && (
         <QuizModal
           isOpen={!!activeQuiz}
           onClose={() => setActiveQuiz(null)}
           onComplete={handleQuizCompleteInternal}
-          title={currentQuizData.title}
-          questions={currentQuizData.questions}
+          title={currentTitle}
+          questions={currentQuestions}
           icon={<currentCategory.icon className="w-6 h-6 text-primary" />}
+          isLoading={activeIsContent && content.isLoading && !hasFrozenSession}
+          loadError={activeIsContent && content.error === "load" && !hasFrozenSession}
+          emptyError={activeIsContent && content.error === "empty" && !hasFrozenSession}
+          onRetry={content.retry}
         />
       )}
     </div>

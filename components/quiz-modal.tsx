@@ -3,7 +3,7 @@
 import { useState } from "react"
 import { useLanguage } from "@/contexts/language-context"
 import { type Difficulty } from "@/lib/coin-rewards"
-import { X, CheckCircle2, XCircle, ArrowRight, Trophy } from "lucide-react"
+import { X, CheckCircle2, XCircle, ArrowRight, Trophy, Loader2, RefreshCw } from "lucide-react"
 
 interface Question {
   question: string
@@ -19,9 +19,27 @@ interface QuizModalProps {
   title: string
   questions: Question[]
   icon: React.ReactNode
+  /** Content-subject quizzes only: the question set is still loading. */
+  isLoading?: boolean
+  /** Content-subject quizzes only: the question fetch failed — show Retry. */
+  loadError?: boolean
+  /** Content-subject quizzes only: the subject has no active questions — Close only. */
+  emptyError?: boolean
+  onRetry?: () => void
 }
 
-export function QuizModal({ isOpen, onClose, onComplete, title, questions, icon }: QuizModalProps) {
+export function QuizModal({
+  isOpen,
+  onClose,
+  onComplete,
+  title,
+  questions,
+  icon,
+  isLoading = false,
+  loadError = false,
+  emptyError = false,
+  onRetry,
+}: QuizModalProps) {
   const { t, language } = useLanguage()
   const [currentQuestion, setCurrentQuestion] = useState(0)
   const [selectedAnswer, setSelectedAnswer] = useState<number | null>(null)
@@ -106,7 +124,40 @@ export function QuizModal({ isOpen, onClose, onComplete, title, questions, icon 
 
         {/* Content */}
         <div className="p-6">
-          {isFinished ? (
+          {loadError ? (
+            // Load error — offer Retry
+            <div className="flex flex-col items-center gap-5 py-10 text-center" data-testid="quiz-error">
+              <XCircle className="w-12 h-12 text-red-500" />
+              <p className="text-lg font-semibold text-card-foreground">{t("quiz", "loadError")}</p>
+              <button
+                onClick={onRetry}
+                className="flex items-center gap-2 px-6 py-3 bg-primary text-primary-foreground font-bold rounded-xl hover:scale-105 transition-transform"
+                data-testid="quiz-retry-button"
+              >
+                <RefreshCw className="w-5 h-5" />
+                {t("quiz", "retry")}
+              </button>
+            </div>
+          ) : emptyError ? (
+            // No questions for this subject yet — Close only
+            <div className="flex flex-col items-center gap-5 py-10 text-center" data-testid="quiz-empty">
+              <Trophy className="w-12 h-12 text-muted-foreground" />
+              <p className="text-lg font-semibold text-card-foreground">{t("quiz", "noQuestions")}</p>
+              <button
+                onClick={handleClose}
+                className="px-6 py-3 bg-muted text-foreground font-bold rounded-xl hover:bg-secondary transition-colors"
+                data-testid="quiz-empty-close"
+              >
+                {t("common", "close")}
+              </button>
+            </div>
+          ) : isLoading || !question ? (
+            // Loading the question set
+            <div className="flex flex-col items-center gap-4 py-12 text-center" data-testid="quiz-loading">
+              <Loader2 className="w-10 h-10 text-primary animate-spin" />
+              <p className="text-muted-foreground font-medium">{t("quiz", "loading")}</p>
+            </div>
+          ) : isFinished ? (
             // Results screen
             <div className="flex flex-col items-center gap-6 py-8" data-testid="quiz-results">
               <div className="relative">

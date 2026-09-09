@@ -18,7 +18,7 @@ concurrency:
   cancel-in-progress: true
 
 env:
-  INITIATIVE: grade2-subjects-coin-rewards
+  INITIATIVE: subject-content-db
 
 jobs:
   # ──────────────────────────────────────────────────────────────────────────
@@ -213,23 +213,23 @@ jobs:
           <body>
           <div class="header">
             <h1>Test Reports — magichouse</h1>
-            <p>Initiative: grade2-subjects-coin-rewards</p>
+            <p>Initiative: subject-content-db</p>
           </div>
           <div class="grid">
-            <a class="card" href="grade2-subjects-coin-rewards/unit/">
+            <a class="card" href="subject-content-db/unit/">
               <div class="card-icon">🧪</div>
               <h2>Unit Tests</h2>
-              <p>68 test cases · coin rewards &amp; learning zone logic</p>
+              <p>Subject content · quiz session · hook · resolve · admin · PBT</p>
             </a>
-            <a class="card" href="grade2-subjects-coin-rewards/api/">
+            <a class="card" href="subject-content-db/api/">
               <div class="card-icon">🔌</div>
               <h2>API Tests</h2>
-              <p>24 test cases · POST /api/quiz/history validation</p>
+              <p>Questions route contract · language resolution · migration CHECK</p>
             </a>
-            <a class="card" href="grade2-subjects-coin-rewards/e2e/">
+            <a class="card" href="subject-content-db/e2e/">
               <div class="card-icon">🌐</div>
               <h2>E2E Tests</h2>
-              <p>9 test cases · Grade 2 navigation &amp; browser flows</p>
+              <p>Vietnamese-subject language fix · loading/error · regression (Chromium)</p>
             </a>
           </div>
           </body>
