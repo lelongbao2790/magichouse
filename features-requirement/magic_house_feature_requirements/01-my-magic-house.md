@@ -8,32 +8,96 @@
 ## User Story
 
 **As a** child,
-**I want to** use the coins I earn from learning activities to buy furniture and decorate my own room,
-**So that** I can personalize my space and feel rewarded for learning.
+**I want to** use the coins I earn from learning activities to buy furniture and decorate my own house,
+**So that** I can personalize my own space and feel rewarded for learning.
 
 ---
 
-## Business Goal
+## Business Description
 
-Children currently earn coins by completing learning activities.
+Magic House currently allows children to earn coins from learning activities and use purchased stickers in the existing **Decoration** area to customize their Boy/Girl character.
 
-**My House** gives those coins additional value by allowing children to purchase virtual furniture and decorations and customize their own personal space.
+**My House** extends the reward experience by introducing a separate personal space where children can use their coins to purchase furniture and decorate rooms.
 
-The core experience is:
+My House will be introduced as a **new main navigation tab**, separate from the existing Decoration feature.
 
-**Learn → Earn Coins → Buy Items → Decorate → Save**
+The two features have different purposes:
+
+* **Decoration** → Customize the child's Boy/Girl character using stickers.
+* **My House** → Customize rooms using furniture and house decorations.
+
+The core My House experience is:
+
+**Learn → Earn Coins → Buy Items → Decorate House → Save**
 
 ---
 
-## V1 Scope
+# Navigation
 
-The first version will support **one room: Bedroom**.
+Add **My House** as a new main tab.
 
-The Bedroom provides the initial house customization experience and establishes the foundation for adding more rooms and decoration features in future versions.
+Existing navigation remains unchanged, with My House added as an additional option.
 
-### Initial Items
+When the child selects **My House**, the system opens the My House experience.
 
-Provide **5–8 house items**, such as:
+---
+
+# Room Navigation
+
+My House should be designed to support multiple rooms.
+
+Initial room navigation:
+
+* Bedroom
+* Kitchen
+* Living Room
+* Garden
+
+For V1:
+
+**Bedroom is the only active room.**
+
+Other rooms may be displayed as **Locked / Coming Later** to establish the future house structure without implementing their functionality.
+
+---
+
+# Functional Requirements
+
+## FR-1 – My House
+
+When the child selects **My House**, display:
+
+* Room navigation
+* Bedroom
+* Current coin balance
+* Owned house items
+* Available furniture/decorations
+
+The Bedroom is the default room for V1.
+
+---
+
+## FR-2 – Existing Coin Balance
+
+My House must reuse the existing Magic House coin balance.
+
+No separate House currency should be introduced.
+
+Example:
+
+**Current Balance:** 200 coins
+**Bed:** 100 coins
+**Remaining Balance:** 100 coins
+
+The updated balance must remain consistent with the rest of Magic House.
+
+---
+
+## FR-3 – House Items
+
+Provide an initial collection of approximately **5–8 Bedroom items**.
+
+Example:
 
 | Item       |     Price |
 | ---------- | --------: |
@@ -44,237 +108,210 @@ Provide **5–8 house items**, such as:
 | Plant      |  50 coins |
 | Rug        |  60 coins |
 
-House item assets need to be added as part of this feature.
+Each item displays:
 
----
-
-# Functional Requirements
-
-## FR-1 – My House
-
-Add a **My House** entry to Magic House.
-
-When the child opens My House, the Bedroom is displayed.
-
-The page should provide:
-
-* Bedroom decoration area
-* Current coin balance
-* Available house items
-* Owned items
-
----
-
-## FR-2 – Existing Coin Balance
-
-My House must use the child's existing Magic House coin balance.
-
-No separate currency should be introduced.
-
-For example:
-
-**Current Balance:** 200 coins
-**Buy Bed:** 100 coins
-**New Balance:** 100 coins
-
-Any coin changes made in My House must be reflected in the existing coin balance throughout the application.
-
----
-
-## FR-3 – House Items
-
-Provide a collection of furniture and decoration items that can be purchased.
-
-Each item should contain:
-
-* Item image
-* Item name
+* Image
+* Name
 * Coin price
-* Purchase status: Available / Owned
+* Available / Owned status
 
-The first version only requires enough items to provide a meaningful Bedroom customization experience.
+House item assets are new and need to be added as part of this feature.
 
 ---
 
-## FR-4 – Purchase Item
+## FR-4 – Purchase House Item
 
-The child can purchase a house item using existing coins.
+The child can purchase an available item using existing coins.
 
-Before completing the purchase, the system must verify:
+Before purchase:
 
 **Coin Balance >= Item Price**
 
-When the purchase succeeds:
+After a successful purchase:
 
-1. Deduct the item price from the existing coin balance.
-2. Mark the item as owned.
-3. Make the item available for Bedroom decoration.
+1. Deduct the item price.
+2. Update the existing coin balance.
+3. Mark the item as owned.
+4. Make the item available in **My Items**.
 
-An owned item does not need to be purchased again.
-
----
-
-## FR-5 – Decorate Bedroom
-
-The child can use owned items to decorate the Bedroom.
-
-The child should be able to:
-
-* Select an owned item.
-* Drag and drop the item into the Bedroom.
-* Move the item to another position.
-* Remove the item from the Bedroom.
-* Use the item again after removing it.
-
-Reuse the existing drag-and-drop interaction pattern where possible.
+If the child does not have enough coins, the purchase must not be completed.
 
 ---
 
-## FR-6 – Save Bedroom
+## FR-5 – My Items
 
-The Bedroom configuration should be saved automatically.
+Display purchased house items in a **My Items** area.
 
-At minimum, persist:
+Example:
 
-* Purchased items
-* Items placed in the Bedroom
-* Position of each placed item
+`🛏 Bed   💡 Lamp   🧸 Teddy Bear   🪴 Plant`
 
-When the child returns to My House, the previously saved Bedroom should be restored.
+The child can select or drag an owned item from My Items into the Bedroom.
+
+Purchased items remain owned and do not need to be purchased again.
+
+---
+
+## FR-6 – Decorate Bedroom
+
+The child can customize the Bedroom using owned items.
+
+Support:
+
+* Drag item into Bedroom
+* Drop item at a selected position
+* Move existing item
+* Remove item from Bedroom
+* Return removed item to My Items
+
+Reuse the existing Decoration drag-and-drop interaction where technically appropriate.
+
+---
+
+## FR-7 – Save Bedroom
+
+Bedroom customization should be automatically saved.
+
+Persist at minimum:
+
+* Purchased house items
+* Items placed in Bedroom
+* Position of each item
+
+When the child returns to My House, the previous Bedroom configuration must be restored.
 
 ---
 
 # Acceptance Criteria
 
-## AC-1 – Open My House
+## AC-1 – My House Navigation
 
 **Given** the child is using Magic House
-**When** the child selects **My House**
-**Then** the Bedroom is displayed
+**When** the main navigation is displayed
+**Then** My House is available as a separate navigation option from Decoration.
+
+---
+
+## AC-2 – Open My House
+
+**Given** the child selects My House
+**When** the page opens
+**Then** Bedroom is displayed as the default room
 **And** the current coin balance is visible
-**And** available house items can be viewed.
+**And** house items are available.
 
 ---
 
-## AC-2 – Use Existing Coins
+## AC-3 – Room Navigation
 
-**Given** the child has coins earned from learning activities
+**Given** the child is in My House
+**Then** the UI supports room navigation.
+
+For V1:
+
+* Bedroom is available.
+* Other configured rooms may be displayed as locked or unavailable.
+
+---
+
+## AC-4 – Existing Coins
+
+**Given** the child has coins earned from learning
 **When** the child enters My House
-**Then** the same existing coin balance is used for purchasing house items.
+**Then** the same existing coin balance is displayed and used.
 
 ---
 
-## AC-3 – Purchase an Item
+## AC-5 – Purchase Item
 
 **Given** the child has 150 coins
 **And** a Bed costs 100 coins
 **When** the child purchases the Bed
-**Then** the purchase succeeds
-**And** the Bed becomes owned
-**And** the Bed becomes available for decoration
-**And** the coin balance becomes 50.
+**Then** the Bed becomes owned
+**And** appears in My Items
+**And** the balance becomes 50 coins.
 
 ---
 
-## AC-4 – Insufficient Coins
+## AC-6 – Insufficient Coins
 
-**Given** the child has 50 coins
-**And** the Bed costs 100 coins
-**When** the child attempts to purchase the Bed
-**Then** the purchase is not completed
-**And** no coins are deducted
-**And** a child-friendly insufficient-coins message is displayed.
+**Given** the child does not have enough coins
+**When** the child attempts to purchase an item
+**Then** the purchase is prevented
+**And** no coins are deducted.
 
 ---
 
-## AC-5 – Place an Item
+## AC-7 – Decorate Bedroom
 
-**Given** the child owns an item
+**Given** the child owns a house item
 **When** the child drags the item into the Bedroom
-**Then** the item is placed at the selected valid position.
+**Then** the item is placed at the selected position.
 
 ---
 
-## AC-6 – Move an Item
+## AC-8 – Move or Remove Item
 
-**Given** an item is already placed in the Bedroom
-**When** the child moves the item
-**Then** the item is displayed at the new position
-**And** the new position is saved.
-
----
-
-## AC-7 – Remove an Item
-
-**Given** an owned item is placed in the Bedroom
-**When** the child removes the item
-**Then** the item is removed from the Bedroom
-**And** remains owned
-**And** can be used again without another purchase.
+**Given** an item has been placed in the Bedroom
+**When** the child moves or removes the item
+**Then** the Bedroom is updated
+**And** removed items remain owned.
 
 ---
 
-## AC-8 – Restore Bedroom
+## AC-9 – Restore Bedroom
 
-**Given** the child has purchased and placed items
-**When** the child leaves My House and returns later
-**Then** purchased items remain owned
-**And** previously placed items are restored to their saved positions.
+**Given** the child has decorated the Bedroom
+**When** the child leaves My House and returns
+**Then** previously purchased items remain owned
+**And** the saved Bedroom layout is restored.
 
 ---
 
 # Existing Capabilities to Reuse
 
-Reuse existing Magic House capabilities where possible:
+Reuse where possible:
 
 * Learning activities
-* Coin reward logic
+* Coin rewards
 * Existing coin balance
-* User/profile information
-* Existing drag-and-drop interaction pattern
+* User/profile
+* Existing drag-and-drop behavior
 
-These capabilities should not be rebuilt specifically for My House.
-
----
-
-# New Scope
-
-V1 introduces:
-
-1. My House entry
-2. Bedroom
-3. House item collection
-4. House item assets
-5. Purchase and ownership
-6. Bedroom decoration
-7. Save and restore Bedroom configuration
+The existing **Decoration** feature remains unchanged and continues to handle Boy/Girl character and sticker decoration.
 
 ---
 
-# Out of Scope for V1
+# V1 Scope
 
-The following are not required for V1:
+V1 includes:
 
-* Multiple rooms
-* Study Room
+1. New **My House** main tab
+2. Room navigation structure
+3. Bedroom
+4. 5–8 Bedroom items
+5. Purchase using existing coins
+6. My Items
+7. Drag-and-drop Bedroom decoration
+8. Save and restore Bedroom
+
+---
+
+# Future Scope
+
+Future versions can unlock:
+
+* Kitchen
 * Living Room
 * Garden
-* Pet Room
-* Wallpaper customization
-* Item rotation
-* Item resizing
-* Room-specific item restrictions
-* Selling items
-* Trading items
-* Gifting items
-* Visiting other houses
-* Multiplayer
-* House ranking
-
-These capabilities can be introduced in future versions.
+* Additional furniture
+* Wallpaper
+* Room upgrades
+* Special/rare items
+* Additional house customization
 
 ---
 
 ## Core Loop
 
-**Learn → Earn → Buy → Decorate → Save**
+**Learn → Earn → Buy → Decorate → Save → Unlock More**
