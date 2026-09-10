@@ -3,15 +3,15 @@
 <html lang="en">
 
 <head>
-    <title>Code coverage report for components/coin-display.tsx</title>
+    <title>Code coverage report for app/api/subjects/[key]/questions/route.ts</title>
     <meta charset="utf-8" />
-    <link rel="stylesheet" href="../prettify.css" />
-    <link rel="stylesheet" href="../base.css" />
-    <link rel="shortcut icon" type="image/x-icon" href="../favicon.png" />
+    <link rel="stylesheet" href="../../../../../prettify.css" />
+    <link rel="stylesheet" href="../../../../../base.css" />
+    <link rel="shortcut icon" type="image/x-icon" href="../../../../../favicon.png" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <style type='text/css'>
         .coverage-summary .sorter {
-            background-image: url(../sort-arrow-sprite.png);
+            background-image: url(../../../../../sort-arrow-sprite.png);
         }
     </style>
 </head>
@@ -19,7 +19,7 @@
 <body>
 <div class='wrapper'>
     <div class='pad1'>
-        <h1><a href="../index.html">All files</a> / <a href="index.html">components</a> coin-display.tsx</h1>
+        <h1><a href="../../../../../index.html">All files</a> / <a href="index.html">app/api/subjects/[key]/questions</a> route.ts</h1>
         <div class='clearfix'>
             
             <div class='fl pad1y space-right2'>
@@ -32,7 +32,7 @@
             <div class='fl pad1y space-right2'>
                 <span class="strong">100% </span>
                 <span class="quiet">Branches</span>
-                <span class='fraction'>1/1</span>
+                <span class='fraction'>10/10</span>
             </div>
         
             
@@ -92,66 +92,63 @@
 <a name='L27'></a><a href='#L27'>27</a>
 <a name='L28'></a><a href='#L28'>28</a>
 <a name='L29'></a><a href='#L29'>29</a>
-<a name='L30'></a><a href='#L30'>30</a>
-<a name='L31'></a><a href='#L31'>31</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
+<a name='L30'></a><a href='#L30'>30</a></td><td class="line-coverage quiet"><span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">7x</span>
+<span class="cline-any cline-yes">7x</span>
+<span class="cline-any cline-yes">7x</span>
+<span class="cline-any cline-yes">7x</span>
+<span class="cline-any cline-yes">7x</span>
+<span class="cline-any cline-yes">7x</span>
+<span class="cline-any cline-yes">7x</span>
+<span class="cline-any cline-yes">7x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">6x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">7x</span>
+<span class="cline-any cline-yes">7x</span>
+<span class="cline-any cline-yes">7x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">5x</span>
+<span class="cline-any cline-yes">7x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">3x</span>
+<span class="cline-any cline-yes">7x</span>
 <span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-yes">27x</span>
-<span class="cline-any cline-yes">27x</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">27x</span>
-<span class="cline-any cline-yes">27x</span>
-<span class="cline-any cline-yes">27x</span>
-<span class="cline-any cline-yes">27x</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">27x</span>
-<span class="cline-any cline-yes">27x</span>
-<span class="cline-any cline-yes">27x</span>
-<span class="cline-any cline-yes">27x</span>
-<span class="cline-any cline-yes">27x</span>
-<span class="cline-any cline-yes">27x</span>
-<span class="cline-any cline-yes">27x</span>
-<span class="cline-any cline-yes">27x</span>
-<span class="cline-any cline-yes">27x</span>
-<span class="cline-any cline-yes">27x</span>
-<span class="cline-any cline-yes">27x</span>
-<span class="cline-any cline-yes">27x</span>
-<span class="cline-any cline-yes">27x</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">27x</span>
-<span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js">"use client"
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">7x</span>
+<span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js">import { createServerClient } from '@/lib/supabase/server'
+import { apiSuccess, apiError } from '@/lib/api-response'
+import { LocaleSchema } from '@/lib/validation/api'
+import { getSubjectContent } from '@/lib/services/subject-content'
 &nbsp;
-import { useCoins } from "@/contexts/coin-context"
-import { useLanguage } from "@/contexts/language-context"
-import { Coins } from "lucide-react"
+export async function GET(
+  request: Request,
+  { params }: { params: Promise&lt;{ key: string }&gt; },
+) {
+  try {
+    const supabase = await createServerClient()
+    const { data: { user }, error } = await supabase.auth.getUser()
+    if (error || !user) return apiError('Not authenticated', 401)
 &nbsp;
-export function CoinDisplay() {
-  const { coins } = useCoins()
-  const { t } = useLanguage()
+    const { key } = await params
 &nbsp;
-  return (
-    &lt;div 
-      className="flex items-center gap-3 px-5 py-3 bg-gradient-to-r from-yellow-400/20 via-amber-300/20 to-yellow-400/20 rounded-full border-2 border-yellow-400/40 shadow-lg backdrop-blur-sm"
-      data-testid="coin-display"
-    &gt;
-      &lt;div className="relative"&gt;
-        &lt;div className="absolute inset-0 bg-yellow-400 rounded-full blur-md opacity-60 animate-pulse" /&gt;
-        &lt;div className="relative w-10 h-10 bg-gradient-to-br from-yellow-300 via-yellow-400 to-amber-500 rounded-full flex items-center justify-center shadow-xl border-2 border-yellow-200 animate-coin-shine"&gt;
-          &lt;Coins className="w-5 h-5 text-yellow-800" /&gt;
-        &lt;/div&gt;
-      &lt;/div&gt;
-      &lt;div className="flex flex-col"&gt;
-        &lt;span className="text-xs font-medium text-muted-foreground leading-tight"&gt;{t("common", "coinCount")}&lt;/span&gt;
-        &lt;span className="text-2xl font-black text-yellow-600 leading-tight tabular-nums" data-testid="coin-value"&gt;
-          {coins}
-        &lt;/span&gt;
-      &lt;/div&gt;
-    &lt;/div&gt;
-  )
+    const localeParam = new URL(request.url).searchParams.get('locale') ?? 'vi'
+    const parsedLocale = LocaleSchema.safeParse(localeParam)
+    if (!parsedLocale.success) return apiError('Invalid locale', 400)
+&nbsp;
+    const content = await getSubjectContent(supabase, key, parsedLocale.data)
+    if (!content) return apiError('Subject not found', 404)
+&nbsp;
+    return apiSuccess(content)
+  } catch (err) {
+    console.error('[GET /api/subjects/[key]/questions]', err)
+    return apiError('Internal server error', 500)
+  }
 }
 &nbsp;</pre></td></tr></table></pre>
 
@@ -162,14 +159,14 @@ export function CoinDisplay() {
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
                 at 2026-09-09T10:15:16.869Z
             </div>
-        <script src="../prettify.js"></script>
+        <script src="../../../../../prettify.js"></script>
         <script>
             window.onload = function () {
                 prettyPrint();
             };
         </script>
-        <script src="../sorter.js"></script>
-        <script src="../block-navigation.js"></script>
+        <script src="../../../../../sorter.js"></script>
+        <script src="../../../../../block-navigation.js"></script>
     </body>
 </html>
     
