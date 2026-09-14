@@ -45,6 +45,8 @@ export const translations = {
     learningZone: { vi: "Khu vực học tập", en: "Learning Zone" },
     learningZoneDesc: { vi: "Học và nhận xu thưởng!", en: "Learn and earn coins!" },
     startLearning: { vi: "Bắt đầu học", en: "Start Learning" },
+    myHouse: { vi: "Nhà của tôi", en: "My House" },
+    myHouseDesc: { vi: "Trang trí phòng ngủ bằng xu của bạn!", en: "Decorate your bedroom with your coins!" },
   },
 
   // Categories
@@ -139,6 +141,21 @@ export const translations = {
       fox: { vi: "Cáo con", en: "Fox" },
       unicorn: { vi: "Kỳ lân", en: "Unicorn" },
     },
+  },
+
+  // My House — UI chrome only (item names are localized server-side, per FR-2.1;
+  // no client-side name keys here).
+  house: {
+    title: { vi: "Nhà của tôi", en: "My House" },
+    catalogTitle: { vi: "Danh mục đồ đạc", en: "Item Catalog" },
+    myItems: { vi: "Đồ của tôi", en: "My Items" },
+    comingSoon: { vi: "Sắp có", en: "Coming soon" },
+    owned: { vi: "Đã sở hữu", en: "Owned" },
+    buyNow: { vi: "Mua ngay", en: "Buy Now" },
+    needMore: { vi: "Thiếu", en: "Need" },
+    coin: { vi: "xu", en: "coins" },
+    noItemsInRoom: { vi: "Chưa có đồ đạc nào cho phòng này.", en: "No items in this room yet." },
+    noItemsToPlace: { vi: "Bạn chưa có đồ nào để trang trí. Hãy mua thêm!", en: "Nothing to place yet — buy something!" },
   },
 
   // Sticker Names

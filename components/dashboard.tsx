@@ -11,15 +11,16 @@ import { Fireworks } from "./fireworks"
 import { StickerShop } from "./sticker-shop"
 import { CreativeRoom } from "./creative-room"
 import { LearningZone } from "./learning-zone"
+import { MyHouse } from "./my-house"
 import {
-  ChevronLeft, Star, ShoppingBag, Brush, BookOpenCheck, Sparkles
+  ChevronLeft, Star, ShoppingBag, Brush, BookOpenCheck, Sparkles, Home
 } from "lucide-react"
 
 interface DashboardProps {
   onBack: () => void
 }
 
-type ViewType = "dashboard" | "shop" | "creative" | "learning"
+type ViewType = "dashboard" | "shop" | "creative" | "learning" | "house"
 
 export function Dashboard({ onBack }: DashboardProps) {
   const { addCoins } = useCoins()
@@ -73,6 +74,11 @@ export function Dashboard({ onBack }: DashboardProps) {
     )
   }
 
+  // Render My House view
+  if (currentView === "house") {
+    return <MyHouse onBack={() => setCurrentView("dashboard")} />
+  }
+
   // Main sections
   const mainSections = [
     {
@@ -101,6 +107,15 @@ export function Dashboard({ onBack }: DashboardProps) {
       gradient: "from-green-400 via-emerald-400 to-teal-400",
       bgDecor: "bg-green-100",
       emoji: "📚",
+    },
+    {
+      id: "house",
+      name: t("dashboard", "myHouse"),
+      description: t("dashboard", "myHouseDesc"),
+      icon: Home,
+      gradient: "from-sky-400 via-blue-400 to-indigo-400",
+      bgDecor: "bg-sky-100",
+      emoji: "🏠",
     },
   ]
 
@@ -162,7 +177,7 @@ export function Dashboard({ onBack }: DashboardProps) {
         </div>
 
         {/* Main Navigation Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-8" data-testid="main-nav">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 md:gap-8" data-testid="main-nav">
           {mainSections.map((section) => {
             const Icon = section.icon
             return (

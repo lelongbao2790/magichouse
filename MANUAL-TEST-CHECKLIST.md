@@ -91,3 +91,49 @@ the four categories, **including `grade2Vietnamese` and `grade2English`** (no si
 constraint failure).
 **Specifically check**: the `grade2Vietnamese` / `grade2English` history rows exist — this
 is the `0002` CHECK-constraint fix verification.
+
+---
+
+## Initiative: my-house
+
+### TC-M006 — Content review of the 6 seeded Bedroom items
+
+**When**: Before merging the schema/seed migration PR.
+**Source**: `supabase/migrations/0004_house_items_schema.sql` (the 6 `house_items` seed rows).
+**Steps**:
+1. Read each item's name (VI + EN), emoji, and price.
+2. Confirm the emoji is a reasonable visual match for the item (e.g. 🛏️ for Bed).
+3. Confirm prices feel fair relative to typical coin-earn rates (5–30 coins/quiz).
+4. Confirm Vietnamese names are correctly spelled with tone marks.
+**Expected**: All 6 items look appealing, correctly named in both languages, and reasonably
+priced.
+**Specifically check**: any emoji that doesn't clearly read as its item name; any price that
+would take an unreasonable number of quizzes to afford.
+
+### TC-M007 — Drag-and-drop feel on a real mobile screen size
+
+**When**: After the UI unit (U2 — my-house-ui) is deployed to a preview/staging URL.
+**Preconditions**: A phone or a browser resized to a narrow viewport (~375px wide).
+**Steps**:
+1. Open My House on the narrow viewport.
+2. Drag an owned item from My Items onto the Bedroom.
+3. Try moving and removing it.
+**Expected**: Dragging feels responsive (no visible lag/jump), items don't overlap the
+catalog panel awkwardly, and touch targets (buy button, remove button) are big enough to tap
+reliably.
+**Specifically check**: any item that's hard to grab with a finger; any layout where the
+Bedroom canvas is cut off or too small to use.
+
+### TC-M008 — Migration applied correctly on the live Supabase project
+
+**When**: Immediately after running `supabase db push`, before the frontend deploy is marked
+done.
+**Preconditions**: Supabase CLI linked to the project.
+**Steps**:
+1. Run `supabase db push`.
+2. In the Supabase dashboard SQL editor: `select count(*) from house_items;`
+3. `select * from pg_policies where tablename in ('house_items','player_house_items','house_layout');`
+**Expected**: `house_items` has exactly 6 rows, all `room = 'bedroom'`; RLS policies exist on
+all 3 new tables matching the `stickers`/`player_stickers`/`creative_canvas` pattern.
+**Specifically check**: row count is exactly 6, not 0 or duplicated; RLS is actually enabled
+(not just policies defined but RLS toggle off).
