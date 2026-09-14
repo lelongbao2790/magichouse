@@ -119,3 +119,49 @@ export function corruptedQuestionRowArb(
     prompt_en: null,
   }))
 }
+
+// ---------------------------------------------------------------------------
+// My House (house-schema-and-service) generators — PBT-07.
+// ---------------------------------------------------------------------------
+
+/** A domain house-item catalog entry: id, room, price > 0, and a bilingual name pair. */
+export interface HouseItemArb {
+  id: string
+  room: 'bedroom' | 'kitchen' | 'living_room' | 'garden'
+  price: number
+  nameVi: string
+  nameEn: string
+}
+
+export const houseItemArb: fc.Arbitrary<HouseItemArb> = fc.record({
+  id: fc.uuid(),
+  room: fc.constantFrom(
+    'bedroom' as const,
+    'kitchen' as const,
+    'living_room' as const,
+    'garden' as const,
+  ),
+  price: fc.integer({ min: 1, max: 500 }),
+  nameVi: nonEmptyStringArb,
+  nameEn: nonEmptyStringArb,
+})
+
+/** A placed item within a room's layout: id, itemId, x/y in a wide including-out-of-range
+ * domain, scale, rotation. */
+export interface PlacedItemArb {
+  id: string
+  itemId: string
+  x: number
+  y: number
+  scale: number
+  rotation: number
+}
+
+export const placedItemArb: fc.Arbitrary<PlacedItemArb> = fc.record({
+  id: fc.uuid(),
+  itemId: fc.uuid(),
+  x: fc.float({ min: -50, max: 150, noNaN: true }),
+  y: fc.float({ min: -50, max: 150, noNaN: true }),
+  scale: fc.float({ min: 0, max: 5, noNaN: true }),
+  rotation: fc.float({ min: -720, max: 720, noNaN: true }),
+})

@@ -18,7 +18,7 @@ concurrency:
   cancel-in-progress: true
 
 env:
-  INITIATIVE: subject-content-db
+  INITIATIVE: my-house
 
 jobs:
   # ──────────────────────────────────────────────────────────────────────────
@@ -213,23 +213,23 @@ jobs:
           <body>
           <div class="header">
             <h1>Test Reports — magichouse</h1>
-            <p>Initiative: subject-content-db</p>
+            <p>Initiative: my-house</p>
           </div>
           <div class="grid">
-            <a class="card" href="subject-content-db/unit/">
+            <a class="card" href="my-house/unit/">
               <div class="card-icon">🧪</div>
               <h2>Unit Tests</h2>
-              <p>Subject content · quiz session · hook · resolve · admin · PBT</p>
+              <p>House items/layout services · layout math · locale selection · PBT</p>
             </a>
-            <a class="card" href="subject-content-db/api/">
+            <a class="card" href="my-house/api/">
               <div class="card-icon">🔌</div>
               <h2>API Tests</h2>
-              <p>Questions route contract · language resolution · migration CHECK</p>
+              <p>House items/layout/rooms route contracts · purchase guard · ownership</p>
             </a>
-            <a class="card" href="subject-content-db/e2e/">
+            <a class="card" href="my-house/e2e/">
               <div class="card-icon">🌐</div>
               <h2>E2E Tests</h2>
-              <p>Vietnamese-subject language fix · loading/error · regression (Chromium)</p>
+              <p>Buy · place · reposition · remove · persist · regression (Chromium)</p>
             </a>
           </div>
           </body>
