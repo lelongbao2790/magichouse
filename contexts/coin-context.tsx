@@ -3,6 +3,7 @@
 import { createContext, useContext, useState, useEffect, ReactNode } from "react"
 import { useAuth } from "@/contexts/auth-context"
 import type { StickerRow } from "@/lib/database.types"
+import type { HouseItemCatalogEntry } from "@/lib/services/house-items"
 
 interface CoinContextType {
   coins: number
@@ -10,6 +11,9 @@ interface CoinContextType {
   ownedStickers: string[]
   buySticker: (sticker: StickerRow) => Promise<boolean>
   hasSticker: (stickerId: string) => boolean
+  ownedHouseItems: string[]
+  buyHouseItem: (item: HouseItemCatalogEntry) => Promise<boolean>
+  hasHouseItem: (itemId: string) => boolean
   isLoaded: boolean
   isCacheFallback: boolean
 }
@@ -20,6 +24,7 @@ export function CoinProvider({ children }: { children: ReactNode }) {
   const { player } = useAuth()
   const [coins, setCoins] = useState<number>(0)
   const [ownedStickers, setOwnedStickers] = useState<string[]>([])
+  const [ownedHouseItems, setOwnedHouseItems] = useState<string[]>([])
   const [isLoaded, setIsLoaded] = useState(false)
   const [isCacheFallback, setIsCacheFallback] = useState(false)
 
@@ -27,6 +32,7 @@ export function CoinProvider({ children }: { children: ReactNode }) {
     if (player === null) {
       setCoins(0)
       setOwnedStickers([])
+      setOwnedHouseItems([])
       setIsLoaded(false)
       setIsCacheFallback(false)
       return
@@ -34,26 +40,32 @@ export function CoinProvider({ children }: { children: ReactNode }) {
 
     const preMigrationCoins = parseInt(localStorage.getItem("kidCoins") ?? "0")
     const preMigrationStickers: string[] = JSON.parse(localStorage.getItem("kidStickers") ?? "[]")
+    const cachedHouseItems: string[] = JSON.parse(localStorage.getItem("kidHouseItems") ?? "[]")
 
     const init = async () => {
       try {
-        const [meRes, stickersRes] = await Promise.all([
+        const [meRes, stickersRes, houseItemsRes] = await Promise.all([
           fetch('/api/players/me'),
           fetch('/api/players/stickers'),
+          fetch('/api/players/house-items'),
         ])
         const { data: meData } = await meRes.json()
         const { data: stickersData } = await stickersRes.json()
+        const { data: houseItemsData } = await houseItemsRes.json()
 
         setCoins(meData.coins)
         setOwnedStickers(stickersData)
+        setOwnedHouseItems(houseItemsData ?? [])
         localStorage.setItem("kidCoins", meData.coins.toString())
         localStorage.setItem("kidStickers", JSON.stringify(stickersData))
+        localStorage.setItem("kidHouseItems", JSON.stringify(houseItemsData ?? []))
         setIsLoaded(true)
 
         checkMigration(preMigrationCoins, preMigrationStickers)
       } catch {
         setCoins(preMigrationCoins)
         setOwnedStickers(preMigrationStickers)
+        setOwnedHouseItems(cachedHouseItems)
         setIsCacheFallback(true)
         setIsLoaded(true)
       }
@@ -115,8 +127,45 @@ export function CoinProvider({ children }: { children: ReactNode }) {
     }
   }
 
+  const hasHouseItem = (itemId: string) => ownedHouseItems.includes(itemId)
+
+  const buyHouseItem = async (item: HouseItemCatalogEntry): Promise<boolean> => {
+    try {
+      const res = await fetch('/api/players/house-items', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ itemId: item.id }),
+      })
+      const { data, error } = await res.json()
+
+      if (error || !data) return false
+
+      const newHouseItems = [...ownedHouseItems, item.id]
+      setCoins(data.newCoinBalance)
+      setOwnedHouseItems(newHouseItems)
+      localStorage.setItem("kidCoins", data.newCoinBalance.toString())
+      localStorage.setItem("kidHouseItems", JSON.stringify(newHouseItems))
+      return true
+    } catch {
+      return false
+    }
+  }
+
   return (
-    <CoinContext.Provider value={{ coins, addCoins, ownedStickers, buySticker, hasSticker, isLoaded, isCacheFallback }}>
+    <CoinContext.Provider
+      value={{
+        coins,
+        addCoins,
+        ownedStickers,
+        buySticker,
+        hasSticker,
+        ownedHouseItems,
+        buyHouseItem,
+        hasHouseItem,
+        isLoaded,
+        isCacheFallback,
+      }}
+    >
       {children}
     </CoinContext.Provider>
   )

@@ -27,6 +27,18 @@
     "aws-serverless": {
       "command": "uvx",
       "args": ["awslabs.aws-serverless-mcp-server@latest"]
+    },
+    "jira-tools": {
+      "command": "node",
+      "args": [
+        "./jira-tools/server.js"
+      ]
+    },
+    "magichouse_mcp": {
+      "command": "./mcp_servers/magichouse_mcp/.venv/bin/python3",
+      "args": [
+        "./mcp_servers/magichouse_mcp/server.py"
+      ]
     }
   }
 }

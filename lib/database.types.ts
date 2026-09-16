@@ -297,9 +297,152 @@ export type Database = {
           }
         ]
       }
+      rooms: {
+        Row: {
+          id: string
+          label_vi: string
+          label_en: string
+          is_unlocked: boolean
+        }
+        Insert: {
+          id: string
+          label_vi: string
+          label_en: string
+          is_unlocked?: boolean
+        }
+        Update: {
+          id?: string
+          label_vi?: string
+          label_en?: string
+          is_unlocked?: boolean
+        }
+        Relationships: []
+      }
+      house_items: {
+        Row: {
+          id: string
+          room: string
+          name_vi: string
+          name_en: string
+          emoji: string
+          price: number
+          is_active: boolean
+          sort_order: number
+        }
+        Insert: {
+          id: string
+          room: string
+          name_vi: string
+          name_en: string
+          emoji: string
+          price: number
+          is_active?: boolean
+          sort_order?: number
+        }
+        Update: {
+          id?: string
+          room?: string
+          name_vi?: string
+          name_en?: string
+          emoji?: string
+          price?: number
+          is_active?: boolean
+          sort_order?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: 'house_items_room_fkey'
+            columns: ['room']
+            isOneToOne: false
+            referencedRelation: 'rooms'
+            referencedColumns: ['id']
+          }
+        ]
+      }
+      player_house_items: {
+        Row: {
+          player_id: string
+          item_id: string
+          purchased_at: string
+        }
+        Insert: {
+          player_id: string
+          item_id: string
+          purchased_at?: string
+        }
+        Update: {
+          player_id?: string
+          item_id?: string
+          purchased_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: 'player_house_items_player_id_fkey'
+            columns: ['player_id']
+            isOneToOne: false
+            referencedRelation: 'players'
+            referencedColumns: ['id']
+          },
+          {
+            foreignKeyName: 'player_house_items_item_id_fkey'
+            columns: ['item_id']
+            isOneToOne: false
+            referencedRelation: 'house_items'
+            referencedColumns: ['id']
+          }
+        ]
+      }
+      house_layout: {
+        Row: {
+          player_id: string
+          room: string
+          layout_data: Json
+          updated_at: string
+        }
+        Insert: {
+          player_id: string
+          room: string
+          layout_data?: Json
+          updated_at?: string
+        }
+        Update: {
+          player_id?: string
+          room?: string
+          layout_data?: Json
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: 'house_layout_player_id_fkey'
+            columns: ['player_id']
+            isOneToOne: false
+            referencedRelation: 'players'
+            referencedColumns: ['id']
+          },
+          {
+            foreignKeyName: 'house_layout_room_fkey'
+            columns: ['room']
+            isOneToOne: false
+            referencedRelation: 'rooms'
+            referencedColumns: ['id']
+          }
+        ]
+      }
     }
     Views: Record<string, never>
-    Functions: Record<string, never>
+    Functions: {
+      purchase_house_item: {
+        Args: {
+          p_player_id: string
+          p_item_id: string
+          p_price: number
+        }
+        Returns: {
+          new_coin_balance: number
+          newly_purchased: boolean
+        }[]
+      }
+    }
     Enums: Record<string, never>
     CompositeTypes: Record<string, never>
   }
@@ -323,11 +466,27 @@ export type CreativeCanvasRow = Tables<'creative_canvas'>
 export type QuizHistoryRow = Tables<'quiz_history'>
 export type SubjectRow = Tables<'subjects'>
 export type SubjectQuestionRow = Tables<'subject_questions'>
+export type RoomRow = Tables<'rooms'>
+export type HouseItemRow = Tables<'house_items'>
+export type PlayerHouseItemRow = Tables<'player_house_items'>
+export type HouseLayoutRow = Tables<'house_layout'>
 
 // Canvas item shape (element of creative_canvas.canvas_data JSONB array)
 export interface CanvasItem {
   id: string
   emoji: string
+  x: number
+  y: number
+  scale: number
+  rotation: number
+}
+
+// Placed house item shape (element of house_layout.layout_data JSONB array).
+// Mirrors CanvasItem, generalized with itemId (the owned HouseItem it references)
+// instead of embedding emoji directly.
+export interface PlacedHouseItem {
+  id: string
+  itemId: string
   x: number
   y: number
   scale: number
