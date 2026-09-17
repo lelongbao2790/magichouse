@@ -1,0 +1,13 @@
+{
+  "key": "MH-6",
+  "type": "bug",
+  "summary": "Drag and Drop item in My House or Decoration tab incorrect position",
+  "description": "CURRENT BEHAVIOR:When the user drags an item from the catalog into the main view, then drags the same item to another position within the main view, the item unexpectedly jumps to a different position when the user releases the mouse.\nEXPECTED BEHAVIOR:When the user drags an item to a new position within the main view and releases the mouse, the item should remain at the exact position where it was dropped.\nSTEPS TO REPRODUCE:\n1. Open the decoration or my house tab.\n2. Drag an item from the catalog into the main view.\n3. Drag the newly added item from its current position to another position within the main view.\n4. Release the mouse to complete the drag operation.\n5. Observe that the item jumps to a different position instead of remaining at the dropped position.\nACCEPTANCE CRITERIA:\n1. The item remains at the position where the user releases the mouse after dragging.\n2. No unexpected position shift or jump occurs after the drag operation is completed.\n3. Dragging items from the catalog into the main view continues to work correctly.\n4. Existing drag-and-drop behavior outside this fix is unaffected.\n",
+  "acceptance_criteria": [
+    "The item remains at the position where the user releases the mouse after dragging.",
+    "No unexpected position shift or jump occurs after the drag operation is completed.",
+    "Dragging items from the catalog into the main view continues to work correctly.",
+    "Existing drag-and-drop behavior outside this fix is unaffected."
+  ],
+  "source": "jira"
+}
