@@ -1,0 +1,15 @@
+{
+  "key": "MH-8",
+  "type": "bug",
+  "summary": "Sign In Page Appears and Becomes Unresponsive for Already Authenticated User",
+  "description": "CURRENT BEHAVIOR:There are two issues with the Sign In page and authentication flow:\n1. After the user signs in successfully for the first time, pressing the browser Back button or refreshing the page shows the Sign In page again. After a few seconds, the system automatically redirects the user to the main page without touching any thing on the page.\n2. If the user presses Back again, enters the same valid username and password, and clicks Sign In, nothing happens and the user remains on the Sign In page.\nEXPECTED BEHAVIOR:If the user has already signed in and the authentication session is still valid, the Sign In page should not be displayed. The user should be redirected directly to the main page.\nIf the user is on the Sign In page and submits valid credentials, the system should successfully sign in and navigate to the main page.\nSTEPS TO REPRODUCE:\n1. Open the application and sign in with a valid account.\n2. Verify that the user is successfully navigated to the main page.\n3. Press the browser Back button or refresh the page.\n4. Observe that the Sign In page appears temporarily before automatically navigating to the main page.\n5. Press the browser Back button again.\n6. Enter the same valid username and password.\n7. Click Sign In.\n8. Observe that nothing happens and the user remains on the Sign In page.\nACCEPTANCE CRITERIA:\n1. An authenticated user should not see the Sign In page while their session is still valid.\n2. Navigating back to the Sign In route while authenticated should immediately redirect the user to the main page without briefly displaying the Sign In page.\n3. Refreshing the application should preserve the authenticated session and show the appropriate authenticated page.\n4. Clicking Sign In with valid credentials must successfully authenticate and navigate the user to the main page.\n5. Browser Back/Forward navigation must not leave the authentication flow in an invalid or unresponsive state.\n6. Existing authentication and logout behavior outside this fix is unaffected.\n",
+  "acceptance_criteria": [
+    "An authenticated user should not see the Sign In page while their session is still valid.",
+    "Navigating back to the Sign In route while authenticated should immediately redirect the user to the main page without briefly displaying the Sign In page.",
+    "Refreshing the application should preserve the authenticated session and show the appropriate authenticated page.",
+    "Clicking Sign In with valid credentials must successfully authenticate and navigate the user to the main page.",
+    "Browser Back/Forward navigation must not leave the authentication flow in an invalid or unresponsive state.",
+    "Existing authentication and logout behavior outside this fix is unaffected."
+  ],
+  "source": "jira"
+}
