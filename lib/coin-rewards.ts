@@ -1,9 +1,18 @@
 export type Difficulty = 'easy' | 'medium' | 'hard'
 
-export function randomDifficulty(): Difficulty {
-  const r = Math.random()
-  if (r < 0.333) return 'easy'
-  if (r < 0.667) return 'medium'
+// Derives difficulty from the largest operand in an arithmetic question.
+// Thresholds: ≤10 = easy, ≤50 = medium, >50 = hard.
+export function scoreDifficulty(maxOperand: number): Difficulty {
+  if (maxOperand <= 10) return 'easy'
+  if (maxOperand <= 50) return 'medium'
+  return 'hard'
+}
+
+// Derives difficulty from the multiplier in a times-table question (range 2–9).
+// Thresholds: ≤3 = easy, ≤6 = medium, >6 = hard.
+export function timesTableDifficulty(multiplier: number): Difficulty {
+  if (multiplier <= 3) return 'easy'
+  if (multiplier <= 6) return 'medium'
   return 'hard'
 }
 
@@ -18,12 +27,9 @@ export function dominantDifficulty(difficulties: Difficulty[]): Difficulty {
   return 'easy'
 }
 
-function randomInt(min: number, max: number): number {
-  return Math.floor(Math.random() * (max - min + 1)) + min
-}
-
 export function calculateSessionCoins(difficulties: Difficulty[]): number {
   const dominant = dominantDifficulty(difficulties)
-  if (dominant === 'easy') return randomInt(5, 10)
-  return randomInt(10, 30)
+  if (dominant === 'easy') return 5
+  if (dominant === 'medium') return 15
+  return 25
 }

@@ -1,27 +1,48 @@
 import { describe, test, expect } from "vitest"
 import * as fc from "fast-check"
-import { randomDifficulty, dominantDifficulty, calculateSessionCoins, type Difficulty } from "@/lib/coin-rewards"
+import { scoreDifficulty, timesTableDifficulty, dominantDifficulty, calculateSessionCoins, type Difficulty } from "@/lib/coin-rewards"
 
 const PBT_OPTS = { verbose: true, numRuns: 200 } as const
 const difficultyArb = fc.constantFrom<Difficulty>('easy', 'medium', 'hard')
 const difficultiesArb = fc.array(difficultyArb)
 
-// ── randomDifficulty ─────────────────────────────────────────────────────────
+// ── scoreDifficulty ──────────────────────────────────────────────────────────
 
-describe("randomDifficulty", () => {
-  test("TC-U001 | randomDifficulty always returns a valid difficulty value", () => {
-    const valid = new Set<string>(['easy', 'medium', 'hard'])
-    for (let i = 0; i < 300; i++) {
-      expect(valid.has(randomDifficulty())).toBe(true)
-    }
+describe("scoreDifficulty — deterministic from operand value", () => {
+  test("TC-U001 | scoreDifficulty returns easy for operand <= 10", () => {
+    expect(scoreDifficulty(0)).toBe('easy')
+    expect(scoreDifficulty(1)).toBe('easy')
+    expect(scoreDifficulty(10)).toBe('easy')
   })
 
-  test("TC-U002 | randomDifficulty produces all three difficulty values across 300 samples", () => {
-    const seen = new Set<string>()
-    for (let i = 0; i < 300; i++) seen.add(randomDifficulty())
-    expect(seen.has('easy')).toBe(true)
-    expect(seen.has('medium')).toBe(true)
-    expect(seen.has('hard')).toBe(true)
+  test("TC-U002 | scoreDifficulty returns medium for operand 11–50", () => {
+    expect(scoreDifficulty(11)).toBe('medium')
+    expect(scoreDifficulty(25)).toBe('medium')
+    expect(scoreDifficulty(50)).toBe('medium')
+  })
+
+  test("TC-U002b | scoreDifficulty returns hard for operand > 50", () => {
+    expect(scoreDifficulty(51)).toBe('hard')
+    expect(scoreDifficulty(100)).toBe('hard')
+  })
+})
+
+// ── timesTableDifficulty ─────────────────────────────────────────────────────
+
+describe("timesTableDifficulty — deterministic from multiplier", () => {
+  test("TC-U002c | timesTableDifficulty returns easy for multiplier <= 3", () => {
+    expect(timesTableDifficulty(2)).toBe('easy')
+    expect(timesTableDifficulty(3)).toBe('easy')
+  })
+
+  test("TC-U002d | timesTableDifficulty returns medium for multiplier 4–6", () => {
+    expect(timesTableDifficulty(4)).toBe('medium')
+    expect(timesTableDifficulty(6)).toBe('medium')
+  })
+
+  test("TC-U002e | timesTableDifficulty returns hard for multiplier > 6", () => {
+    expect(timesTableDifficulty(7)).toBe('hard')
+    expect(timesTableDifficulty(9)).toBe('hard')
   })
 })
 
@@ -154,38 +175,28 @@ describe("dominantDifficulty — PBT", () => {
 // ── calculateSessionCoins — deterministic ───────────────────────────────────
 
 describe("calculateSessionCoins — deterministic", () => {
-  const RUNS = 100
-
-  test("TC-U020 | calculateSessionCoins on empty array returns value in [5, 10]", () => {
-    for (let i = 0; i < RUNS; i++) {
-      const coins = calculateSessionCoins([])
-      expect(coins).toBeGreaterThanOrEqual(5)
-      expect(coins).toBeLessThanOrEqual(10)
+  // MH-7 regression: coins must not be randomly generated; same input must always
+  // yield the same output so the balance shown to the user is correct and stable.
+  test("TC-U020 | calculateSessionCoins is pure: same input always returns the same value", () => {
+    const inputs: Difficulty[][] = [[], ['easy'], ['medium'], ['hard'], ['easy', 'hard', 'hard']]
+    for (const ds of inputs) {
+      const first = calculateSessionCoins(ds)
+      for (let i = 0; i < 20; i++) {
+        expect(calculateSessionCoins(ds)).toBe(first)
+      }
     }
   })
 
-  test("TC-U021 | calculateSessionCoins on all-easy input returns value in [5, 10]", () => {
-    for (let i = 0; i < RUNS; i++) {
-      const coins = calculateSessionCoins(['easy', 'easy', 'easy'])
-      expect(coins).toBeGreaterThanOrEqual(5)
-      expect(coins).toBeLessThanOrEqual(10)
-    }
+  test("TC-U021 | calculateSessionCoins on empty array (dominant=easy) returns 5", () => {
+    expect(calculateSessionCoins([])).toBe(5)
   })
 
-  test("TC-U022 | calculateSessionCoins on all-medium input returns value in [10, 30]", () => {
-    for (let i = 0; i < RUNS; i++) {
-      const coins = calculateSessionCoins(['medium', 'medium', 'medium'])
-      expect(coins).toBeGreaterThanOrEqual(10)
-      expect(coins).toBeLessThanOrEqual(30)
-    }
+  test("TC-U022 | calculateSessionCoins on all-medium input returns 15", () => {
+    expect(calculateSessionCoins(['medium', 'medium', 'medium'])).toBe(15)
   })
 
-  test("TC-U023 | calculateSessionCoins on all-hard input returns value in [10, 30]", () => {
-    for (let i = 0; i < RUNS; i++) {
-      const coins = calculateSessionCoins(['hard', 'hard', 'hard'])
-      expect(coins).toBeGreaterThanOrEqual(10)
-      expect(coins).toBeLessThanOrEqual(30)
-    }
+  test("TC-U023 | calculateSessionCoins on all-hard input returns 25", () => {
+    expect(calculateSessionCoins(['hard', 'hard', 'hard'])).toBe(25)
   })
 })
 
