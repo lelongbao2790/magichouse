@@ -39,22 +39,22 @@
     {
       "check": "diff_within_limits",
       "passed": true,
-      "detail": "756 lines (max 5000)"
+      "detail": "441 lines (max 5000)"
     },
     {
       "check": "files_within_limits",
       "passed": true,
-      "detail": "13 files (max 100)"
+      "detail": "10 files (max 100)"
     },
     {
       "check": "not_on_main",
       "passed": true,
-      "detail": "current branch: bug/MH-8-sign-in-page-appears-and-becomes"
+      "detail": "current branch: bug/MH-8-sign-in-page-appears-and-becomes-v2"
     },
     {
       "check": "branch_contains_ticket_key",
       "passed": true,
-      "detail": "branch=bug/MH-8-sign-in-page-appears-and-becomes, key=MH-8"
+      "detail": "branch=bug/MH-8-sign-in-page-appears-and-becomes-v2, key=MH-8"
     }
   ]
 }

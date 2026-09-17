@@ -8,8 +8,6 @@ export async function GET() {
     const { data: { user }, error } = await supabase.auth.getUser()
 
     if (error || !user) {
-      // Actively clear stale cookie (Q2=A) to prevent accumulation in browser
-      await supabase.auth.signOut()
       return apiSuccess(null)
     }
 

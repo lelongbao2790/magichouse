@@ -6,6 +6,7 @@ import type { Player } from '@/lib/services/player'
 interface AuthContextType {
   player: Player | null
   isLoading: boolean
+  isSessionLoading: boolean
   isAuthenticated: boolean
   signUp(email: string, password: string, name: string): Promise<{ error: string | null }>
   signIn(email: string, password: string): Promise<{ error: string | null }>
@@ -17,13 +18,23 @@ const AuthContext = createContext<AuthContextType | null>(null)
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [player, setPlayer] = useState<Player | null>(null)
   const [isLoading, setIsLoading] = useState(false)
+  const [isSessionLoading, setIsSessionLoading] = useState(true)
 
-  // Background session check on mount (Q2=B: no loading spinner)
   useEffect(() => {
     fetch('/api/auth/session')
       .then(r => r.json())
       .then(({ data }) => { if (data) setPlayer(data) })
       .catch(() => { /* session check failure is silent */ })
+      .finally(() => setIsSessionLoading(false))
+  }, [])
+
+  // Reset isLoading on bfcache restore to prevent a permanently disabled submit button
+  useEffect(() => {
+    const handlePageShow = (e: PageTransitionEvent) => {
+      if (e.persisted) setIsLoading(false)
+    }
+    window.addEventListener('pageshow', handlePageShow)
+    return () => window.removeEventListener('pageshow', handlePageShow)
   }, [])
 
   const signUp = useCallback(async (
@@ -85,6 +96,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     <AuthContext.Provider value={{
       player,
       isLoading,
+      isSessionLoading,
       isAuthenticated: player !== null,
       signUp,
       signIn,
