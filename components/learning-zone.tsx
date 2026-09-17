@@ -3,7 +3,7 @@
 import { useState, useMemo, useEffect } from "react"
 import { useLanguage } from "@/contexts/language-context"
 import { type Language } from "@/data/translations"
-import { type Difficulty, randomDifficulty, calculateSessionCoins } from "@/lib/coin-rewards"
+import { type Difficulty, scoreDifficulty, timesTableDifficulty, calculateSessionCoins } from "@/lib/coin-rewards"
 import { useSubjectQuestions } from "@/lib/hooks/use-subject-questions"
 import { pickSessionQuestions } from "@/lib/quiz-session"
 import { Grade2SubjectView } from "./grade2-subject-view"
@@ -89,7 +89,7 @@ export function generateAdditionQuestion(): { question: string; options: string[
   const strategy: DistractorStrategy = Math.random() > 0.5 ? "offset" : "adjacent"
   const distractors = generateDistractors(correct, strategy, "arithmetic")
   const { options, correctIndex } = insertAtRandom(correct, distractors)
-  return { question: `${a} + ${b} = ?`, options, correctIndex, difficulty: randomDifficulty() }
+  return { question: `${a} + ${b} = ?`, options, correctIndex, difficulty: scoreDifficulty(Math.max(a, b)) }
 }
 
 export function generateSubtractionQuestion(): { question: string; options: string[]; correctIndex: number; difficulty: Difficulty } {
@@ -101,7 +101,7 @@ export function generateSubtractionQuestion(): { question: string; options: stri
   const strategy: DistractorStrategy = Math.random() > 0.5 ? "offset" : "adjacent"
   const distractors = generateDistractors(correct, strategy, "arithmetic")
   const { options, correctIndex } = insertAtRandom(correct, distractors)
-  return { question: `${minuend} - ${subtrahend} = ?`, options, correctIndex, difficulty: randomDifficulty() }
+  return { question: `${minuend} - ${subtrahend} = ?`, options, correctIndex, difficulty: scoreDifficulty(minuend) }
 }
 
 export function generateTimesTableQuestion(
@@ -120,7 +120,7 @@ export function generateTimesTableQuestion(
   const strategy: DistractorStrategy = Math.random() > 0.5 ? "offset" : "adjacent"
   const distractors = generateDistractors(correct, strategy, "multiply", multiplier, multiplicand)
   const { options, correctIndex } = insertAtRandom(correct, distractors)
-  return { question, options, correctIndex, difficulty: randomDifficulty() }
+  return { question, options, correctIndex, difficulty: timesTableDifficulty(multiplier) }
 }
 
 function generateMathQuestion(): { question: string; options: string[]; correctIndex: number; difficulty: Difficulty } {
@@ -147,7 +147,7 @@ function generateMathQuestion(): { question: string; options: string[]; correctI
   const correctPos = Math.floor(Math.random() * 3)
   const options = [String(w1), String(w2)]
   options.splice(correctPos, 0, String(correct))
-  return { question: `${a} ${isAddition ? "+" : "-"} ${b} = ?`, options, correctIndex: correctPos, difficulty: randomDifficulty() }
+  return { question: `${a} ${isAddition ? "+" : "-"} ${b} = ?`, options, correctIndex: correctPos, difficulty: scoreDifficulty(Math.max(a, b)) }
 }
 
 // Quiz categories whose questions live in the database (fetched via useSubjectQuestions).

@@ -129,6 +129,96 @@ describe("generateTimesTableQuestion — boundaries", () => {
   })
 })
 
+// ── MH-7 regression: difficulty must reflect actual question operands ─────────
+// Before this fix, difficulty was randomly assigned via randomDifficulty(),
+// causing calculateSessionCoins to produce unpredictable coin awards.
+
+describe("generateAdditionQuestion — MH-7 difficulty regression", () => {
+  test("TC-U031b | Addition difficulty is easy when both operands <= 10", () => {
+    let found = false
+    for (let i = 0; i < 5000 && !found; i++) {
+      const { question, difficulty } = generateAdditionQuestion()
+      const [a, b] = question.match(/\d+/g)!.map(Number)
+      if (a <= 10 && b <= 10) {
+        expect(difficulty).toBe('easy')
+        found = true
+      }
+    }
+    expect(found).toBe(true)
+  })
+
+  test("TC-U031c | Addition difficulty is hard when max operand > 50", () => {
+    let found = false
+    for (let i = 0; i < 5000 && !found; i++) {
+      const { question, difficulty } = generateAdditionQuestion()
+      const [a, b] = question.match(/\d+/g)!.map(Number)
+      if (Math.max(a, b) > 50) {
+        expect(difficulty).toBe('hard')
+        found = true
+      }
+    }
+    expect(found).toBe(true)
+  })
+})
+
+describe("generateSubtractionQuestion — MH-7 difficulty regression", () => {
+  test("TC-U033b | Subtraction difficulty is easy when minuend <= 10", () => {
+    let found = false
+    for (let i = 0; i < 5000 && !found; i++) {
+      const { question, difficulty } = generateSubtractionQuestion()
+      const [minuend] = question.match(/\d+/g)!.map(Number)
+      if (minuend <= 10) {
+        expect(difficulty).toBe('easy')
+        found = true
+      }
+    }
+    expect(found).toBe(true)
+  })
+
+  test("TC-U033c | Subtraction difficulty is hard when minuend > 50", () => {
+    let found = false
+    for (let i = 0; i < 5000 && !found; i++) {
+      const { question, difficulty } = generateSubtractionQuestion()
+      const [minuend] = question.match(/\d+/g)!.map(Number)
+      if (minuend > 50) {
+        expect(difficulty).toBe('hard')
+        found = true
+      }
+    }
+    expect(found).toBe(true)
+  })
+})
+
+describe("generateTimesTableQuestion — MH-7 difficulty regression", () => {
+  test("TC-U036b | Times table difficulty is easy for multiplier <= 3", () => {
+    let found = false
+    for (let i = 0; i < 5000 && !found; i++) {
+      const { question, difficulty } = generateTimesTableQuestion("en")
+      const nums = question.match(/\d+/g)!.map(Number)
+      const multiplier = nums[0]
+      if (multiplier <= 3) {
+        expect(difficulty).toBe('easy')
+        found = true
+      }
+    }
+    expect(found).toBe(true)
+  })
+
+  test("TC-U036c | Times table difficulty is hard for multiplier > 6", () => {
+    let found = false
+    for (let i = 0; i < 5000 && !found; i++) {
+      const { question, difficulty } = generateTimesTableQuestion("en")
+      const nums = question.match(/\d+/g)!.map(Number)
+      const multiplier = nums[0]
+      if (multiplier > 6) {
+        expect(difficulty).toBe('hard')
+        found = true
+      }
+    }
+    expect(found).toBe(true)
+  })
+})
+
 // ── generateDistractors ───────────────────────────────────────────────────────
 
 describe("generateDistractors — contract", () => {
