@@ -14,13 +14,15 @@ import { Code2, Sparkles } from "lucide-react"
 
 function HomeContent() {
   const { t, language } = useLanguage()
-  const { isAuthenticated } = useAuth()
+  const { isAuthenticated, isSessionLoading } = useAuth()
   const [showDashboard, setShowDashboard] = useState(false)
 
   useEffect(() => {
     if (isAuthenticated) setShowDashboard(true)
     else setShowDashboard(false)
   }, [isAuthenticated])
+
+  if (isSessionLoading) return null
 
   if (showDashboard && isAuthenticated) {
     return <Dashboard onBack={() => setShowDashboard(false)} />

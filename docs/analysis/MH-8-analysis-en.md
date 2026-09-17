@@ -2,7 +2,7 @@
 
 **Date:** 2026-09-17  
 **Analyst:** Claude Sonnet 4.6  
-**Status:** Analysis complete — awaiting implementation approval
+**Status:** RESOLVED 2026-09-17
 
 ---
 
@@ -181,3 +181,30 @@ This prevents the sign-in page from flashing during the session check.
 ## Confidence
 
 **High** — root cause is clear from code inspection; fix is minimal and additive.
+
+---
+
+## Fix Implementation
+
+### Files Changed
+
+| File | Change |
+|------|--------|
+| `contexts/auth-context.tsx` | Added `isSessionLoading` state (starts `true`, set to `false` in `.finally()` of session check); added `pageshow` bfcache handler to reset `isLoading`; exposed `isSessionLoading` in context value and type |
+| `app/page.tsx` | `HomeContent` returns `null` while `isSessionLoading` is `true`, preventing sign-in page flash |
+| `app/api/auth/session/route.ts` | Removed aggressive `signOut()` call when session is absent — endpoint is now read-only |
+| `automation_tests/unit/auth-context.test.tsx` | 6 new regression tests (TC-U-MH8-1 through TC-U-MH8-6) covering session loading guard, bfcache reset, and error paths |
+
+---
+
+## Verification
+
+- `pnpm test` — 249 tests pass, 0 failures
+- All 6 new regression tests pass
+- Existing test suite unaffected
+
+---
+
+## Final Status
+
+RESOLVED — Both bugs fixed. Authenticated users no longer see the sign-in page flash, and the form cannot become permanently unresponsive via bfcache.

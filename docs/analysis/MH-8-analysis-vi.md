@@ -2,7 +2,7 @@
 
 **Ngày:** 2026-09-17  
 **Người phân tích:** Claude Sonnet 4.6  
-**Trạng thái:** Phân tích hoàn tất — đang chờ phê duyệt triển khai
+**Trạng thái:** ĐÃ GIẢI QUYẾT 2026-09-17
 
 ---
 
@@ -181,3 +181,29 @@ if (isSessionLoading) return null   // hoặc spinner tối giản
 ## Độ Tin Cậy
 
 **Cao** — nguyên nhân gốc rõ ràng từ kiểm tra mã; sửa lỗi tối thiểu và additive.
+
+---
+
+## Triển Khai Sửa Lỗi
+
+### Các File Đã Thay Đổi
+
+| File | Thay đổi |
+|------|----------|
+| `contexts/auth-context.tsx` | Thêm state `isSessionLoading` (bắt đầu `true`, đặt `false` trong `.finally()` của session check); thêm handler bfcache `pageshow` để reset `isLoading`; expose `isSessionLoading` trong context value và type |
+| `app/page.tsx` | `HomeContent` trả về `null` khi `isSessionLoading` là `true`, ngăn chớp trang đăng nhập |
+| `app/api/auth/session/route.ts` | Xóa lệnh `signOut()` tích cực khi không có session — endpoint giờ chỉ đọc |
+| `automation_tests/unit/auth-context.test.tsx` | 6 test hồi quy mới (TC-U-MH8-1 đến TC-U-MH8-6) |
+
+---
+
+## Xác Minh
+
+- `pnpm test` — 249 tests pass, 0 failures
+- Tất cả 6 test hồi quy mới pass
+
+---
+
+## Trạng Thái Cuối
+
+ĐÃ GIẢI QUYẾT — Cả hai lỗi đã được sửa. Người dùng đã xác thực không còn thấy trang đăng nhập chớp nữa, và form không thể bị vô hiệu hoá vĩnh viễn qua bfcache.
