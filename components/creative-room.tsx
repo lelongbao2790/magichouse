@@ -1,7 +1,7 @@
 "use client"
 
-import { useState, useRef, useEffect } from "react"
-import { motion, PanInfo } from "framer-motion"
+import { useState, useRef, useEffect, useLayoutEffect } from "react"
+import { motion, PanInfo, useMotionValue } from "framer-motion"
 import { useCoins } from "@/contexts/coin-context"
 import { useLanguage } from "@/contexts/language-context"
 import { CoinDisplay } from "./coin-display"
@@ -24,6 +24,95 @@ interface CreativeRoomProps {
   name: string
   onBack: () => void
   onGoToShop: () => void
+}
+
+interface PlacedStickerTileProps {
+  placed: PlacedSticker
+  isSelected: boolean
+  onDragEnd: (placedId: string, info: PanInfo) => void
+  onStickerClick: (id: string) => void
+  onResize: (id: string, delta: number) => void
+  onRemove: (id: string) => void
+}
+
+// Same fix as BedroomCanvas's PlacedItemTile (MH-6): owns controlled MotionValues and
+// resets them via useLayoutEffect whenever placed.x/y changes so Framer Motion's
+// accumulated pixel offset is cleared before each new drag.
+function PlacedStickerTile({ placed, isSelected, onDragEnd, onStickerClick, onResize, onRemove }: PlacedStickerTileProps) {
+  const motionX = useMotionValue(0)
+  const motionY = useMotionValue(0)
+
+  useLayoutEffect(() => {
+    motionX.set(0)
+    motionY.set(0)
+  }, [placed.x, placed.y, motionX, motionY])
+
+  return (
+    <motion.div
+      className={`absolute cursor-grab active:cursor-grabbing touch-none ${isSelected ? 'z-50' : 'z-10'}`}
+      style={{
+        left: `${placed.x}%`,
+        top: `${placed.y}%`,
+        transform: 'translate(-50%, -50%)',
+        x: motionX,
+        y: motionY,
+      }}
+      drag
+      dragMomentum={false}
+      dragElastic={0}
+      whileDrag={{ scale: 1.1, zIndex: 100 }}
+      onDragEnd={(_, info) => onDragEnd(placed.id, info)}
+      onClick={(e) => {
+        e.stopPropagation()
+        onStickerClick(placed.id)
+      }}
+      data-testid={`placed-sticker-${placed.id}`}
+    >
+      <div className={`relative transition-all duration-200 ${isSelected ? 'ring-4 ring-primary ring-offset-2 rounded-xl' : ''}`}>
+        <span
+          className="drop-shadow-lg select-none block"
+          style={{ fontSize: `${3 * placed.scale}rem` }}
+        >
+          {placed.emoji}
+        </span>
+
+        {isSelected && (
+          <div className="absolute -bottom-12 left-1/2 -translate-x-1/2 flex items-center gap-1 bg-card rounded-full shadow-xl p-1 border-2 border-border">
+            <button
+              onClick={(e) => {
+                e.stopPropagation()
+                onResize(placed.id, -0.2)
+              }}
+              className="w-8 h-8 flex items-center justify-center bg-muted rounded-full hover:bg-secondary transition-colors"
+              data-testid={`shrink-${placed.id}`}
+            >
+              <Minus className="w-4 h-4" />
+            </button>
+            <button
+              onClick={(e) => {
+                e.stopPropagation()
+                onResize(placed.id, 0.2)
+              }}
+              className="w-8 h-8 flex items-center justify-center bg-muted rounded-full hover:bg-secondary transition-colors"
+              data-testid={`grow-${placed.id}`}
+            >
+              <Plus className="w-4 h-4" />
+            </button>
+            <button
+              onClick={(e) => {
+                e.stopPropagation()
+                onRemove(placed.id)
+              }}
+              className="w-8 h-8 flex items-center justify-center bg-red-100 text-red-600 rounded-full hover:bg-red-200 transition-colors"
+              data-testid={`delete-${placed.id}`}
+            >
+              <Trash2 className="w-4 h-4" />
+            </button>
+          </div>
+        )}
+      </div>
+    </motion.div>
+  )
 }
 
 export function CreativeRoom({ name, onBack, onGoToShop }: CreativeRoomProps) {
@@ -247,76 +336,17 @@ export function CreativeRoom({ name, onBack, onGoToShop }: CreativeRoomProps) {
               </div>
 
               {/* Placed stickers */}
-              {placedStickers.map((placed) => {
-                const isSelected = selectedPlacedSticker === placed.id
-
-                return (
-                  <motion.div
-                    key={placed.id}
-                    className={`absolute cursor-grab active:cursor-grabbing touch-none ${isSelected ? 'z-50' : 'z-10'}`}
-                    style={{
-                      left: `${placed.x}%`,
-                      top: `${placed.y}%`,
-                      transform: 'translate(-50%, -50%)',
-                    }}
-                    drag
-                    dragMomentum={false}
-                    dragElastic={0}
-                    whileDrag={{ scale: 1.1, zIndex: 100 }}
-                    onDragEnd={(_, info) => handlePlacedStickerDragEnd(placed.id, info)}
-                    onClick={(e) => {
-                      e.stopPropagation()
-                      handleStickerClick(placed.id)
-                    }}
-                    data-testid={`placed-sticker-${placed.id}`}
-                  >
-                    <div className={`relative transition-all duration-200 ${isSelected ? 'ring-4 ring-primary ring-offset-2 rounded-xl' : ''}`}>
-                      <span
-                        className="drop-shadow-lg select-none block"
-                        style={{ fontSize: `${3 * placed.scale}rem` }}
-                      >
-                        {placed.emoji}
-                      </span>
-                      
-                      {/* Resize & Delete controls - show when selected */}
-                      {isSelected && (
-                        <div className="absolute -bottom-12 left-1/2 -translate-x-1/2 flex items-center gap-1 bg-card rounded-full shadow-xl p-1 border-2 border-border">
-                          <button
-                            onClick={(e) => {
-                              e.stopPropagation()
-                              handleResizeSticker(placed.id, -0.2)
-                            }}
-                            className="w-8 h-8 flex items-center justify-center bg-muted rounded-full hover:bg-secondary transition-colors"
-                            data-testid={`shrink-${placed.id}`}
-                          >
-                            <Minus className="w-4 h-4" />
-                          </button>
-                          <button
-                            onClick={(e) => {
-                              e.stopPropagation()
-                              handleResizeSticker(placed.id, 0.2)
-                            }}
-                            className="w-8 h-8 flex items-center justify-center bg-muted rounded-full hover:bg-secondary transition-colors"
-                            data-testid={`grow-${placed.id}`}
-                          >
-                            <Plus className="w-4 h-4" />
-                          </button>
-                          <button
-                            onClick={(e) => {
-                              e.stopPropagation()
-                              handleRemoveSticker(placed.id)
-                            }}
-                            className="w-8 h-8 flex items-center justify-center bg-red-100 text-red-600 rounded-full hover:bg-red-200 transition-colors"
-                            data-testid={`delete-${placed.id}`}
-                          >
-                            <Trash2 className="w-4 h-4" />
-                          </button>
-                        </div>
-                      )}
-                    </div>
-                  </motion.div>
-                )
-              })}
+              {placedStickers.map((placed) => (
+                <PlacedStickerTile
+                  key={placed.id}
+                  placed={placed}
+                  isSelected={selectedPlacedSticker === placed.id}
+                  onDragEnd={handlePlacedStickerDragEnd}
+                  onStickerClick={handleStickerClick}
+                  onResize={handleResizeSticker}
+                  onRemove={handleRemoveSticker}
+                />
+              ))}
 
               {/* Drop hint */}
               {draggingSticker && (
