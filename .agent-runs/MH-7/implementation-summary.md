@@ -1,8 +1,8 @@
 ## Cycle 0
 
-tomation_tests/unit/coin-rewards.test.ts`
-- Replaced TC-U001/TC-U002 (`randomDifficulty` tests) with tests for `scoreDifficulty` and `timesTableDifficulty`
-- Updated TC-U020–TC-U023 to assert exact fixed values and add a **MH-7 determinism regression** test (TC-U020)
+n-context.test.tsx` | **New** — 4 regression tests (TC-U-MH7-11 to TC-U-MH7-14): optimistic update confirmed, rollback on network failure, localStorage rollback, no stale closure |
+| `docs/analysis/MH-7-analysis-en.md` | **New** — full English analysis export |
+| `docs/analysis/MH-7-analysis-vi.md` | **New** — full Vietnamese analysis export |
+| `docs/analysis/bug-memory.md` | Updated with MH-7 resolved entry |
 
-### `automation_tests/unit/learning-zone.test.ts`
-- Added MH-7 regression tests (TC-U031b/c, TC-U033b/c, TC-U036b/c) verifying that the `difficulty` field in generated questions reflects actual operand magnitude, not a random draw
+**Test result:** 263 tests pass across 24 test files (14 new tests, 0 regressions).

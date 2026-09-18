@@ -89,6 +89,7 @@ export function CoinProvider({ children }: { children: ReactNode }) {
   }
 
   const addCoins = (amount: number) => {
+    const previousCoins = coins
     const newCoins = coins + amount
     setCoins(newCoins)
     localStorage.setItem("kidCoins", newCoins.toString())
@@ -100,7 +101,12 @@ export function CoinProvider({ children }: { children: ReactNode }) {
     })
       .then(r => r.json())
       .then(({ data }) => { if (data) setCoins(data.coins) })
-      .catch(() => {})
+      .catch(() => {
+        // Roll back the optimistic update so the displayed balance stays in sync with
+        // the DB value on the next login rather than drifting apart silently (MH-7 RC-4).
+        setCoins(previousCoins)
+        localStorage.setItem("kidCoins", previousCoins.toString())
+      })
   }
 
   const hasSticker = (stickerId: string) => ownedStickers.includes(stickerId)

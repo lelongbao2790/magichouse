@@ -64,3 +64,71 @@ The "Your Coins" balance in My House (rendered by `CoinDisplay` at `components/c
 2026-09-17T09:24:08.068388+00:00 Final guard — PASS
 2026-09-17 16:24:08,068 [INFO] [MH-7] Final guard — PASS
 2026-09-17T09:24:08.069666+00:00 STAGE=COMMIT
+2026-09-18T01:33:08.114638+00:00 STAGE=BRANCH_SETUP — bug/MH-7-your-coins-number-incorrect-v2
+2026-09-18 08:33:08,114 [INFO] [MH-7] STAGE=BRANCH_SETUP — bug/MH-7-your-coins-number-incorrect-v2
+2026-09-18T01:33:08.115595+00:00 Requirement saved
+2026-09-18 08:33:08,115 [INFO] [MH-7] Requirement saved
+2026-09-18T01:33:08.122336+00:00 STAGE=PLANNING_START — bug
+2026-09-18 08:33:08,122 [INFO] [MH-7] STAGE=PLANNING_START — bug
+2026-09-18T01:33:08.124222+00:00 STAGE=BUG_ANALYSIS_START
+2026-09-18 08:33:08,124 [INFO] [MH-7] STAGE=BUG_ANALYSIS_START
+2026-09-18T01:33:28.951033+00:00 STAGE=BUG_ANALYSIS_FIRST_RESPONSE — I'll use the provided Jira ticket data directly for Phase 1 analysis.
+
+---
+
+## Jira ticket summary
+
+- **Key:** MH-7
+- **Summary:** Your Coins number incorrect
+- **Issue Type:** Bug
+- **Status:** (not 
+2026-09-18 08:33:28,951 [INFO] [MH-7] STAGE=BUG_ANALYSIS_FIRST_RESPONSE — I'll use the provided Jira ticket data directly for Phase 1 analysis.
+
+---
+
+## Jira ticket summary
+
+- **Key:** MH-7
+- **Summary:** Your Coins number incorrect
+- **Issue Type:** Bug
+- **Status:** (not 
+2026-09-18 08:33:28,952 [INFO] Bug analysis turn 1/30
+2026-09-18T01:33:28.952890+00:00 STAGE=BUG_TURN_1
+2026-09-18 08:33:28,953 [INFO] [MH-7] STAGE=BUG_TURN_1
+2026-09-18 08:40:24,151 [INFO] Bug analysis turn 2/30
+2026-09-18T01:40:24.151209+00:00 STAGE=BUG_TURN_2
+2026-09-18 08:40:24,151 [INFO] [MH-7] STAGE=BUG_TURN_2
+2026-09-18T01:40:24.152239+00:00 Bug analysis saved
+2026-09-18 08:40:24,152 [INFO] [MH-7] Bug analysis saved
+2026-09-18 08:40:24,152 [INFO] Bug analysis saved for MH-7
+2026-09-18T01:40:24.152849+00:00 STAGE=BUG_ANALYSIS_COMPLETE
+2026-09-18 08:40:24,153 [INFO] [MH-7] STAGE=BUG_ANALYSIS_COMPLETE
+2026-09-18T01:40:24.153531+00:00 Analysis saved
+2026-09-18 08:40:24,153 [INFO] [MH-7] Analysis saved
+2026-09-18T01:40:24.169099+00:00 STAGE=IMPLEMENTATION_START
+2026-09-18 08:40:24,169 [INFO] [MH-7] STAGE=IMPLEMENTATION_START
+2026-09-18T01:40:24.169934+00:00 STAGE=PLAN_INJECTED_INTO_CODING_AGENT
+2026-09-18 08:40:24,170 [INFO] [MH-7] STAGE=PLAN_INJECTED_INTO_CODING_AGENT
+2026-09-18 08:40:24,170 [INFO] Spawning coding agent for MH-7
+2026-09-18 08:47:00,429 [INFO] Coding agent cycle 0 completed for MH-7
+2026-09-18 08:47:00,429 [INFO] Coding agent summary:
+n-context.test.tsx` | **New** — 4 regression tests (TC-U-MH7-11 to TC-U-MH7-14): optimistic update confirmed, rollback on network failure, localStorage rollback, no stale closure |
+| `docs/analysis/MH-7-analysis-en.md` | **New** — full English analysis export |
+| `docs/analysis/MH-7-analysis-vi.md` | **New** — full Vietnamese analysis export |
+| `docs/analysis/bug-memory.md` | Updated with MH-7 resolved entry |
+
+**Test result:** 263 tests pass across 24 test files (14 new tests, 0 regressions).
+
+2026-09-18T01:47:00.430352+00:00 Implementation summary saved
+2026-09-18 08:47:00,430 [INFO] [MH-7] Implementation summary saved
+2026-09-18T01:47:00.445312+00:00 STAGE=TESTING
+2026-09-18 08:47:00,445 [INFO] [MH-7] STAGE=TESTING
+2026-09-18T01:47:17.485803+00:00 Test results saved — PASS
+2026-09-18 08:47:17,485 [INFO] [MH-7] Test results saved — PASS
+2026-09-18 08:47:57,028 [INFO] Tests PASSED on cycle 0
+2026-09-18T01:47:57.029847+00:00 STAGE=FINAL_GUARD
+2026-09-18 08:47:57,030 [INFO] [MH-7] STAGE=FINAL_GUARD
+2026-09-18T01:47:57.334646+00:00 Final guard — PASS
+2026-09-18 08:47:57,334 [INFO] [MH-7] Final guard — PASS
+2026-09-18T01:47:57.344878+00:00 STAGE=COMMIT
+2026-09-18 08:47:57,345 [INFO] [MH-7] STAGE=COMMIT
