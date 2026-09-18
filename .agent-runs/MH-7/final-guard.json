@@ -39,22 +39,22 @@
     {
       "check": "diff_within_limits",
       "passed": true,
-      "detail": "314 lines (max 5000)"
+      "detail": "1014 lines (max 5000)"
     },
     {
       "check": "files_within_limits",
       "passed": true,
-      "detail": "4 files (max 100)"
+      "detail": "22 files (max 100)"
     },
     {
       "check": "not_on_main",
       "passed": true,
-      "detail": "current branch: bug/MH-7-your-coins-number-incorrect"
+      "detail": "current branch: bug/MH-7-your-coins-number-incorrect-v2"
     },
     {
       "check": "branch_contains_ticket_key",
       "passed": true,
-      "detail": "branch=bug/MH-7-your-coins-number-incorrect, key=MH-7"
+      "detail": "branch=bug/MH-7-your-coins-number-incorrect-v2, key=MH-7"
     }
   ]
 }

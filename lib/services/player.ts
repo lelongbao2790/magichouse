@@ -40,7 +40,7 @@ export async function upsertPlayer(
 ): Promise<Player> {
   const { data, error } = await supabase
     .from('players')
-    .upsert({ id: userId, name, coins: 0 }, { onConflict: 'id' })
+    .upsert({ id: userId, name }, { onConflict: 'id' })
     .select('id, name, coins, created_at')
     .single()
 
@@ -52,16 +52,18 @@ export async function upsertPlayer(
 }
 
 export async function addCoins(supabase: Supabase, userId: string, amount: number): Promise<Player> {
-  const current = await getPlayer(supabase, userId)
-  const { data, error } = await supabase
-    .from('players')
-    .update({ coins: current.coins + amount })
-    .eq('id', userId)
-    .select('id, name, coins, created_at')
-    .single()
+  // Uses the increment_player_coins RPC (supabase/migrations/0005_increment_coins_rpc.sql)
+  // so that `coins = coins + amount` is evaluated atomically in a single SQL statement,
+  // eliminating the race-condition coin loss that the old read-then-write pattern caused.
+  const { data, error } = await supabase.rpc('increment_player_coins', {
+    p_player_id: userId,
+    p_amount: amount,
+  })
 
-  if (error || !data) throw new Error('Failed to add coins')
-  return toPlayer(data)
+  if (error) throw new Error('Failed to add coins')
+  const result = Array.isArray(data) ? data[0] : data
+  if (!result) throw new Error('Failed to add coins')
+  return { id: result.id, name: result.name, coins: result.coins, createdAt: result.created_at }
 }
 
 export async function migrateFromLocalStorage(

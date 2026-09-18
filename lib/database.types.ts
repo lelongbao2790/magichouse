@@ -431,6 +431,18 @@ export type Database = {
     }
     Views: Record<string, never>
     Functions: {
+      increment_player_coins: {
+        Args: {
+          p_player_id: string
+          p_amount: number
+        }
+        Returns: {
+          id: string
+          name: string
+          coins: number
+          created_at: string
+        }[]
+      }
       purchase_house_item: {
         Args: {
           p_player_id: string

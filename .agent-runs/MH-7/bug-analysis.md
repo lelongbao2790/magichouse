@@ -1,105 +1,116 @@
-Now I have enough to write the full analysis.
+---
+
+## Final Technical Analysis: MH-7 — Your Coins Number Incorrect (v2)
 
 ---
 
-## MH-7: Your Coins Number Incorrect — Full Analysis
+## Jira ticket summary
 
-### Symptom
-
-The "Your Coins" balance in My House (rendered by `CoinDisplay` at `components/coin-display.tsx:24`) shows a value that changes unpredictably after each quiz session and does not match any deterministic measure of the user's progress.
-
----
-
-### Root Cause
-
-The coin reward calculation is **doubly random** — two independent `Math.random()` calls fire on every quiz completion:
-
-**Source 1 — random difficulty per question** (`components/learning-zone.tsx`)
-
-Every programmatically-generated question (addition, subtraction, times-table, math) calls `randomDifficulty()` for its `difficulty` field:
-
-| Function | Line | Call |
-|---|---|---|
-| `generateAdditionQuestion` | 92 | `difficulty: randomDifficulty()` |
-| `generateSubtractionQuestion` | 104 | `difficulty: randomDifficulty()` |
-| `generateTimesTableQuestion` | 123 | `difficulty: randomDifficulty()` |
-| `generateMathQuestion` | 150 | `difficulty: randomDifficulty()` |
-
-`randomDifficulty()` in `lib/coin-rewards.ts:3-8` returns `'easy'`, `'medium'`, or `'hard'` via `Math.random()`, entirely unrelated to the question's actual operands or content.
-
-**Source 2 — random coin amount within the difficulty band** (`lib/coin-rewards.ts:25-29`)
-
-`calculateSessionCoins(difficulties)` computes a dominant difficulty from the accumulated array and then calls `randomInt(5, 10)` (easy) or `randomInt(10, 30)` (medium/hard). `randomInt` at line 21 also uses `Math.random()`.
-
-**Combined effect**: A 10-question grade-1 addition quiz completed the exact same way twice will award anywhere from 5 to 30 coins with no relationship to performance, because:
-1. Every question's difficulty label is picked from a uniform random draw.
-2. The final coin amount is an additional random draw within the resulting band.
-
-### Data Flow (coin path from quiz to display)
-
-```
-QuizModal.handleFinish()
-  → onComplete(score, totalQuestions, questionDifficulties)   [quiz-modal.tsx:79]
-  → LearningZone.handleQuizCompleteInternal()                [learning-zone.tsx:244]
-      coinsEarned = calculateSessionCoins(difficulties)       ← RANDOM HERE
-  → onQuizComplete(activeQuiz, score, totalQuestions, coinsEarned)
-  → Dashboard.handleQuizComplete()                           [dashboard.tsx:32-33]
-  → addCoins(coinsEarned)                                    [coin-context.tsx:91-104]
-      setCoins(coins + coinsEarned)    ← optimistic update
-      POST /api/players/coins { amount: coinsEarned }
-      → server addCoins reads DB, adds amount, saves back    [lib/services/player.ts:54-65]
-      setCoins(data.coins)             ← corrects to server value
-  → CoinDisplay renders coins                                [coin-display.tsx:24]
-```
-
-Because the server's `addCoins` trusts the client-supplied `amount` (validated only as `positive().max(1000)` in `lib/validation/api.ts:14-16`), whatever random number the client generates is permanently written to the database.
+- **Key:** MH-7
+- **Summary:** Your Coins number incorrect
+- **Issue Type:** Bug
+- **Status:** Reopened (v2 — previous fix incomplete)
+- **Priority:** Medium
 
 ---
 
-### Affected Files and Reasons
+## Customer report meaning
+
+Every login or page refresh shows a different coin balance. The user expects the My House page to always display the actual balance from the database, defaulting to zero if absent.
+
+---
+
+## Screenshot reference
+
+No screenshots available.
+
+---
+
+## Primary area
+
+`lib/services/player.ts` — owns both `upsertPlayer` (which destructively resets coins on conflict) and `addCoins` (which uses a non-atomic read-modify-write).
+
+---
+
+## Related areas
 
 | File | Reason |
-|---|---|
-| `lib/coin-rewards.ts` | `calculateSessionCoins` uses `randomInt` (wrapping `Math.random()`) to determine rewards — directly produces a non-deterministic coin amount |
-| `components/learning-zone.tsx` | All four generated-question functions call `randomDifficulty()` per question, so the `difficulties[]` array fed to `calculateSessionCoins` is itself random — the double-randomness starts here |
-| `contexts/coin-context.tsx` | `addCoins` optimistically updates state using the client-calculated random amount; if the server call fails silently (the `.catch(() => {})` swallows errors), the optimistic state diverges from the DB, causing a stale display on next load |
+|------|--------|
+| `lib/services/player.ts` | **v2 root causes**: coins reset on upsert conflict; non-atomic increment |
+| `contexts/coin-context.tsx` | **v2 root cause**: silent error swallowing in `addCoins` causes optimistic/DB divergence visible on next login |
+| `lib/coin-rewards.ts` | **v1 root cause** — already fixed: `calculateSessionCoins` used `Math.random()` |
+| `components/learning-zone.tsx` | **v1 root cause** — already fixed: question generators used `randomDifficulty()` |
 
 ---
 
-### Proposed Minimal Fix (no code changes — description only)
+## Likely flow
 
-**Fix 1 — Make `calculateSessionCoins` deterministic** (`lib/coin-rewards.ts`)
+```
+QuizModal → LearningZone.handleQuizCompleteInternal
+  → calculateSessionCoins(difficulties)       ← deterministic now (v1 fixed)
+  → Dashboard.handleQuizComplete
+  → CoinContext.addCoins(coinsEarned)
+      optimistic setCoins(newCoins)
+      POST /api/players/coins
+        → player.addCoins (READ coins, WRITE coins+amount)  ← non-atomic
+      .catch(() => {})                         ← silent failure; no rollback
+      setCoins(data.coins)                     ← only if successful
 
-Replace the `randomInt` calls with a score-based formula. The function signature should change to accept `score: number` and `totalQuestions: number` instead of `difficulties: Difficulty[]`. A simple, correct formula: award 1 coin per correct answer (`return score`), or a difficulty-scaled variant if difficulty tiers are preserved.
-
-This eliminates the randomness entirely: the same score always yields the same reward.
-
-**Fix 2 — Pass score/totalQuestions instead of difficulties** (`components/learning-zone.tsx:244-254`)
-
-Update the single call site:
-```ts
-// Before
-const coinsEarned = calculateSessionCoins(difficulties)
-// After
-const coinsEarned = calculateSessionCoins(score, totalQuestions)
+On next login:
+  CoinContext useEffect([player]) fires
+  → GET /api/players/me → setCoins(dbValue)   ← overwrites stale optimistic state
 ```
 
-`score` and `totalQuestions` are already available in `handleQuizCompleteInternal` (they are its first two parameters). The `difficulties[]` parameter can be dropped from `onComplete` if it is no longer needed elsewhere.
+---
 
-**Fix 3 — Assign deterministic difficulty to generated questions** (`components/learning-zone.tsx`)
+## Likely root cause (3 remaining issues after v1 fix)
 
-For addition/subtraction: derive `'easy'` / `'medium'` / `'hard'` from operand size (e.g., sum ≤ 20 → easy, ≤ 100 → medium, > 100 → hard). For times table: derive from the multiplier. This makes difficulty labels meaningful rather than ornamental noise, and removes `randomDifficulty()` from the four generator functions. This fix is independent and can be deferred, but it aligns with AC #4 ("balance is updated correctly when the user earns coins") — the reward should reflect actual question difficulty.
+### RC-1: `upsertPlayer` resets coins to 0 on conflict — `lib/services/player.ts:42`
+
+```ts
+.upsert({ id: userId, name, coins: 0 }, { onConflict: 'id' })
+```
+
+Including `coins: 0` in the upsert payload means Supabase generates `ON CONFLICT (id) DO UPDATE SET name=..., coins=0`. Any existing player's coin balance is reset to zero if this function is called for them. The intended design (BR-AUTH-20) says only `name` should be updated on conflict. Currently only called during signup with new users (latent risk), but the function violates its own idempotency contract.
+
+### RC-2: Non-atomic `addCoins` — `lib/services/player.ts:54-64`
+
+```ts
+const current = await getPlayer(...)           // READ
+.update({ coins: current.coins + amount })     // WRITE
+```
+
+Two concurrent requests both read the same balance, both write `balance + amount`, and one award is silently lost. The DB ends up with a lower value than the displayed balance, which then "corrects" on next login.
+
+### RC-3: Silent failure in `CoinContext.addCoins` — `contexts/coin-context.tsx:103`
+
+```ts
+.catch(() => {})
+```
+
+If the POST to `/api/players/coins` fails, the optimistic state and localStorage hold an inflated value. The DB retains the pre-quiz balance. On the next login, `coin-context` fetches from `/api/players/me` and overwrites the display with the lower DB value — the exact "coin number changes on login" symptom from the Jira ticket.
 
 ---
 
-### Acceptance-Criteria Mapping
+## Recommended fix direction (no code written)
 
-| AC | Status | Fix |
-|---|---|---|
-| AC1: displays actual current balance | Passes already — server value is loaded on init and confirmed after each `addCoins` call | — |
-| AC2: balance must not be randomly generated | **Fails** — `calculateSessionCoins` uses `Math.random()` | Fix 1 + Fix 2 |
-| AC3: refresh does not change balance unexpectedly | Mostly passes; divergence only occurs if the API call in `addCoins` fails silently | Optional: surface the error |
-| AC4: balance updates correctly on earn/spend | **Fails** — "correctly" implies determinism; coins earned are random | Fix 1 + Fix 2 |
-| AC5: existing coin functionality unaffected | Must be verified after changes | Regression test |
+**Fix 1** (`lib/services/player.ts:42`): Remove `coins: 0` from the upsert payload. Change `{ id, name, coins: 0 }` to `{ id, name }`. The DB column has `DEFAULT 0`, so new rows start at zero; existing rows are only updated for `name`.
+
+**Fix 2** (`lib/services/player.ts:54-64`): Replace the read-then-write pattern with an atomic SQL increment: `UPDATE players SET coins = coins + $amount WHERE id = $userId RETURNING *`. This eliminates the race condition.
+
+**Fix 3** (`contexts/coin-context.tsx:103`): Replace `.catch(() => {})` with a state rollback: capture the previous coin value before the optimistic update and restore it if the API call fails. This ensures the display matches the DB on next login.
+
+---
+
+## Missing / uncertain information
+
+- No screenshot to confirm exact UI labels.
+- RC-2 race condition is theoretical based on code analysis; not confirmed from production logs.
+- Exact Supabase client API for atomic SQL increment needs verification.
+- `buySticker`/`buyHouseItem` in `coin-context.tsx` have the same silent-failure pattern but are out of scope unless AC5 is interpreted broadly.
+
+---
+
+Report exported to `docs/analysis/MH-7_analysis.md`.
 
 ## Analysis Complete
