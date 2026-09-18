@@ -1,0 +1,60 @@
+{
+  "passed": true,
+  "checks": [
+    {
+      "check": "tests_pass",
+      "passed": true,
+      "detail": "PASS"
+    },
+    {
+      "check": "build_pass",
+      "passed": true,
+      "detail": "PASS"
+    },
+    {
+      "check": "static_checks_pass",
+      "passed": true,
+      "detail": "PASS"
+    },
+    {
+      "check": "no_unresolved_decisions",
+      "passed": true,
+      "detail": "0 unresolved"
+    },
+    {
+      "check": "no_secrets",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "no_prohibited_files",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "no_unexpected_binaries",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "diff_within_limits",
+      "passed": true,
+      "detail": "2091 lines (max 5000)"
+    },
+    {
+      "check": "files_within_limits",
+      "passed": true,
+      "detail": "31 files (max 100)"
+    },
+    {
+      "check": "not_on_main",
+      "passed": true,
+      "detail": "current branch: bug/MH-9-vercel-build-error"
+    },
+    {
+      "check": "branch_contains_ticket_key",
+      "passed": true,
+      "detail": "branch=bug/MH-9-vercel-build-error, key=MH-9"
+    }
+  ]
+}

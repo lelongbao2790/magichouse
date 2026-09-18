@@ -1,0 +1,8 @@
+{
+  "key": "MH-9",
+  "type": "bug",
+  "summary": "Vercel build error",
+  "description": "CURRENT BEHAVIOR:Vercel got error when deployError occurred prerendering page \"/\". Read more:  ReferenceError: isSessionLoading is not defined    at gF (.next/server/app/page.js:19:175793) {  digest: '263722669'}Export encountered an error on /page: /, exiting the build.\u2a2f Next.js build worker exited with code: 1 and signal: null\u2009ELIFECYCLE\u2009 Command failed with exit code 1.Error: Command \"pnpm run build\" exited with 1\nEXPECTED BEHAVIOR:Vercel build success\nSTEPS TO REPRODUCE:Rebuild the app with latest code and observe the log\nACCEPTANCE CRITERIA:\nBuild and deploy success\n",
+  "acceptance_criteria": [],
+  "source": "jira"
+}
