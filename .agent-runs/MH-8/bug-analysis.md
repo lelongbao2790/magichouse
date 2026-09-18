@@ -1,90 +1,86 @@
-Report exported to `docs/analysis/MH-8_analysis.md`.
+---
+
+## Bug Analysis: MH-8 — Sign In Page Unresponsive for Already-Authenticated User
 
 ---
 
-## Jira Ticket Summary
+### Symptom
 
-- **Key:** MH-8
-- **Summary:** Sign In Page Appears and Becomes Unresponsive for Already Authenticated User
-- **Issue Type:** Bug
-- **Priority:** Medium
+After signing in and navigating to the main page, pressing the browser Back button lands the user back on the login page. Re-submitting valid credentials silently does nothing — the page stays on the login form.
 
 ---
 
-## Customer Report Meaning
+### Root Cause
 
-Two defects in the sign-in flow: (1) the sign-in page briefly flashes for an authenticated user on Back/refresh before auto-redirecting, and (2) after that cycle, the sign-in form becomes permanently unresponsive — clicking Sign In with valid credentials does nothing.
+The bug is in `app/page.tsx` lines 18–23.
+
+```tsx
+const [showDashboard, setShowDashboard] = useState(false)
+
+useEffect(() => {
+  if (isAuthenticated) setShowDashboard(true)
+  else setShowDashboard(false)
+}, [isAuthenticated])
+```
+
+**The dependency is `[isAuthenticated]`, a boolean derived from `player !== null`.**
+
+Here is the sequence that triggers the bug:
+
+| Step | `isAuthenticated` | `showDashboard` | Displayed |
+|---|---|---|---|
+| 1. User signs in | `false → true` | effect fires → `true` | Dashboard |
+| 2. User presses Back (calls `onBack` → `setShowDashboard(false)`) | still `true` | `false` | Login page |
+| 3. User re-submits credentials | `true` (unchanged!) | `false` | Login page (stuck) |
+
+At step 3, `signIn()` succeeds and `setPlayer(data)` is called in `auth-context.tsx:65`. However, `player` was already non-null, so `isAuthenticated` remains `true` — **its value does not change**. Because `useEffect` is gated on `[isAuthenticated]` and that value has not toggled, the effect never fires. `showDashboard` is never set back to `true`. The render guard at line 25 (`if (showDashboard && isAuthenticated)`) stays `false`, leaving the user stranded on the login screen.
+
+Note: the login API call itself succeeds (no error from the server); the bug is purely in the client-side state machine.
 
 ---
 
-## Screenshot Reference
-
-> No screenshots available.
-
----
-
-## Primary Area
-
-**`contexts/auth-context.tsx`** — missing session-loading flag.
-
-`player` initializes to `null` → `isAuthenticated = false` immediately on every mount → the sign-in page renders before the async session check completes. This is the root of both bugs.
-
----
-
-## Related Areas
+### Affected Files
 
 | File | Reason |
-|------|--------|
-| `app/page.tsx` (`HomeContent`) | Renders sign-in page immediately while `isAuthenticated=false` during session check |
-| `components/login-view.tsx` | Submit button controlled by `isLoading`; subject to bfcache freeze |
-| `app/api/auth/session/route.ts` | Calls `signOut()` aggressively when session is missing — creates secondary concurrency risk |
+|---|---|
+| `app/page.tsx` | Contains the broken `useEffect` dependency. This is where the fix must go. |
+| `contexts/auth-context.tsx` | Involved in the flow (provides `isAuthenticated` and `signIn`), but is not the source of the bug — it behaves correctly. |
+| `components/login-view.tsx` | Where the user submits credentials; calls `signIn`. No fix needed here. |
 
 ---
 
-## Likely Technical Flow
+### Proposed Minimal Fix
 
+**File:** `app/page.tsx`, lines 20–23.
+
+Change the `useEffect` dependency from `[isAuthenticated]` to `[player]`:
+
+```tsx
+// BEFORE
+useEffect(() => {
+  if (isAuthenticated) setShowDashboard(true)
+  else setShowDashboard(false)
+}, [isAuthenticated])
+
+// AFTER
+useEffect(() => {
+  if (isAuthenticated) setShowDashboard(true)
+  else setShowDashboard(false)
+}, [isAuthenticated, player])
 ```
-Mount → player=null → isAuthenticated=false → sign-in page renders  ← flash
-  → useEffect → fetch /api/auth/session (~300–1000ms)
-    → resolves → setPlayer(data) → isAuthenticated=true → Dashboard
-  
-If user submits form WHILE session check is in-flight:
-  → setIsLoading(true) → signIn() POST starts
-  → session check wins → Dashboard shows → LoginView unmounts
-  → signIn() POST still in-flight (isLoading=true frozen in state)
-  → Browser Back → bfcache restores page with isLoading=true
-  → Button permanently disabled → "nothing happens"
+
+Or more directly, replace the dependency with `[player]` alone (since `isAuthenticated` is just `player !== null`, `player` carries all the information):
+
+```tsx
+useEffect(() => {
+  if (player) setShowDashboard(true)
+  else setShowDashboard(false)
+}, [player])
 ```
 
----
+**Why this fixes it:** When the user re-submits credentials, `signIn()` calls `setPlayer(data)` with a fresh object from the API response. `player` changes to a new reference even though the user is the "same" player. This triggers the `useEffect`, which sets `showDashboard(true)`, satisfying the `showDashboard && isAuthenticated` guard and rendering the Dashboard.
 
-## Likely Root Cause
-
-### Bug 1 — Flash (`auth-context.tsx:19`)
-
-`player` starts as `null`, there is no `isSessionLoading` flag. `HomeContent` renders the sign-in page the moment `isAuthenticated` is `false`, which is always true for ~300–1000 ms after every page load. There is no gate preventing the sign-in page from rendering during the initial session check.
-
-### Bug 2 — Unresponsive form (`auth-context.tsx` + `login-view.tsx:72`)
-
-A race condition between the background session check and user-initiated `signIn()` causes the form to unmount while `isLoading=true`. When the browser's back-forward cache (bfcache) snapshots the page at that moment, it freezes `isLoading=true`. The in-flight `fetch` inside `signIn()` is never resumed after bfcache restoration — `setIsLoading(false)` never fires — so the submit button (`disabled={isLoading}`) stays permanently disabled.
-
----
-
-## Recommended Fix Direction
-
-1. **Add `isSessionLoading=true` to `AuthProvider`** (`auth-context.tsx`) — set to `false` in both the `.then()` and `.catch()` of the session check. Expose it from the context. In `HomeContent`, render neither the sign-in page nor the dashboard while `isSessionLoading=true`. This eliminates the flash and prevents the race condition (form is never shown during the session check window).
-
-2. **Add a `pageshow` bfcache listener** in `AuthProvider` — on `event.persisted`, call `setIsLoading(false)`. This safety-nets the unresponsive form even if timing allows the race condition to occur.
-
-3. **Remove aggressive `signOut()` in `session/route.ts:12`** — the session endpoint should be read-only. Calling `signOut()` when no session is found risks clearing a concurrently-created session cookie from a login POST.
-
----
-
-## Risks / Regression Areas
-
-- Logout flow uses the same `isLoading` — keep `isSessionLoading` as a separate flag.
-- Register view (`components/register-view.tsx`) shares the same `AuthProvider` and will benefit from the same fixes.
-- Unauthenticated first-time users must see the sign-in form promptly once `isSessionLoading` becomes `false`.
+The single-line dependency change (`[isAuthenticated]` → `[player]`) is the only modification required. No other files need changes.
 
 ---
 

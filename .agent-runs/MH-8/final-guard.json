@@ -39,12 +39,12 @@
     {
       "check": "diff_within_limits",
       "passed": true,
-      "detail": "756 lines (max 5000)"
+      "detail": "297 lines (max 5000)"
     },
     {
       "check": "files_within_limits",
       "passed": true,
-      "detail": "13 files (max 100)"
+      "detail": "7 files (max 100)"
     },
     {
       "check": "not_on_main",

@@ -12,15 +12,15 @@ import { Dashboard } from "@/components/dashboard"
 import { FloatingElements } from "@/components/floating-elements"
 import { Code2, Sparkles } from "lucide-react"
 
-function HomeContent() {
+export function HomeContent() {
   const { t, language } = useLanguage()
-  const { isAuthenticated } = useAuth()
+  const { player, isAuthenticated } = useAuth()
   const [showDashboard, setShowDashboard] = useState(false)
 
   useEffect(() => {
     if (isAuthenticated) setShowDashboard(true)
     else setShowDashboard(false)
-  }, [isAuthenticated])
+  }, [player, isAuthenticated])
 
   if (showDashboard && isAuthenticated) {
     return <Dashboard onBack={() => setShowDashboard(false)} />
