@@ -1,0 +1,8 @@
+{
+  "key": "MH-10",
+  "type": "task",
+  "summary": "Reset coin in database",
+  "description": "CURRENT BEHAVIOR:  All users in the database retain their existing coin balances. There is no mechanism to bulk-reset coin values to zero or to a default starting amount. Any database refresh or environment reset  requires manual intervention per record.\n  EXPECTED BEHAVIOR:  A database migration resets the coin balance of every user record to 0 (or the defined default starting value). When the migration is applied via supabase db push, all rows in the users table have  their coin field set to the reset value atomically. No user data outside of the coin column is affected.\n  ACCEPTANCE CRITERIA:\n  - A new Supabase migration file is created under supabase/migrations/ that updates the coin column to 0 for all rows in the users table.\n  - Running supabase db push applies the migration without errors.\n  - After the migration runs, querying the users table confirms every row has a coin value of 0.\n  - No other user fields (id, email, created_at, etc.) are modified by the migration.\n  - The migration is idempotent \u2014 running it a second time does not error and leaves coin values at 0.\n",
+  "acceptance_criteria": [],
+  "source": "jira"
+}
