@@ -1,14 +1,18 @@
----
-
-## Bug Analysis: MH-8 — Sign In Page Unresponsive for Already-Authenticated User
+I now have a complete picture of the code. Let me produce the full analysis.
 
 ---
 
-### Symptom
-
-After signing in and navigating to the main page, pressing the browser Back button lands the user back on the login page. Re-submitting valid credentials silently does nothing — the page stays on the login form.
+## Bug Analysis: MH-8 — Sign In Page Appears and Becomes Unresponsive for Already Authenticated User
 
 ---
+
+### 1. Symptom-to-Root-Cause Trace
+
+#### Bug 1 — Flash of Sign-In page on Back / Refresh
+
+**Symptom:** An authenticated user who presses Back or refreshes sees the Sign-In page for ~300–1000 ms before the app auto-redirects to the Dashboard.
+
+**Trace:**
 
 ### Root Cause
 

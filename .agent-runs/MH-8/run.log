@@ -96,63 +96,60 @@
 2026-09-17T15:26:05.060266+00:00 Final guard — PASS
 2026-09-17 22:26:05,060 [INFO] [MH-8] Final guard — PASS
 2026-09-17T15:26:05.061882+00:00 STAGE=COMMIT
-2026-09-18T01:33:10.769663+00:00 STAGE=BRANCH_SETUP — bug/MH-8-sign-in-page-appears-and-becomes
-2026-09-18 08:33:10,769 [INFO] [MH-8] STAGE=BRANCH_SETUP — bug/MH-8-sign-in-page-appears-and-becomes
-2026-09-18T01:33:10.770412+00:00 Requirement saved
-2026-09-18 08:33:10,770 [INFO] [MH-8] Requirement saved
-2026-09-18T01:33:10.773564+00:00 STAGE=PLANNING_START — bug
-2026-09-18 08:33:10,773 [INFO] [MH-8] STAGE=PLANNING_START — bug
-2026-09-18T01:33:10.775477+00:00 STAGE=BUG_ANALYSIS_START
-2026-09-18 08:33:10,775 [INFO] [MH-8] STAGE=BUG_ANALYSIS_START
-2026-09-18T01:34:35.188650+00:00 STAGE=BUG_ANALYSIS_FIRST_RESPONSE — ---
-
-## Bug Analysis: MH-8 — Sign In Page Unresponsive for Already-Authenticated User
+2026-09-17T16:22:29.127906+00:00 STAGE=BRANCH_SETUP — bug/MH-8-sign-in-page-appears-and-becomes-v2
+2026-09-17 23:22:29,128 [INFO] [MH-8] STAGE=BRANCH_SETUP — bug/MH-8-sign-in-page-appears-and-becomes-v2
+2026-09-17T16:22:29.128544+00:00 Requirement saved
+2026-09-17 23:22:29,128 [INFO] [MH-8] Requirement saved
+2026-09-17T16:22:29.133573+00:00 STAGE=PLANNING_START — bug
+2026-09-17 23:22:29,133 [INFO] [MH-8] STAGE=PLANNING_START — bug
+2026-09-17T16:22:29.135606+00:00 STAGE=BUG_ANALYSIS_START
+2026-09-17 23:22:29,135 [INFO] [MH-8] STAGE=BUG_ANALYSIS_START
+2026-09-17T16:26:56.472849+00:00 STAGE=BUG_ANALYSIS_FIRST_RESPONSE — I now have a complete picture of the code. Let me produce the full analysis.
 
 ---
 
-### Symptom
-
-After signing in and navigating to the main page, pressing the browser Back button lands the us
-2026-09-18 08:34:35,189 [INFO] [MH-8] STAGE=BUG_ANALYSIS_FIRST_RESPONSE — ---
-
-## Bug Analysis: MH-8 — Sign In Page Unresponsive for Already-Authenticated User
+## Bug Analysis: MH-8 — Sign In Page Appears and Becomes Unresponsive for Already Authenticated User
 
 ---
 
-### Symptom
+### 1. Sym
+2026-09-17 23:26:56,473 [INFO] [MH-8] STAGE=BUG_ANALYSIS_FIRST_RESPONSE — I now have a complete picture of the code. Let me produce the full analysis.
 
-After signing in and navigating to the main page, pressing the browser Back button lands the us
-2026-09-18 08:34:35,189 [INFO] Bug analysis turn 1/30
-2026-09-18T01:34:35.189303+00:00 STAGE=BUG_TURN_1
-2026-09-18 08:34:35,189 [INFO] [MH-8] STAGE=BUG_TURN_1
-2026-09-18T01:34:35.190034+00:00 Bug analysis saved
-2026-09-18 08:34:35,190 [INFO] [MH-8] Bug analysis saved
-2026-09-18 08:34:35,190 [INFO] Bug analysis saved for MH-8
-2026-09-18T01:34:35.190454+00:00 STAGE=BUG_ANALYSIS_COMPLETE
-2026-09-18 08:34:35,190 [INFO] [MH-8] STAGE=BUG_ANALYSIS_COMPLETE
-2026-09-18T01:34:35.191095+00:00 Analysis saved
-2026-09-18 08:34:35,191 [INFO] [MH-8] Analysis saved
-2026-09-18T01:34:35.205360+00:00 STAGE=IMPLEMENTATION_START
-2026-09-18 08:34:35,205 [INFO] [MH-8] STAGE=IMPLEMENTATION_START
-2026-09-18T01:34:35.206012+00:00 STAGE=PLAN_INJECTED_INTO_CODING_AGENT
-2026-09-18 08:34:35,206 [INFO] [MH-8] STAGE=PLAN_INJECTED_INTO_CODING_AGENT
-2026-09-18 08:34:35,206 [INFO] Spawning coding agent for MH-8
-2026-09-18 08:39:36,530 [INFO] Coding agent cycle 0 completed for MH-8
-2026-09-18 08:39:36,530 [INFO] Coding agent summary:
-ates to dashboard) |
+---
 
-**Root cause fixed:** `useEffect([isAuthenticated])` only fires when the boolean changes. After pressing Back while still authenticated, re-submitting credentials calls `setPlayer(newData)` in auth context — `isAuthenticated` stays `true` (unchanged), so the effect never fires. Changing the dependency to `[player, isAuthenticated]` ensures the effect fires whenever a new `player` object is set (i.e., every successful login), regardless of whether `isAuthenticated` toggled.
+## Bug Analysis: MH-8 — Sign In Page Appears and Becomes Unresponsive for Already Authenticated User
 
-2026-09-18T01:39:36.531352+00:00 Implementation summary saved
-2026-09-18 08:39:36,531 [INFO] [MH-8] Implementation summary saved
-2026-09-18T01:39:36.532831+00:00 STAGE=TESTING
-2026-09-18 08:39:36,533 [INFO] [MH-8] STAGE=TESTING
-2026-09-18T01:39:52.652091+00:00 Test results saved — PASS
-2026-09-18 08:39:52,652 [INFO] [MH-8] Test results saved — PASS
-2026-09-18 08:40:29,455 [INFO] Tests PASSED on cycle 0
-2026-09-18T01:40:29.456746+00:00 STAGE=FINAL_GUARD
-2026-09-18 08:40:29,456 [INFO] [MH-8] STAGE=FINAL_GUARD
-2026-09-18T01:40:29.989112+00:00 Final guard — PASS
-2026-09-18 08:40:29,989 [INFO] [MH-8] Final guard — PASS
-2026-09-18T01:40:29.998493+00:00 STAGE=COMMIT
-2026-09-18 08:40:29,998 [INFO] [MH-8] STAGE=COMMIT
+---
+
+### 1. Sym
+2026-09-17 23:26:56,473 [INFO] Bug analysis turn 1/30
+2026-09-17T16:26:56.473653+00:00 STAGE=BUG_TURN_1
+2026-09-17 23:26:56,473 [INFO] [MH-8] STAGE=BUG_TURN_1
+2026-09-17T16:26:56.474822+00:00 Bug analysis saved
+2026-09-17 23:26:56,475 [INFO] [MH-8] Bug analysis saved
+2026-09-17 23:26:56,475 [INFO] Bug analysis saved for MH-8
+2026-09-17T16:26:56.475408+00:00 STAGE=BUG_ANALYSIS_COMPLETE
+2026-09-17 23:26:56,475 [INFO] [MH-8] STAGE=BUG_ANALYSIS_COMPLETE
+2026-09-17T16:26:56.476161+00:00 Analysis saved
+2026-09-17 23:26:56,476 [INFO] [MH-8] Analysis saved
+2026-09-17T16:26:56.478742+00:00 STAGE=IMPLEMENTATION_START
+2026-09-17 23:26:56,479 [INFO] [MH-8] STAGE=IMPLEMENTATION_START
+2026-09-17T16:26:56.479303+00:00 STAGE=PLAN_INJECTED_INTO_CODING_AGENT
+2026-09-17 23:26:56,479 [INFO] [MH-8] STAGE=PLAN_INJECTED_INTO_CODING_AGENT
+2026-09-17 23:26:56,479 [INFO] Spawning coding agent for MH-8
+2026-09-17 23:31:45,137 [INFO] Coding agent cycle 0 completed for MH-8
+2026-09-17 23:31:45,137 [INFO] Coding agent summary:
+---
+2026-09-17T16:31:45.138208+00:00 Implementation summary saved
+2026-09-17 23:31:45,138 [INFO] [MH-8] Implementation summary saved
+2026-09-17T16:31:45.139854+00:00 STAGE=TESTING
+2026-09-17 23:31:45,140 [INFO] [MH-8] STAGE=TESTING
+2026-09-17T16:32:05.085974+00:00 Test results saved — PASS
+2026-09-17 23:32:05,086 [INFO] [MH-8] Test results saved — PASS
+2026-09-17 23:32:53,854 [INFO] Tests PASSED on cycle 0
+2026-09-17T16:32:53.857258+00:00 STAGE=FINAL_GUARD
+2026-09-17 23:32:53,857 [INFO] [MH-8] STAGE=FINAL_GUARD
+2026-09-17T16:32:54.238680+00:00 Final guard — PASS
+2026-09-17 23:32:54,238 [INFO] [MH-8] Final guard — PASS
+2026-09-17T16:32:54.241304+00:00 STAGE=COMMIT
+2026-09-17 23:32:54,241 [INFO] [MH-8] STAGE=COMMIT

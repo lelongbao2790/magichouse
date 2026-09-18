@@ -22,6 +22,8 @@ export function HomeContent() {
     else setShowDashboard(false)
   }, [player, isAuthenticated])
 
+  if (isSessionLoading) return null
+
   if (showDashboard && isAuthenticated) {
     return <Dashboard onBack={() => setShowDashboard(false)} />
   }
