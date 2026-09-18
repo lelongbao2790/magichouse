@@ -106,7 +106,7 @@ test("TC-E019 | Kitchen, Living Room, and Garden show as locked and are not inte
 // ── TC-E020 ───────────────────────────────────────────────────────────────────
 
 test("TC-E020 | Buying an affordable item deducts coins and moves it into My Items", async ({ page }) => {
-  await login(page);
+  await registerFreshPlayer(page);
   await topUpCoins(page, 200);
   await openMyHouse(page);
 
@@ -138,7 +138,7 @@ test("TC-E021 | Purchase is blocked when the player cannot afford the item", asy
 // ── TC-E022 ───────────────────────────────────────────────────────────────────
 
 test("TC-E022 | Dragging an owned item onto the Bedroom places it, and it can be moved", async ({ page }) => {
-  await login(page);
+  await registerFreshPlayer(page);
   await topUpCoins(page, 200);
   await openMyHouse(page);
 
@@ -158,7 +158,7 @@ test("TC-E022 | Dragging an owned item onto the Bedroom places it, and it can be
 // ── TC-E023 ───────────────────────────────────────────────────────────────────
 
 test("TC-E023 | Removing a placed item returns it to My Items, still owned", async ({ page }) => {
-  await login(page);
+  await registerFreshPlayer(page);
   await topUpCoins(page, 200);
   await openMyHouse(page);
 
@@ -177,7 +177,7 @@ test("TC-E023 | Removing a placed item returns it to My Items, still owned", asy
 // ── TC-E024 ───────────────────────────────────────────────────────────────────
 
 test("TC-E024 | Reloading My House restores previously bought items and the saved layout", async ({ page }) => {
-  await login(page);
+  await registerFreshPlayer(page);
   await topUpCoins(page, 300);
   await openMyHouse(page);
 
@@ -216,7 +216,7 @@ test("TC-E025 | First-time player sees an empty Bedroom and empty My Items", asy
 // ── TC-E026 ───────────────────────────────────────────────────────────────────
 
 test("TC-E026 | Coin balance stays consistent across Shop, Creative Room, and My House (regression)", async ({ page }) => {
-  await login(page);
+  await registerFreshPlayer(page);
   await topUpCoins(page, 200);
 
   await page.getByTestId("nav-shop").click();

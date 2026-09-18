@@ -100,7 +100,12 @@ export function CoinProvider({ children }: { children: ReactNode }) {
       body: JSON.stringify({ amount }),
     })
       .then(r => r.json())
-      .then(({ data }) => { if (data) setCoins(data.coins) })
+      .then(({ data }) => {
+        if (data) {
+          setCoins(data.coins)
+          localStorage.setItem("kidCoins", data.coins.toString())
+        }
+      })
       .catch(() => {
         // Roll back the optimistic update so the displayed balance stays in sync with
         // the DB value on the next login rather than drifting apart silently (MH-7 RC-4).
