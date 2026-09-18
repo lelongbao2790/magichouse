@@ -1,0 +1,66 @@
+2026-09-18T02:41:40.264977+00:00 STAGE=BRANCH_SETUP — bug/MH-9-vercel-build-error
+2026-09-18 09:41:40,265 [INFO] [MH-9] STAGE=BRANCH_SETUP — bug/MH-9-vercel-build-error
+2026-09-18T02:41:40.265681+00:00 Requirement saved
+2026-09-18 09:41:40,265 [INFO] [MH-9] Requirement saved
+2026-09-18T02:41:40.271223+00:00 STAGE=PLANNING_START — bug
+2026-09-18 09:41:40,271 [INFO] [MH-9] STAGE=PLANNING_START — bug
+2026-09-18T02:41:40.273289+00:00 STAGE=BUG_ANALYSIS_START
+2026-09-18 09:41:40,273 [INFO] [MH-9] STAGE=BUG_ANALYSIS_START
+2026-09-18T02:42:08.950557+00:00 STAGE=BUG_ANALYSIS_FIRST_RESPONSE — The root cause is immediately clear. Here is the full analysis.
+
+---
+
+## Bug Analysis: MH-9 — Vercel Build Error (`isSessionLoading is not defined`)
+
+### Symptom
+
+Vercel's static pre-render of `/` fai
+2026-09-18 09:42:08,964 [INFO] [MH-9] STAGE=BUG_ANALYSIS_FIRST_RESPONSE — The root cause is immediately clear. Here is the full analysis.
+
+---
+
+## Bug Analysis: MH-9 — Vercel Build Error (`isSessionLoading is not defined`)
+
+### Symptom
+
+Vercel's static pre-render of `/` fai
+2026-09-18 09:42:08,964 [INFO] Bug analysis turn 1/30
+2026-09-18T02:42:08.964436+00:00 STAGE=BUG_TURN_1
+2026-09-18 09:42:08,964 [INFO] [MH-9] STAGE=BUG_TURN_1
+2026-09-18T02:42:08.965161+00:00 Bug analysis saved
+2026-09-18 09:42:08,965 [INFO] [MH-9] Bug analysis saved
+2026-09-18 09:42:08,965 [INFO] Bug analysis saved for MH-9
+2026-09-18T02:42:08.965674+00:00 STAGE=BUG_ANALYSIS_COMPLETE
+2026-09-18 09:42:08,965 [INFO] [MH-9] STAGE=BUG_ANALYSIS_COMPLETE
+2026-09-18T02:42:08.966302+00:00 Analysis saved
+2026-09-18 09:42:08,966 [INFO] [MH-9] Analysis saved
+2026-09-18T02:42:08.967894+00:00 STAGE=IMPLEMENTATION_START
+2026-09-18 09:42:08,968 [INFO] [MH-9] STAGE=IMPLEMENTATION_START
+2026-09-18T02:42:08.968296+00:00 STAGE=PLAN_INJECTED_INTO_CODING_AGENT
+2026-09-18 09:42:08,968 [INFO] [MH-9] STAGE=PLAN_INJECTED_INTO_CODING_AGENT
+2026-09-18 09:42:08,968 [INFO] Spawning coding agent for MH-9
+2026-09-18 09:43:42,978 [INFO] Coding agent cycle 0 completed for MH-9
+2026-09-18 09:43:42,978 [INFO] Coding agent summary:
+les. No regressions.
+
+---
+
+**Summary of changes:**
+
+| File | Change |
+|---|---|
+| `app/page.tsx` | Added `isSessionLoading` to the `useAuth()` destructuring on line 17 — the missing variable that caused the build-time `ReferenceError`. |
+| `automation_tests/unit/home-content.test.tsx` | Updated `makeAuthValue` helper to accept an optional `isSessionLoading` parameter; added two MH-9 regression tests verifying the loading guard renders `null` while loading and the welcome screen once resolved. |
+
+2026-09-18T02:43:42.979243+00:00 Implementation summary saved
+2026-09-18 09:43:42,979 [INFO] [MH-9] Implementation summary saved
+2026-09-18T02:43:42.980754+00:00 STAGE=TESTING
+2026-09-18 09:43:42,981 [INFO] [MH-9] STAGE=TESTING
+2026-09-18T02:43:59.916967+00:00 Test results saved — PASS
+2026-09-18 09:43:59,917 [INFO] [MH-9] Test results saved — PASS
+2026-09-18 09:44:35,870 [INFO] Tests PASSED on cycle 0
+2026-09-18T02:44:35.871628+00:00 STAGE=FINAL_GUARD
+2026-09-18 09:44:35,871 [INFO] [MH-9] STAGE=FINAL_GUARD
+2026-09-18T02:44:36.323633+00:00 Final guard — PASS
+2026-09-18 09:44:36,323 [INFO] [MH-9] Final guard — PASS
+2026-09-18T02:44:36.338519+00:00 STAGE=COMMIT

@@ -41,10 +41,11 @@ function makePlayer(): Player {
   return { id: "1", name: "Alice", coins: 0, createdAt: new Date().toISOString() }
 }
 
-function makeAuthValue(player: Player | null) {
+function makeAuthValue(player: Player | null, isSessionLoading = false) {
   return {
     player,
     isAuthenticated: player !== null,
+    isSessionLoading,
     isLoading: false,
     signIn: vi.fn().mockResolvedValue({ error: null }),
     signUp: vi.fn().mockResolvedValue({ error: null }),
@@ -53,6 +54,20 @@ function makeAuthValue(player: Player | null) {
 }
 
 afterEach(cleanup)
+
+describe("HomeContent — MH-9 regression: isSessionLoading guard", () => {
+  test("TC-U-MH9-1 | renders nothing while session is loading", () => {
+    mockUseAuth.mockReturnValue(makeAuthValue(null, true))
+    const { container } = render(<HomeContent />)
+    expect(container.firstChild).toBeNull()
+  })
+
+  test("TC-U-MH9-2 | renders welcome screen once session load completes (not loading, unauthenticated)", () => {
+    mockUseAuth.mockReturnValue(makeAuthValue(null, false))
+    render(<HomeContent />)
+    expect(screen.getByTestId("welcome-screen")).toBeTruthy()
+  })
+})
 
 describe("HomeContent — MH-8 authentication navigation", () => {
   test("shows welcome screen when not authenticated", () => {

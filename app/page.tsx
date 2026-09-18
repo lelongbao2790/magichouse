@@ -14,7 +14,7 @@ import { Code2, Sparkles } from "lucide-react"
 
 export function HomeContent() {
   const { t, language } = useLanguage()
-  const { player, isAuthenticated } = useAuth()
+  const { player, isAuthenticated, isSessionLoading } = useAuth()
   const [showDashboard, setShowDashboard] = useState(false)
 
   useEffect(() => {
